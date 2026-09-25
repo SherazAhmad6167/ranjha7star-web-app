@@ -1,0 +1,123 @@
+<div class="login-page">
+
+    <!-- ═══ DESKTOP: left hero panel (≥992px only) ═══ -->
+    <div class="login-hero d-none d-lg-flex">
+        <div class="hero-content">
+            <div class="hero-icon">
+                <img src="assets/ranjha-logo3.jpeg" alt="Ranjha7star Logo" style="width:72px;height:72px;object-fit:contain;border-radius:50%;" />
+            </div>
+            <h1>Ranjha<span>7star</span></h1>
+            <p>Internet Service Provider Management System</p>
+            <div class="hero-features">
+                <div class="hero-feature">
+                    <i class="ri-shield-check-line"></i>
+                    <span>Secure Access</span>
+                </div>
+                <div class="hero-feature">
+                    <i class="ri-speed-line"></i>
+                    <span>Real-time Monitoring</span>
+                </div>
+                <div class="hero-feature">
+                    <i class="ri-customer-service-2-line"></i>
+                    <span>Customer Management</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ DESKTOP: right form panel (≥992px only) ═══ -->
+    <div class="login-form-panel d-none d-lg-flex">
+        <div class="login-card">
+            <div class="login-header">
+                <h2>Welcome back</h2>
+                <p>Sign in to your account to continue</p>
+            </div>
+            <form (ngSubmit)="login()" class="login-form">
+                <div class="form-field">
+                    <label for="username-d"><i class="ri-user-line"></i> Username</label>
+                    <div class="input-wrap">
+                        <input id="username-d" type="text" [(ngModel)]="username" name="username"
+                            placeholder="Enter your username" autocomplete="username" required />
+                    </div>
+                </div>
+                <div class="form-field">
+                    <label for="password-d"><i class="ri-lock-line"></i> Password</label>
+                    <div class="input-wrap">
+                        <input id="password-d" [type]="showPassword ? 'text' : 'password'"
+                            [(ngModel)]="password" name="password"
+                            placeholder="Enter your password" autocomplete="current-password" required />
+                        <button type="button" class="toggle-password" (click)="togglePassword()" tabindex="-1">
+                            <i [class]="showPassword ? 'ri-eye-off-line' : 'ri-eye-line'"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="login-btn" [disabled]="loading" [class.loading]="loading">
+                    <span *ngIf="!loading">Sign In <i class="ri-arrow-right-line"></i></span>
+                    <span *ngIf="loading" class="d-flex align-items-center justify-content-center gap-2">
+                        <span class="spinner-border spinner-border-sm"></span> Signing in...
+                    </span>
+                </button>
+            </form>
+            <div *ngIf="errorMessage" class="error-msg">
+                <i class="ri-error-warning-line"></i> {{ errorMessage }}
+            </div>
+            <div class="login-footer"><small>Powered by Ranjha7star Cable Network</small></div>
+        </div>
+    </div>
+
+    <!-- ═══ MOBILE: full-screen layout (<992px only) ═══ -->
+    <div class="mobile-login d-lg-none">
+
+        <!-- Top: decorative brand area -->
+        <div class="mob-brand">
+            <div class="mob-glow mob-glow-1"></div>
+            <div class="mob-glow mob-glow-2"></div>
+            <div class="mob-logo-ring">
+                <img src="assets/ranjha-logo3.jpeg" alt="Ranjha7star" />
+            </div>
+            <h1 class="mob-name">Ranjha<span>7star</span></h1>
+            <p class="mob-sub">ISP Management System</p>
+        </div>
+
+        <!-- Bottom: form sheet -->
+        <div class="mob-sheet">
+            <div class="mob-handle"></div>
+            <p class="mob-greeting">Sign in to continue</p>
+
+            <form (ngSubmit)="login()" class="mob-form">
+
+                <div class="mob-field">
+                    <i class="ri-user-3-line mob-field-icon"></i>
+                    <input id="username-m" type="text" [(ngModel)]="username" name="username"
+                        placeholder="Username" autocomplete="username" required />
+                </div>
+
+                <div class="mob-field">
+                    <i class="ri-lock-2-line mob-field-icon"></i>
+                    <input id="password-m" [type]="showPassword ? 'text' : 'password'"
+                        [(ngModel)]="password" name="password"
+                        placeholder="Password" autocomplete="current-password" required />
+                    <button type="button" class="mob-eye" (click)="togglePassword()" tabindex="-1">
+                        <i [class]="showPassword ? 'ri-eye-off-line' : 'ri-eye-line'"></i>
+                    </button>
+                </div>
+
+                <button type="submit" class="mob-btn" [disabled]="loading">
+                    <span *ngIf="!loading">Sign In <i class="ri-arrow-right-line"></i></span>
+                    <span *ngIf="loading" class="d-flex align-items-center justify-content-center gap-2">
+                        <span class="spinner-border spinner-border-sm"></span> Signing in...
+                    </span>
+                </button>
+
+            </form>
+
+            <div *ngIf="errorMessage" class="mob-error">
+                <i class="ri-error-warning-line"></i> {{ errorMessage }}
+            </div>
+
+            <p class="mob-footer">Powered by Ranjha7star Cable Network</p>
+        </div>
+
+    </div>
+
+</div>

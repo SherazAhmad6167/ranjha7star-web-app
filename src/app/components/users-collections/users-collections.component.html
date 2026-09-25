@@ -1,0 +1,838 @@
+<div class="container-fluid uc-wrapper">
+
+  <!-- Loading Overlay -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <div class="lo-box">
+      <div class="spinner-border text-success" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <span class="lo-text">Loading collections...</span>
+    </div>
+  </div>
+
+  <!-- ── Page Header ── -->
+  <div class="uc-page-header mb-4">
+    <div class="uc-header-left">
+      <div class="uc-header-icon"><i class="ri-wallet-3-line"></i></div>
+      <div>
+        <h1 class="uc-title">Bill Collections</h1>
+        <p class="uc-sub">Track and manage bill payments across all users</p>
+      </div>
+    </div>
+    <div class="uc-header-pills">
+      <span class="uc-stat-pill">
+        <i class="ri-group-line"></i>
+        <strong>{{ summary.totalUsers }}</strong> Total
+      </span>
+      <span class="uc-stat-pill paid-pill">
+        <i class="ri-checkbox-circle-line"></i>
+        <strong>{{ summary.totalPaidUsers }}</strong> Paid
+      </span>
+      <span class="uc-stat-pill unpaid-pill">
+        <i class="ri-time-line"></i>
+        <strong>{{ summary.totalUnpaidUsers }}</strong> Unpaid
+      </span>
+      <span class="uc-stat-pill advance-pill">
+        <i class="ri-arrow-up-circle-line"></i>
+        <strong>{{ summary.totalAdvanceUsers }}</strong> Advance
+      </span>
+      <span class="uc-stat-pill remaining-pill">
+        <i class="ri-error-warning-line"></i>
+        <strong>{{ summary.totalRemainingUsers }}</strong> Partial
+      </span>
+    </div>
+  </div>
+
+  <!-- ── Summary Cards ── -->
+  <div class="uc-summary-row mb-4">
+    <div class="uc-sum-card">
+      <div class="uc-sum-icon total-icon"><i class="ri-money-dollar-circle-line"></i></div>
+      <div class="uc-sum-body">
+        <div class="uc-sum-label">Total Bill</div>
+        <div class="uc-sum-amount">Rs. {{ summary.totalBillAmount }}</div>
+        <div class="uc-sum-sub">{{ summary.totalUsers }} users</div>
+      </div>
+    </div>
+    <div class="uc-sum-card">
+      <div class="uc-sum-icon paid-icon"><i class="ri-checkbox-circle-line"></i></div>
+      <div class="uc-sum-body">
+        <div class="uc-sum-label">Collected</div>
+        <div class="uc-sum-amount paid-amount">Rs. {{ summary.totalPaidAmount }}</div>
+        <div class="uc-sum-sub">{{ summary.totalPaidUsers }} users</div>
+      </div>
+    </div>
+    <div class="uc-sum-card">
+      <div class="uc-sum-icon unpaid-icon"><i class="ri-time-line"></i></div>
+      <div class="uc-sum-body">
+        <div class="uc-sum-label">Pending</div>
+        <div class="uc-sum-amount unpaid-amount">Rs. {{ summary.totalUnpaidAmount }}</div>
+        <div class="uc-sum-sub">{{ summary.totalUnpaidUsers }} users</div>
+      </div>
+    </div>
+    <div class="uc-sum-card">
+      <div class="uc-sum-icon advance-icon"><i class="ri-arrow-up-circle-line"></i></div>
+      <div class="uc-sum-body">
+        <div class="uc-sum-label">Advance</div>
+        <div class="uc-sum-amount advance-amount">Rs. {{ summary.totalAdvanceAmount }}</div>
+        <div class="uc-sum-sub">{{ summary.totalAdvanceUsers }} users</div>
+      </div>
+    </div>
+    <div class="uc-sum-card">
+      <div class="uc-sum-icon remaining-icon"><i class="ri-error-warning-line"></i></div>
+      <div class="uc-sum-body">
+        <div class="uc-sum-label">Partial</div>
+        <div class="uc-sum-amount remaining-amount">Rs. {{ summary.totalRemainingAmount }}</div>
+        <div class="uc-sum-sub">{{ summary.totalRemainingUsers }} users</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Main Collections Card ── -->
+  <div class="uc-card">
+
+    <!-- Status Tabs + Bulk Controls -->
+    <div class="uc-card-header">
+      <div class="uc-status-tabs">
+        <button class="uc-tab all-tab" [class.active]="selectedStatus === 'all'"
+          (click)="selectedStatus='all'; onFilterChange()">
+          <i class="ri-list-check-2"></i>
+          <span>All</span>
+          <span class="uc-tab-badge" *ngIf="selectedStatus === 'all'">{{ summary.totalUsers }}</span>
+        </button>
+        <button class="uc-tab paid-tab" [class.active]="selectedStatus === 'paid'"
+          (click)="selectedStatus='paid'; onFilterChange()">
+          <i class="ri-checkbox-circle-line"></i>
+          <span>Paid</span>
+          <span class="uc-tab-badge" *ngIf="selectedStatus === 'paid'">{{ summary.totalPaidUsers }}</span>
+        </button>
+        <button class="uc-tab unpaid-tab" [class.active]="selectedStatus === 'unpaid'"
+          (click)="selectedStatus='unpaid'; onFilterChange()">
+          <i class="ri-time-line"></i>
+          <span>Unpaid</span>
+          <span class="uc-tab-badge" *ngIf="selectedStatus === 'unpaid'">{{ summary.totalUnpaidUsers }}</span>
+        </button>
+        <button class="uc-tab advance-tab" [class.active]="selectedStatus === 'advance'"
+          (click)="selectedStatus='advance'; onFilterChange()">
+          <i class="ri-arrow-up-circle-line"></i>
+          <span>Advance</span>
+          <span class="uc-tab-badge" *ngIf="selectedStatus === 'advance'">{{ summary.totalAdvanceUsers }}</span>
+        </button>
+        <button class="uc-tab remaining-tab" [class.active]="selectedStatus === 'remaining'"
+          (click)="selectedStatus='remaining'; onFilterChange()">
+          <i class="ri-error-warning-line"></i>
+          <span>Partial</span>
+          <span class="uc-tab-badge" *ngIf="selectedStatus === 'remaining'">{{ summary.totalRemainingUsers }}</span>
+        </button>
+      </div>
+
+      <!-- Bulk controls (unpaid only) -->
+      <div class="uc-bulk-controls" *ngIf="selectedStatus === 'unpaid'">
+        <ng-container *ngIf="!isBulkMode">
+          <button class="btn-uc-bulk" (click)="startBulkMode()">
+            <i class="ri-checkbox-multiple-line"></i> Bulk Collect
+          </button>
+        </ng-container>
+        <ng-container *ngIf="isBulkMode">
+          <span class="uc-bulk-count">
+            {{ selectedBulkBills.length }} selected
+            <ng-container *ngIf="selectedBulkBills.length"> · Rs. {{ bulkTotal }}</ng-container>
+          </span>
+          <button class="btn-uc-done" [disabled]="!selectedBulkBills.length || isBulkSubmitting"
+            (click)="submitBulkCollection()">
+            <span *ngIf="!isBulkSubmitting"><i class="ri-check-line"></i> Done</span>
+            <span *ngIf="isBulkSubmitting" class="spinner-border spinner-border-sm"></span>
+          </button>
+          <button class="btn-uc-cancel" (click)="cancelBulkMode()">Cancel</button>
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- Filter Toolbar -->
+    <div class="uc-filter-bar">
+      <div class="uc-filter-group" *ngIf="role === 'admin'">
+        <label class="uc-filter-label"><i class="ri-user-star-line"></i> Recovery Officer</label>
+        <select class="uc-select" [(ngModel)]="selectedOfficer" (change)="onOfficerChange()">
+          <option value="">All Officers</option>
+          <option *ngFor="let op of recoveryOfficers" [value]="op.user_name">{{ op.name || op.user_name }}</option>
+        </select>
+      </div>
+      <div class="uc-filter-group">
+        <label class="uc-filter-label"><i class="ri-map-pin-line"></i> Area</label>
+        <app-search-select
+          [(ngModel)]="sublocality"
+          (selectionChange)="onAreaChange()"
+          [options]="areaOptions"
+          valueKey="sublocality"
+          displayKey="sublocality"
+          placeholder="All Areas"
+          emptyLabel="All Areas"
+          [allowEmpty]="true">
+        </app-search-select>
+      </div>
+      <div class="uc-filter-group">
+        <label class="uc-filter-label"><i class="ri-map-pin-2-line"></i> Sub Area</label>
+        <app-search-select
+          [(ngModel)]="subArea"
+          (selectionChange)="onFilterChange()"
+          [options]="filteredSubAreas"
+          valueKey="sub_area"
+          displayKey="sub_area"
+          placeholder="All Sub Areas"
+          emptyLabel="All Sub Areas"
+          [allowEmpty]="true">
+        </app-search-select>
+      </div>
+      <div class="uc-filter-group">
+        <label class="uc-filter-label"><i class="ri-calendar-line"></i> Month</label>
+        <select class="uc-select" [(ngModel)]="selectedMonth" (change)="onFilterChange()">
+          <option [ngValue]="null">All Months</option>
+          <option value="january">January</option>
+          <option value="february">February</option>
+          <option value="march">March</option>
+          <option value="april">April</option>
+          <option value="may">May</option>
+          <option value="june">June</option>
+          <option value="july">July</option>
+          <option value="august">August</option>
+          <option value="september">September</option>
+          <option value="october">October</option>
+          <option value="november">November</option>
+          <option value="december">December</option>
+        </select>
+      </div>
+      <div class="uc-filter-group uc-search-group">
+        <label class="uc-filter-label"><i class="ri-search-line"></i> Search</label>
+        <div class="uc-search-wrap">
+          <i class="ri-search-line uc-search-icon"></i>
+          <input type="text" class="uc-search-input" placeholder="Name, ID, area..."
+            [(ngModel)]="searchTerm" (input)="onFilterChange()" />
+        </div>
+      </div>
+      <div class="uc-filter-group uc-entries-group">
+        <label class="uc-filter-label"><i class="ri-list-ordered"></i> Entries</label>
+        <select class="uc-select" [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+          <option [value]="10">10</option>
+          <option [value]="30">30</option>
+          <option [value]="50">50</option>
+          <option [value]="100">100</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-responsive">
+      <table class="uc-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>User</th>
+            <th>ID</th>
+            <th>Area</th>
+            <th>Period</th>
+            <th>Package</th>
+            <th>Amount</th>
+            <th *ngIf="showCollectionColumns">Collected</th>
+            <th *ngIf="showCollectionColumns">Remaining</th>
+            <th *ngIf="showCollectionColumns">Coll. By</th>
+            <th *ngIf="showCollectionColumns">Coll. Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Empty state -->
+          <tr *ngIf="!pagedUsers.length">
+            <td [attr.colspan]="showCollectionColumns ? 13 : 9"
+              class="uc-empty">
+              <i class="ri-inbox-2-line"></i>
+              <div class="uc-empty-title">No records found</div>
+              <div class="uc-empty-sub">Try adjusting your filters or search term</div>
+            </td>
+          </tr>
+
+          <tr *ngFor="let row of pagedUsers; let i = index"
+            [class.uc-row-selected]="isSelected(row)">
+            <td class="uc-row-num">{{ (currentPage - 1) * pageSize + i + 1 }}</td>
+
+            <!-- User Cell -->
+            <td>
+              <div class="uc-user-cell">
+                <div class="uc-avatar">{{ row.user_name?.charAt(0)?.toUpperCase() }}</div>
+                <div class="uc-user-name">{{ row.user_name }}</div>
+              </div>
+            </td>
+
+            <td><span class="uc-user-id">{{ row.internet_id }}</span></td>
+
+            <td><span class="uc-area-tag">{{ row.sublocality | titlecase }}</span></td>
+
+            <td class="uc-period">
+              <span class="uc-period-month">{{ row.month | titlecase }}</span>
+              <span class="uc-period-year">{{ row.year }}</span>
+            </td>
+
+            <td>
+              <div class="uc-conn-badge" [ngClass]="{
+                'conn-internet': row.connection_type === 'internet',
+                'conn-cable': row.connection_type === 'cable',
+                'conn-both': row.connection_type === 'both'
+              }">{{ row.connection_type | titlecase }}</div>
+              <div class="uc-pkg-name">{{ row.select_package | titlecase }}</div>
+            </td>
+
+            <td>
+              <!-- Bulk mode: amount actually received from this user -->
+              <ng-container *ngIf="isBulkMode && isSelected(row); else plainAmount">
+                <div class="uc-bulk-amount">
+                  <span class="uc-bulk-amount-prefix">Rs.</span>
+                  <input type="number" min="0" inputmode="numeric" class="uc-bulk-amount-input"
+                    [ngModel]="getBulkAmount(row)" (ngModelChange)="setBulkAmount(row, $event)" />
+                </div>
+                <div class="uc-bulk-amount-hint">
+                  <ng-container *ngIf="getBulkDifference(row) === 0">of Rs. {{ getBulkPending(row) }}</ng-container>
+                  <span class="left" *ngIf="getBulkDifference(row) < 0">
+                    Rs. {{ -getBulkDifference(row) }} left
+                  </span>
+                  <span class="extra" *ngIf="getBulkDifference(row) > 0">
+                    +Rs. {{ getBulkDifference(row) }} advance
+                  </span>
+                </div>
+              </ng-container>
+              <ng-template #plainAmount>
+                <span class="uc-amount">Rs. {{ row.amount }}</span>
+              </ng-template>
+            </td>
+
+            <td *ngIf="showCollectionColumns">
+              <span class="uc-collected">Rs. {{ row.collected_amount || 0 }}</span>
+            </td>
+
+            <td *ngIf="showCollectionColumns"
+              [ngClass]="{ 'uc-remaining-danger': row.remaining_amount > 0 }">
+              Rs. {{
+                row.remaining_amount > 0
+                ? row.remaining_amount
+                : row.extra_advance > 0
+                ? -row.extra_advance
+                : 0
+              }}
+            </td>
+
+            <td *ngIf="showCollectionColumns">
+              <span class="uc-collected-by">{{ row.collected_by }}</span>
+            </td>
+
+            <td *ngIf="showCollectionColumns">
+              <span class="uc-date">{{ row.collected_date?.toDate() | date:'dd MMM yy' }}</span>
+            </td>
+
+            <td>
+              <span class="uc-status-badge unpaid" *ngIf="row.status === 'unpaid'">Unpaid</span>
+              <span class="uc-status-badge paid"
+                *ngIf="row.status === 'paid' && (row.remaining_amount || 0) === 0">Paid</span>
+              <span class="uc-status-badge partial"
+                *ngIf="row.status === 'paid' && (row.remaining_amount || 0) > 0">Partial</span>
+              <span class="uc-status-badge advance" *ngIf="row.status === 'advance'">Advance</span>
+            </td>
+
+            <!-- Actions -->
+            <td>
+              <div class="uc-actions">
+                <!-- Bulk Mode -->
+                <ng-container *ngIf="isBulkMode; else normalActions">
+                  <button class="uc-action-btn select-btn" [class.selected]="isSelected(row)"
+                    (click)="toggleBulkSelection(row)" title="Select">
+                    <i class="ri-check-line"></i>
+                  </button>
+                  <button class="uc-action-btn update-btn" *ngIf="row.status === 'unpaid'"
+                    (click)="openUpdateModal(row)" title="Update Bill">
+                    <i class="ri-pencil-line"></i>
+                  </button>
+                </ng-container>
+
+                <!-- Normal Actions -->
+                <ng-template #normalActions>
+                  <button class="uc-action-btn collect-btn" *ngIf="canCollect(row)"
+                    (click)="openCollectModal(row, row.docId)" title="Bill Collect">
+                    <i class="ri-currency-line"></i>
+                  </button>
+                  <button class="uc-action-btn quickpay-btn" *ngIf="canCollect(row)"
+                    (click)="quickCashPay(row)" [disabled]="isSubmitting" title="Quick Cash Pay">
+                    <i class="ri-money-dollar-circle-fill"></i>
+                  </button>
+                  <button class="uc-action-btn revert-btn" *ngIf="row.status === 'paid'"
+                    (click)="revertBill(row)" title="Revert Bill">
+                    <i class="ri-arrow-go-back-line"></i>
+                  </button>
+                  <button class="uc-action-btn revert-btn" *ngIf="row.status === 'advance'"
+                    (click)="revertAdvance(row)" title="Revert Advance">
+                    <i class="ri-arrow-go-back-line"></i>
+                  </button>
+                  <button class="uc-action-btn receipt-btn" *ngIf="row.status === 'paid'"
+                    (click)="openReceiptModal(row)" title="View Receipt">
+                    <i class="ri-download-line"></i>
+                  </button>
+                  <button class="uc-action-btn update-btn" *ngIf="row.status === 'unpaid'"
+                    (click)="openUpdateModal(row)" title="Update Bill">
+                    <i class="ri-pencil-line"></i>
+                  </button>
+                  <button class="uc-action-btn advance-btn"
+                    [disabled]="getAdvanceButtonDisabled(row)"
+                    [title]="isAdvanceButtonDisabled(row) ? 'Advance already taken for this month' : 'Give Advance'"
+                    (click)="openAdvanceModal(row)">
+                    <i class="ri-money-dollar-circle-line"></i>
+                  </button>
+                  <button class="uc-action-btn details-btn"
+                    (click)="openUserDetails(row.docId)" title="View Details">
+                    <i class="ri-eye-line"></i>
+                  </button>
+                  <button class="uc-action-btn whatsapp-btn"
+                    (click)="openWhatsappModal(row)" title="Send Message">
+                    <i class="ri-whatsapp-line"></i>
+                  </button>
+                </ng-template>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Table Footer / Pagination -->
+    <div class="uc-table-footer">
+      <div class="uc-footer-info">
+        Showing <strong>{{ pagedUsers.length }}</strong> of <strong>{{ filteredUsers.length }}</strong> entries
+      </div>
+      <ul class="pagination mb-0">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <button class="page-link" (click)="prevPage()">
+            <i class="ri-arrow-left-s-line"></i>
+          </button>
+        </li>
+        <li class="page-item" *ngFor="let page of visiblePages" [class.active]="currentPage === page">
+          <button class="page-link" (click)="goToPage(page)">{{ page }}</button>
+        </li>
+        <li class="page-item" [class.disabled]="currentPage === totalPages">
+          <button class="page-link" (click)="nextPage()">
+            <i class="ri-arrow-right-s-line"></i>
+          </button>
+        </li>
+      </ul>
+    </div>
+
+  </div><!-- /uc-card -->
+
+</div><!-- /uc-wrapper -->
+
+
+<!-- ── Bill Collect Modal ── -->
+<div class="modal fade show d-block" *ngIf="showCollectModal">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="ri-bill-line me-2"></i> Bill Collection
+                </h5>
+                <button class="btn-close btn-close-white" (click)="showCollectModal=false"></button>
+            </div>
+            <div class="modal-body">
+                <p class="fs-6">
+                    <strong>{{ selectedBill.user_name }}</strong>, your bill for
+                    <strong>{{ selectedBill.month | titlecase }} {{ selectedBill.year }}</strong>
+                    is <strong>Rs. {{ selectedBill.amount }}</strong>
+                    <span *ngIf="selectedBill.collected_amount > 0">
+                        &mdash; Rs. {{ selectedBill.collected_amount }} already collected,
+                        <strong>Rs. {{ selectedBill.remaining_amount }} pending</strong>
+                    </span>
+                </p>
+                <hr>
+                <div class="mb-3">
+                    <label class="form-label">Collection Method</label>
+                    <select class="form-select" [(ngModel)]="collectionForm.method">
+                        <option value="">Select method</option>
+                        <option value="cash">Cash</option>
+                        <option value="easypaisa">EasyPaisa</option>
+                        <option value="jazzcash">JazzCash</option>
+                        <option value="bank">Bank Transfer</option>
+                    </select>
+                </div>
+                <div class="mb-3" *ngIf="collectionForm.method === 'bank'">
+                    <label class="form-label">Bank Name</label>
+                    <input type="text" class="form-control" [(ngModel)]="collectionForm.bank_name"
+                        placeholder="e.g. HBL, Meezan, UBL">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">
+                        Transaction / Reference ID
+                        <span class="text-danger"
+                            *ngIf="collectionForm.method && collectionForm.method !== 'cash'">*</span>
+                    </label>
+                    <input type="text" class="form-control" [(ngModel)]="collectionForm.collected_id"
+                        [required]="collectionForm.method && collectionForm.method !== 'cash'"
+                        placeholder="Required for EasyPaisa, JazzCash & Bank">
+                    <small class="text-danger"
+                        *ngIf="collectionForm.method && collectionForm.method !== 'cash' && !collectionForm.collected_id">
+                        Transaction ID is required for this payment method
+                    </small>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Collected Amount</label>
+                    <input type="number" class="form-control" [(ngModel)]="collectionForm.collected_amount">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" (click)="showCollectModal=false">Cancel</button>
+                <button class="btn btn-success d-flex align-items-center justify-content-center" [disabled]="
+                    isSubmitting ||
+                    !collectionForm.method ||
+                    (collectionForm.method !== 'cash' && !collectionForm.collected_id) ||
+                    (collectionForm.method === 'bank' && !collectionForm.bank_name)
+                " (click)="submitCollection()">
+                    <span *ngIf="!isSubmitting"><i class="ri-check-line me-1"></i> Submit</span>
+                    <span *ngIf="isSubmitting" class="d-flex align-items-center">
+                        <span class="spinner-border spinner-border-sm me-2"></span>Submitting...
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade show" *ngIf="showCollectModal"></div>
+
+
+<!-- ── Receipt Modal ── -->
+<div class="modal fade show d-block" *ngIf="showReceiptModal">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content shadow border-0">
+            <div class="modal-body p-0" id="receipt">
+                <div class="bg-success text-white text-center py-2 fw-bold">
+                    <div class="mb-0" style="font-size: 14px;">{{ companyDetail.companyName }}</div>
+                </div>
+                <div class="p-1 px-4 text-center">
+                    <div class="d-flex justify-content-between mb-1 fw-bold">
+                        <span>Name</span>
+                        <span class="fw-semibold">{{ receiptData.name }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1 fw-bold">
+                        <span>Internet ID</span>
+                        <span class="fw-semibold">{{ receiptData.internetId }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1 fw-bold">
+                        <span>Installation Date</span>
+                        <span class="fw-semibold">{{ receiptData.installationDate }}</span>
+                    </div>
+                    <div class="fw-bold">{{ receiptData.address}}..</div>
+                    <small class="text-muted fw-bold">
+                        {{ receiptData.month | titlecase }} {{ receiptData.year | titlecase }}
+                    </small>
+                    <div class="fw-bold">{{ receiptData.advance | titlecase }}</div>
+                    <ng-container *ngIf="receiptData.previousAmount">
+                        <div class="d-flex justify-content-between mb-1 fw-bold">
+                            <span>
+                                {{ receiptData.previousMonth
+                                    ? (receiptData.previousMonth | titlecase)
+                                    : 'Previous' }} (Previous Balance)
+                            </span>
+                            <span class="fw-semibold">Rs. {{ receiptData.previousAmount }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1 fw-bold">
+                            <span>{{ receiptData.month | titlecase }} (Current)</span>
+                            <span class="fw-semibold">Rs. {{ receiptData.currentAmount }}</span>
+                        </div>
+                    </ng-container>
+                    <div class="d-flex justify-content-between mb-1 fw-bold">
+                        <span>Total Amount</span>
+                        <span class="fw-semibold text-primary">Rs. {{ receiptData.totalAmount }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1 fw-bold">
+                        <span>Collected Amount</span>
+                        <span class="fw-semibold text-success fw-bold">Rs. {{ receiptData.collectedAmount }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1 fw-bold">
+                        <span>Remaining Amount</span>
+                        <span class="fw-semibold text-danger">Rs. {{ receiptData.remainingAmount || 0 }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1 fw-bold" *ngIf="receiptData.extraAmount > 0">
+                        <span>Extra Amount (Advance)</span>
+                        <span class="fw-semibold text-primary">Rs. {{ receiptData.extraAmount }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1 fw-bold" *ngIf="receiptData.advanceBalance > 0">
+                        <span>Advance Balance</span>
+                        <span class="fw-semibold text-primary">Rs. {{ receiptData.advanceBalance }}</span>
+                    </div>
+                    <hr>
+                    <div class="text-start small">
+                        <div class="d-flex justify-content-between mb-1 fw-bold">
+                            <span>Payment Method</span>
+                            <span class="fw-semibold">{{ receiptData.method | titlecase }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1 fw-bold" *ngIf="receiptData.method === 'bank'">
+                            <span>Bank</span>
+                            <span class="fw-semibold">{{ receiptData.bank }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1 fw-bold">
+                            <span>Collected By</span>
+                            <span class="fw-semibold">{{ receiptData.collectedBy }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between fw-bold">
+                            <span>Date</span>
+                            <span class="fw-semibold">{{ receiptData.date | date:'dd MMM yyyy, hh:mm a' }}</span>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="small text-muted fw-bold">
+                        Complain #:<br /> {{ companyDetail.complain_no1 }}, {{ companyDetail.complain_no2 }}
+                    </div>
+                    <div class="text-success fw-semibold fw-bold">✔ Payment Successful</div>
+                </div>
+            </div>
+            <div class="modal-footer d-flex justify-content-center border-0">
+                <div class="d-flex">
+                    <button class="btn btn-outline-primary px-4 d-flex" (click)="saveReceiptImage()">
+                        <i class="ri-download-line me-1"></i> Save
+                    </button>
+                    <button class="btn btn-primary px-4 d-flex" (click)="printReceipt()">
+                        <i class="ri-printer-line me-1"></i> Print
+                    </button>
+                    <button class="btn btn-success btn-sm" (click)="sendWhatsapp(receiptData)">
+                        <i class="ri-whatsapp-line"></i>
+                    </button>
+                </div>
+                <div class="d-flex">
+                    <button class="btn btn-success px-4 d-flex" (click)="shareReceiptImage()">
+                        <i class="ri-share-line me-1"></i> Share
+                    </button>
+                    <button class="btn btn-secondary px-4 d-flex" (click)="showReceiptModal=false">
+                        <i class="ri-close-line me-1"></i> Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade show" *ngIf="showReceiptModal"></div>
+
+
+<!-- ── Advance Modal ── -->
+<div class="modal fade show d-block" *ngIf="showAdvanceModal">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="ri-money-dollar-circle-line me-2"></i> Advance Payment
+                </h5>
+                <button class="btn-close btn-close-white" (click)="showAdvanceModal=false"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-2">
+                    <strong>{{ selectedBill.user_name }}</strong> — {{ selectedBill.internet_id }}
+                </p>
+                <div class="mb-3">
+                    <label class="form-label">Advance Amount</label>
+                    <input type="number" class="form-control" [(ngModel)]="advanceForm.amount">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Advance For Months</label>
+                    <div class="d-flex flex-wrap gap-2">
+                        <div class="form-check" *ngFor="let m of nextMonths">
+                            <input class="form-check-input" type="checkbox" (change)="toggleAdvanceMonthSeparate(m)" />
+                            <label class="form-check-label">{{ m.month | titlecase }} {{ m.year }}</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Payment Method</label>
+                    <select class="form-select" [(ngModel)]="advanceForm.method">
+                        <option value="">Select</option>
+                        <option value="cash">Cash</option>
+                        <option value="easypaisa">EasyPaisa</option>
+                        <option value="jazzcash">JazzCash</option>
+                        <option value="bank">Bank</option>
+                    </select>
+                </div>
+                <div class="mb-3" *ngIf="advanceForm.method === 'bank'">
+                    <input class="form-control" placeholder="Bank Name" [(ngModel)]="advanceForm.bank_name">
+                </div>
+                <div class="mb-3" *ngIf="advanceForm.method !== 'cash'">
+                    <input class="form-control" placeholder="Transaction ID" [(ngModel)]="advanceForm.collected_id">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" (click)="showAdvanceModal=false">Cancel</button>
+                <button class="btn btn-primary" (click)="submitAdvance()" [disabled]="isLoadingAdvance">
+                    <span *ngIf="isLoadingAdvance" class="spinner-border spinner-border-sm me-2"></span>
+                    Save Advance
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade show" *ngIf="showAdvanceModal"></div>
+
+
+<!-- ── Update Bill Modal ── -->
+<div class="modal fade show d-block" *ngIf="showUpdateModal">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header bg-warning text-white">
+                <h5 class="modal-title">
+                    <i class="ri-bill-line me-2"></i> Update User Bill
+                </h5>
+                <button class="btn-close btn-close-white" (click)="showUpdateModal=false"></button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="userForm">
+                    <div class="">
+                        <div class="card-title">Select Internet Package</div>
+                        <div class="card-body">
+                            <select
+                                [ngClass]="{'is-invalid': userForm.get('select_package')?.invalid && userForm.get('select_package')?.touched}"
+                                class="form-control" formControlName="select_package">
+                                <option value="" disabled>Select Internet Package</option>
+                                <option *ngFor="let area of internetPackages" [value]="area.package_name">
+                                    {{ area.package_name | titlecase }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="extra-space">
+                            <ng-container
+                                *ngIf="userForm.get('select_package')?.hasError('required') && userForm.get('select_package')?.touched">
+                                <span class="text-danger">Select a Package</span>
+                            </ng-container>
+                        </div>
+                    </div>
+                    <div class="">
+                        <div class="card-title">Internet Package Fee</div>
+                        <input type="text" class="form-control" formControlName="internet_package_fee"
+                            [ngClass]="{'is-invalid': userForm.get('internet_package_fee')?.invalid && userForm.get('internet_package_fee')?.touched}"
+                            placeholder="Enter Package Fee">
+                        <div class="extra-space">
+                            <ng-container
+                                *ngIf="userForm.get('internet_package_fee')?.hasError('required') && userForm.get('internet_package_fee')?.touched">
+                                <span class="text-danger">Select a Package Fee</span>
+                            </ng-container>
+                        </div>
+                    </div>
+                    <div class="">
+                        <div class="card-title">Previous Remaining Amount</div>
+                        <input type="number" class="form-control" formControlName="previous_remaining"
+                            placeholder="Enter previous balance to add (optional)">
+                        <div class="extra-space">
+                            <small class="text-muted">
+                                Leave empty if none. This amount is added on top of the bill.
+                            </small>
+                        </div>
+                    </div>
+                    <div class="" *ngIf="userForm.value.previous_remaining">
+                        <div class="card-title">Previous Amount Of Month</div>
+                        <select class="form-control" formControlName="previous_remaining_month">
+                            <option [ngValue]="null">Select Month</option>
+                            <option *ngFor="let m of monthsList" [value]="m">
+                                {{ m | titlecase }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="alert alert-warning py-2 px-3 mb-0 mt-2"
+                        *ngIf="userForm.value.previous_remaining">
+                        <small>
+                            New bill total:
+                            <strong>Rs. {{ updatedBillPreview }}</strong>
+                            <br>
+                            {{ baseBillAmount }} current
+                            <span *ngIf="feeDifference !== 0">
+                                {{ feeDifference > 0 ? '+' : '−' }} {{ feeDifference < 0 ? -feeDifference : feeDifference }} fee change
+                            </span>
+                            + {{ userForm.value.previous_remaining }} previous
+                            <span *ngIf="userForm.value.previous_remaining_month">
+                                ({{ userForm.value.previous_remaining_month | titlecase }})
+                            </span>
+                        </small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" (click)="showUpdateModal=false">Cancel</button>
+                <button class="btn btn-primary d-flex align-items-center justify-content-center"
+                    (click)="updateBill()" [disabled]="isSubmitting">
+                    <span *ngIf="!isSubmitting"><i class="ri-check-line me-1"></i> Submit</span>
+                    <span *ngIf="isSubmitting" class="d-flex align-items-center">
+                        <span class="spinner-border spinner-border-sm me-2"></span>Submitting...
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade show" *ngIf="showUpdateModal"></div>
+
+
+<!-- ── Messaging Modal ── -->
+<ng-template #whatsappModal let-modal>
+  <div class="wa-modal">
+    <div class="wa-modal-header">
+      <div class="wa-header-icon">
+        <i class="ri-message-3-line"></i>
+      </div>
+      <div>
+        <div class="wa-header-title">Send Message</div>
+        <div class="wa-header-sub" *ngIf="selectedWhatsappUser">
+          {{ selectedWhatsappUser.name }} &middot; {{ selectedWhatsappUser.phone_no }}
+        </div>
+      </div>
+      <button type="button" class="btn-close btn-close-white ms-auto" (click)="modal.dismiss()"></button>
+    </div>
+    <div class="wa-modal-body">
+      <div class="wa-option-row">
+        <div class="wa-option-info">
+          <div class="wa-option-icon reminder"><i class="ri-notification-3-line"></i></div>
+          <div>
+            <div class="wa-option-title">Payment Reminder</div>
+            <div class="wa-option-desc">Remind about pending payment</div>
+          </div>
+        </div>
+        <div class="wa-option-actions">
+          <button class="btn-wa" (click)="paymentRemainder(selectedWhatsappUser); modal.close()" title="WhatsApp">
+            <i class="ri-whatsapp-line"></i>
+          </button>
+          <button class="btn-sms" (click)="sendSmsReminder(selectedWhatsappUser); modal.close()" title="SMS">
+            <i class="ri-message-2-line"></i>
+          </button>
+        </div>
+      </div>
+      <div class="wa-option-row" *ngIf="selectedWhatsappUser?.status === 'unpaid'">
+        <div class="wa-option-info">
+          <div class="wa-option-icon warning"><i class="ri-error-warning-line"></i></div>
+          <div>
+            <div class="wa-option-title">Disconnection Warning</div>
+            <div class="wa-option-desc">Warn about overdue disconnection</div>
+          </div>
+        </div>
+        <div class="wa-option-actions">
+          <button class="btn-wa" (click)="disconnectionWarning(selectedWhatsappUser); modal.close()" title="WhatsApp">
+            <i class="ri-whatsapp-line"></i>
+          </button>
+          <button class="btn-sms" (click)="sendSmsDisconnection(selectedWhatsappUser); modal.close()" title="SMS">
+            <i class="ri-message-2-line"></i>
+          </button>
+        </div>
+      </div>
+      <div class="wa-option-row" *ngIf="selectedWhatsappUser?.status === 'paid'">
+        <div class="wa-option-info">
+          <div class="wa-option-icon received"><i class="ri-checkbox-circle-line"></i></div>
+          <div>
+            <div class="wa-option-title">Payment Received</div>
+            <div class="wa-option-desc">Confirm payment received</div>
+          </div>
+        </div>
+        <div class="wa-option-actions">
+          <button class="btn-wa" (click)="sendWhatsapp(selectedWhatsappUser); modal.close()" title="WhatsApp">
+            <i class="ri-whatsapp-line"></i>
+          </button>
+          <button class="btn-sms" (click)="sendSmsPaymentReceived(selectedWhatsappUser); modal.close()" title="SMS">
+            <i class="ri-message-2-line"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>

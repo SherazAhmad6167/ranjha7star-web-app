@@ -1,0 +1,755 @@
+<div class="container-fluid pt-3">
+
+  <!-- ══ Page Header ══ -->
+  <div class="ud-page-header mb-4">
+    <div class="ud-header-left">
+      <div class="ud-header-icon">
+        <i class="ri-group-line"></i>
+      </div>
+      <div>
+        <h4 class="ud-title">Users</h4>
+        <p class="ud-sub">Manage subscriber accounts, packages &amp; connections</p>
+      </div>
+    </div>
+    <div class="ud-header-right">
+      <div class="ud-stat-pill">
+        <i class="ri-user-3-line"></i>
+        <span><strong>{{ totalUsersCount | number }}</strong> Total</span>
+      </div>
+      <div class="ud-stat-pill filtered" *ngIf="filteredUsers.length !== totalUsersCount">
+        <i class="ri-filter-3-line"></i>
+        <span><strong>{{ filteredUsers.length | number }}</strong> Filtered</span>
+      </div>
+      <button class="btn btn-ud-add" (click)="openUserModal()">
+        <i class="ri-user-add-line me-1"></i> Add User
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ Loading Overlay ══ -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <div class="lo-box">
+      <img src="assets/loader-africa.svg" alt="Loading..." class="custom-loader" />
+      <div class="lo-text">Loading users...</div>
+    </div>
+  </div>
+
+  <!-- ══ Users Table Card ══ -->
+  <div class="ud-card">
+
+    <!-- Filter Toolbar -->
+    <div class="ud-filter-bar">
+      <div class="ud-filter-group">
+
+        <div class="ud-filter-item">
+          <label class="ud-filter-label"><i class="ri-map-pin-2-line"></i> Area</label>
+          <app-search-select
+            [(ngModel)]="sublocality"
+            (selectionChange)="onAreaChange()"
+            [options]="areaOptions"
+            valueKey="sublocality"
+            displayKey="sublocality"
+            placeholder="All Areas"
+            emptyLabel="All Areas"
+            [allowEmpty]="true">
+          </app-search-select>
+        </div>
+
+        <div class="ud-filter-item">
+          <label class="ud-filter-label"><i class="ri-map-pin-line"></i> Sub Area</label>
+          <app-search-select
+            [(ngModel)]="subArea"
+            (selectionChange)="onFilterChange()"
+            [options]="filteredSubAreas"
+            valueKey="sub_area"
+            displayKey="sub_area"
+            placeholder="All Sub Areas"
+            emptyLabel="All Sub Areas"
+            [allowEmpty]="true">
+          </app-search-select>
+        </div>
+
+        <div class="ud-filter-item ud-search-item">
+          <label class="ud-filter-label"><i class="ri-search-line"></i> Search</label>
+          <div class="ud-search-wrap">
+            <i class="ri-search-line ud-search-icon"></i>
+            <input type="text" class="form-control ud-search-input"
+                   placeholder="Name, ID, phone, address…"
+                   [(ngModel)]="searchTerm" (input)="onFilterChange()" />
+          </div>
+        </div>
+
+      </div>
+
+      <div class="ud-filter-right">
+        <label class="ud-filter-label"><i class="ri-list-settings-line"></i> Entries</label>
+        <select class="form-select ud-select" style="width:auto" [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+          <option [value]="10">10 / page</option>
+          <option [value]="30">30 / page</option>
+          <option [value]="50">50 / page</option>
+          <option [value]="100">100 / page</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-responsive">
+      <table class="table table-hover ud-table mb-0">
+        <thead>
+          <tr>
+            <th style="width:52px">#</th>
+            <th><i class="ri-user-line me-1"></i>Name</th>
+            <th><i class="ri-id-card-line me-1"></i>ID</th>
+            <th><i class="ri-phone-line me-1"></i>Contact</th>
+            <th><i class="ri-map-pin-2-line me-1"></i>Area</th>
+            <th><i class="ri-map-pin-line me-1"></i>Sub Area</th>
+            <th><i class="ri-box-3-line me-1"></i>Package</th>
+            <th><i class="ri-links-line me-1"></i>Connection</th>
+            <th><i class="ri-money-rupee-circle-line me-1"></i>Fee</th>
+            <th><i class="ri-calendar-line me-1"></i>Install Date</th>
+            <th class="text-center" style="width:160px">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of pagedUsers; let i = index" [class.ud-row-inactive]="isInactive(user)">
+            <td class="ud-row-index">{{ (currentPage - 1) * pageSize + i + 1 }}</td>
+
+            <td>
+              <div class="ud-user-cell">
+                <div class="ud-avatar">{{ userInitial(user) }}</div>
+                <div>
+                  <div class="ud-user-name">{{ user.user_name | titlecase }}</div>
+                  <span class="ud-inactive-badge" *ngIf="isInactive(user)">
+                    <i class="ri-forbid-2-line"></i> Inactive
+                  </span>
+                </div>
+              </div>
+            </td>
+
+            <td>
+              <span class="ud-id-badge">{{ user.internet_id }}</span>
+            </td>
+
+            <td>
+              <span class="ud-phone">{{ getContact(user) || '—' }}</span>
+            </td>
+
+            <td>
+              <div class="ud-area-cell">
+                <span class="ud-area-tag">{{ user.sublocality | titlecase }}</span>
+              </div>
+            </td>
+
+            <td>
+              <span class="ud-area-tag" *ngIf="user.sub_area">{{ user.sub_area | titlecase }}</span>
+              <span *ngIf="!user.sub_area">—</span>
+            </td>
+
+            <td>
+              <span class="ud-package">{{ packageDisplay(user) }}</span>
+            </td>
+
+            <td>
+              <span class="ud-conn-badge" [ngClass]="connectionBadgeClass(user.connection_type)">
+                {{ connectionLabel(user.connection_type) }}
+              </span>
+            </td>
+
+            <td>
+              <span class="ud-fee">Rs {{ userFee(user) | number }}</span>
+            </td>
+
+            <td class="ud-date-cell">{{ user.installation_date | date:'dd MMM yyyy' }}</td>
+
+            <td class="text-center">
+              <div class="ud-actions">
+                <button class="ud-btn ud-btn-edit" (click)="editUser(user)" title="Edit user">
+                  <i class="ri-pencil-line"></i>
+                </button>
+                <button class="ud-btn ud-btn-receipt" (click)="openReceiptModal(user)" title="Download receipt">
+                  <i class="ri-download-line"></i>
+                </button>
+                <button class="ud-btn ud-btn-pdf" (click)="openPdfModal(user)" title="PDF invoice">
+                  <i class="ri-file-pdf-line"></i>
+                </button>
+                <button class="ud-btn ud-btn-msg" (click)="openWhatsappModal(user)" title="Send message">
+                  <i class="ri-message-3-line"></i>
+                </button>
+                <button class="ud-btn ud-btn-delete" (click)="openDeleteModal(user.id, deleteModal)" title="Delete user">
+                  <i class="ri-delete-bin-7-line"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="!isLoading && pagedUsers.length === 0">
+            <td colspan="11" class="ud-empty-state">
+              <i class="ri-group-line"></i>
+              <div class="ud-empty-title">No users found</div>
+              <div class="ud-empty-sub">
+                {{ searchTerm || sublocality || subArea ? 'Try adjusting your filters' : 'Add your first user to get started' }}
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Delete Confirm Modal (inside ng-template so #ref works) -->
+    <ng-template #deleteModal let-modal>
+      <div class="gdm-wrap">
+        <button class="gdm-close" type="button" (click)="modal.dismiss()" [disabled]="isDeleting">
+          <i class="ri-close-line"></i>
+        </button>
+        <div class="gdm-icon"><i class="ri-user-unfollow-fill"></i></div>
+        <h5 class="gdm-title">Delete User?</h5>
+        <p class="gdm-text">All bills and records for this subscriber will be permanently removed.</p>
+        <div class="gdm-actions">
+          <button class="gdm-btn gdm-cancel" type="button" (click)="modal.dismiss()" [disabled]="isDeleting">Cancel</button>
+          <button class="gdm-btn gdm-confirm" type="button" (click)="confirmDelete(modal)" [disabled]="isDeleting">
+            <span *ngIf="!isDeleting"><i class="ri-delete-bin-6-line"></i> Delete</span>
+            <span *ngIf="isDeleting" class="d-flex align-items-center gap-2">
+              <span class="spinner-border spinner-border-sm" role="status"></span> Deleting...
+            </span>
+          </button>
+        </div>
+      </div>
+    </ng-template>
+
+    <!-- Table Footer / Pagination -->
+    <div class="ud-table-footer" *ngIf="pagedUsers.length > 0">
+      <small class="ud-footer-info">
+        Showing <strong>{{ pagedUsers.length }}</strong> of <strong>{{ filteredUsers.length }}</strong> entries
+      </small>
+      <nav *ngIf="totalPages > 1">
+        <ul class="pagination pagination-sm mb-0">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <button class="page-link" (click)="prevPage()"><i class="ri-arrow-left-s-line"></i></button>
+          </li>
+          <li class="page-item" *ngFor="let page of visiblePages" [class.active]="currentPage === page">
+            <button class="page-link" (click)="goToPage(page)">{{ page }}</button>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <button class="page-link" (click)="nextPage()"><i class="ri-arrow-right-s-line"></i></button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+  </div>
+</div>
+
+<!-- Messaging Modal -->
+<ng-template #whatsappModal let-modal>
+  <div class="wa-modal">
+    <div class="wa-modal-header">
+      <div class="wa-header-icon">
+        <i class="ri-message-3-line"></i>
+      </div>
+      <div>
+        <div class="wa-header-title">Send Message</div>
+        <div class="wa-header-sub" *ngIf="selectedWhatsappUser">
+          {{ selectedWhatsappUser.user_name }} &middot; {{ getContact(selectedWhatsappUser) }}
+        </div>
+      </div>
+      <button type="button" class="btn-close btn-close-white ms-auto" (click)="modal.dismiss()"></button>
+    </div>
+    <div class="wa-modal-body">
+
+      <div class="wa-option-row">
+        <div class="wa-option-info">
+          <div class="wa-option-icon welcome"><i class="ri-hand-heart-line"></i></div>
+          <div>
+            <div class="wa-option-title">Welcome Message</div>
+            <div class="wa-option-desc">Greeting for new customer</div>
+          </div>
+        </div>
+        <div class="wa-option-actions">
+          <button class="btn-wa" (click)="sendWhatsapp(selectedWhatsappUser); modal.close()" title="WhatsApp">
+            <i class="ri-whatsapp-line"></i>
+          </button>
+          <button class="btn-sms" (click)="sendSmsWelcome(selectedWhatsappUser); modal.close()" title="SMS">
+            <i class="ri-message-2-line"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="wa-option-row">
+        <div class="wa-option-info">
+          <div class="wa-option-icon upgrade"><i class="ri-rocket-line"></i></div>
+          <div>
+            <div class="wa-option-title">Upgrade Plan</div>
+            <div class="wa-option-desc">Package upgrade offer</div>
+          </div>
+        </div>
+        <div class="wa-option-actions">
+          <button class="btn-wa" (click)="updratePlan(selectedWhatsappUser); modal.close()" title="WhatsApp">
+            <i class="ri-whatsapp-line"></i>
+          </button>
+          <button class="btn-sms" (click)="sendSmsUpgrade(selectedWhatsappUser); modal.close()" title="SMS">
+            <i class="ri-message-2-line"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="wa-option-row">
+        <div class="wa-option-info">
+          <div class="wa-option-icon maintenance"><i class="ri-tools-line"></i></div>
+          <div>
+            <div class="wa-option-title">Maintenance Notice</div>
+            <div class="wa-option-desc">Scheduled maintenance info</div>
+          </div>
+        </div>
+        <div class="wa-option-actions">
+          <button class="btn-wa" (click)="maintanancePlan(selectedWhatsappUser) && modal.close()" title="WhatsApp">
+            <i class="ri-whatsapp-line"></i>
+          </button>
+          <button class="btn-sms" (click)="sendSmsMaintenance(selectedWhatsappUser) && modal.close()" title="SMS">
+            <i class="ri-message-2-line"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Schedule fed into {Maintenance Date} / {Start Time} / {End Time} -->
+      <div class="wa-sub-fields">
+        <div class="wa-sub-title">
+          <i class="ri-corner-down-right-line"></i>
+          Schedule for <strong>Maintenance Notice</strong>
+        </div>
+        <div class="wa-sub-inputs">
+          <div class="wa-field">
+            <label>Date</label>
+            <input type="date" [(ngModel)]="maintenanceDate" />
+          </div>
+          <div class="wa-field">
+            <label>From</label>
+            <input type="time" [(ngModel)]="maintenanceStart" />
+          </div>
+          <div class="wa-field">
+            <label>To</label>
+            <input type="time" [(ngModel)]="maintenanceEnd" />
+          </div>
+        </div>
+      </div>
+
+      <div class="wa-option-row">
+        <div class="wa-option-info">
+          <div class="wa-option-icon service"><i class="ri-restart-line"></i></div>
+          <div>
+            <div class="wa-option-title">Service Restoration</div>
+            <div class="wa-option-desc">Confirm service restored</div>
+          </div>
+        </div>
+        <div class="wa-option-actions">
+          <button class="btn-wa" (click)="servicePlan(selectedWhatsappUser); modal.close()" title="WhatsApp">
+            <i class="ri-whatsapp-line"></i>
+          </button>
+          <button class="btn-sms" (click)="sendSmsService(selectedWhatsappUser); modal.close()" title="SMS">
+            <i class="ri-message-2-line"></i>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</ng-template>
+
+
+
+
+<div class="modal fade show d-block" *ngIf="showReceiptModal">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content shadow border-0">
+
+      <!-- RECEIPT -->
+      <div class="modal-body p-0" id="receipt">
+
+        <!-- Header -->
+        <div class="bg-success text-white text-center py-2 fw-bold">
+          <div class="mb-0" style="font-size: 14px;">{{ companyDetail.companyName }}</div>
+        </div>
+
+        <!-- Body -->
+        <div class="p-1 px-4 text-center">
+          <!-- <h6 class="fw-bold mb-1">{{ receiptData.name }} ({{ receiptData.internetId }})</h6> -->
+          <div class="d-flex justify-content-between mb-1 fw-bold">
+            <span>Name</span>
+            <span class="fw-semibold">{{ receiptData.name }}</span>
+          </div>
+          <div class="d-flex justify-content-between mb-1 fw-bold">
+            <span>Internet ID</span>
+            <span class="fw-semibold">{{ receiptData.internetId }}</span>
+          </div>
+          <div class="d-flex justify-content-between mb-1 fw-bold">
+            <span>Installation Date</span>
+            <span class="fw-semibold">{{ receiptData.installationDate }}</span>
+          </div>
+          <div class="fw-bold">
+            {{ receiptData.address}}..
+          </div>
+          <small class="text-muted fw-bold">
+            {{ receiptData.month | titlecase }} {{ receiptData.year | titlecase }}
+          </small>
+
+          <div class="d-flex justify-content-between mb-1 fw-bold">
+            <span>Package:</span>
+            <span class="fw-semibold text-primary">{{ receiptData.select_package | titlecase }}<span
+                *ngIf="receiptData.pkg_cable"> + {{ receiptData.pkg_cable | titlecase }}</span></span>
+          </div>
+
+          <div class="d-flex justify-content-between mb-1 fw-bold">
+            <span>Total Amount</span>
+            <span class="fw-semibold text-primary">Rs. {{ userFee(receiptData) }}</span>
+          </div>
+
+          <div class="d-flex justify-content-between mb-1 fw-bold">
+            <span>Installation Amount</span>
+            <span class="fw-semibold text-primary">Rs. {{ receiptData.installation_amount }}</span>
+          </div>
+
+          <div class="d-flex justify-content-between mb-1 fw-bold" *ngIf="receiptData.advanceBalance > 0">
+            <span>Advance Balance</span>
+            <span class="fw-semibold text-success">Rs. {{ receiptData.advanceBalance }}</span>
+          </div>
+
+          <!-- <hr>
+
+          <div class="text-start small">
+            <div class="d-flex justify-content-between mb-1 fw-bold">
+              <span>Payment Method</span>
+              <span class="fw-semibold">{{ receiptData.method | titlecase }}</span>
+            </div>
+
+            <div class="d-flex justify-content-between mb-1 fw-bold" *ngIf="receiptData.method === 'bank'">
+              <span>Bank</span>
+              <span class="fw-semibold">{{ receiptData.bank }}</span>
+            </div>
+
+            <div class="d-flex justify-content-between mb-1 fw-bold">
+              <span>Collected By</span>
+              <span class="fw-semibold">{{ receiptData.collectedBy }}</span>
+            </div>
+
+            <div class="d-flex justify-content-between fw-bold">
+              <span>Date</span>
+              <span class="fw-semibold">
+                {{ receiptData.date | date:'dd MMM yyyy, hh:mm a' }}
+              </span>
+            </div>
+          </div> -->
+
+          <hr>
+
+          <div class="small text-muted fw-bold">
+            Complain #:<br /> {{ companyDetail.complain_no1 }}, {{ companyDetail.complain_no2 }}
+          </div>
+
+          <div class="text-success fw-semibold fw-bold">
+            ✔ Internet Connection
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer d-flex  justify-content-center border-0">
+        <div class="d-flex"><button class="btn btn-outline-primary px-4 d-flex" (click)="saveReceiptImage()">
+            <i class="ri-download-line me-1"></i> Save
+          </button>
+          <button class="btn btn-primary px-4 d-flex" (click)="printReceipt()">
+            <i class="ri-printer-line me-1"></i> Print
+          </button>
+        </div>
+        <div class="d-flex">
+          <button class="btn btn-success px-4 d-flex" (click)="shareReceiptImage()">
+            <i class="ri-share-line me-1"></i> Share
+          </button>
+
+          <button class="btn btn-secondary px-4 d-flex" (click)="showReceiptModal=false">
+            <i class="ri-close-line me-1"></i> Close
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop fade show" *ngIf="showReceiptModal"></div>
+
+
+
+
+
+
+
+
+<!-- <div class="modal fade show d-block" *ngIf="showPdfModal">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Invoice Preview</h5>
+        <button class="btn-close" (click)="closePdfModal()"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <div #pdfContent class="pdf-container">
+
+          <div >
+            <img src="assets/ranjha-logo3.jpeg" alt="logo" height="10" width="10">
+          </div>
+          <div class="watermark">
+            Ranjha7StarCable&Internet
+          </div>
+
+          <div class="text-center border-bottom pb-2 mb-3">
+            <h3 class="fw-bold text-primary m-0">
+              Ranjha7StarCable&Internet
+            </h3>
+            <small>Premium Cable & Internet Services</small>
+          </div>
+
+          <h5 class="text-center badge bg-primary mb-3">
+            CUSTOMER INVOICE
+          </h5>
+
+          <div class="row">
+            <div class="col-6">
+              <h6 class="fw-bold text-primary">Customer Info</h6>
+              <p>Name: {{ pdfUser?.user_name }}</p>
+              <p>Phone: {{ getContact(pdfUser) || '—' }}</p>
+              <p>Address: {{ pdfUser?.address }}</p>
+              <p>Connection: {{ pdfUser?.connection_type }}</p>
+            </div>
+
+            <div class="col-6">
+              <h6 class="fw-bold text-danger">Service</h6>
+              <p>ID: {{ pdfUser?.internet_id }}</p>
+              <p>Package: {{ pdfUser?.select_package }}</p>
+              <p>Provider: {{ pdfUser?.connection_provider }}</p>
+              <p>Date: {{ pdfUser?.installation_date | date }}</p>
+            </div>
+          </div>
+
+          <hr>
+
+          <table class="table table-sm">
+            <tr>
+              <td>Internet Fee</td>
+              <td class="text-end">Rs. {{ pdfUser?.internet_package_fee }}</td>
+            </tr>
+            <tr>
+              <td>Cable Fee</td>
+              <td class="text-end">Rs. {{ pdfUser?.cable_package_fee }}</td>
+            </tr>
+            <tr>
+              <td>Discount</td>
+              <td class="text-end text-danger">
+                - Rs. {{ pdfUser?.internet_discount || 0 }}
+              </td>
+            </tr>
+            <tr class="fw-bold border-top">
+              <td>Total</td>
+              <td class="text-end text-primary">
+                Rs. {{ userFee(pdfUser) }}
+              </td>
+            </tr>
+          </table>
+
+          <div class="text-center mt-4 small text-muted">
+            Thank you for choosing us!
+          </div>
+
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closePdfModal()">
+          Close
+        </button>
+        <button class="btn btn-primary" (click)="downloadPDF()">
+          Download PDF
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div> -->
+
+
+
+
+<div class="modal fade show d-block" *ngIf="showPdfModal">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg">
+
+      <!-- ==========================================
+      HEADER – subtle, clean, minimal
+      ========================================== -->
+      <div class="modal-header border-0 px-5 pt-4 pb-2">
+        <h5 class="modal-title fw-semibold text-secondary m-0">
+          <span class="text-primary">PDF</span> Preview
+        </h5>
+        <button class="btn-close" (click)="closePdfModal()"></button>
+      </div>
+
+      <!-- ==========================================
+      BODY – PDF content area
+      ========================================== -->
+      <div class="modal-body px-5 pb-4">
+
+        <!-- PDF CONTENT – captured for download -->
+        <div #pdfContent class="pdf-container">
+
+          <!-- WATERMARK (light & elegant) -->
+          <div class="watermark">Ranjha7Star</div>
+
+          <!-- ==========================================
+  HEADER: Company Logo + Invoice Meta
+  ========================================== -->
+          <div class="invoice-header">
+            <div class="brand">
+              <img src="assets/ranjha-logo3.jpeg" alt="Ranjha7Star" class="logo">
+              <div>
+                <h1>Ranjha7Star</h1>
+                <span>Cable &amp; Internet Services</span>
+              </div>
+            </div>
+            <div class="invoice-meta">
+              <div class="meta-item">
+                <span class="label">Invoice #</span>
+                <span class="value">{{ pdfUser?.internet_id || '0000' }}</span>
+              </div>
+              <div class="meta-item">
+                <span class="label">Date</span>
+                <span class="value">{{ pdfUser?.installation_date | date : 'dd/MM/yyyy' }}</span>
+              </div>
+              <div class="meta-item">
+                <span class="label">Due Date</span>
+                <span class="value">{{ pdfUser?.installation_date | date : 'dd/MM/yyyy' : '+7' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ==========================================
+  ADDRESS & CUSTOMER DETAILS
+  ========================================== -->
+          <div class="address-section">
+            <div class="company-address">
+              <strong>Ranjha7Star Cable &amp; Internet</strong>
+              <p>123 Main Street, Lahore, Pakistan</p>
+              <p>Phone: +92-300-1234567</p>
+              <p>Email: ranjha7star.com</p>
+            </div>
+            <div class="customer-address">
+              <strong>Bill To:</strong>
+              <p>{{ pdfUser?.user_name }}</p>
+              <p>{{ pdfUser?.address }}</p>
+              <p>Phone: {{ getContact(pdfUser) || '—' }}</p>
+              <p>Connection: {{ pdfUser?.connection_type }} | Provider: {{ pdfUser?.connection_provider }}</p>
+            </div>
+          </div>
+
+          <!-- ==========================================
+  INVOICE LINE ITEMS (TABLE)
+  ========================================== -->
+          <table class="invoice-items">
+            <thead>
+              <tr>
+                <th class="col-sno">#</th>
+                <th class="col-desc">Description</th>
+                <th class="col-qty">Qty</th>
+                <th class="col-price">Unit Price</th>
+                <th class="col-amount">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="col-sno">1</td>
+                <td class="col-desc">Internet Package ({{ pdfUser?.select_package }})</td>
+                <td class="col-qty">1</td>
+                <td class="col-price">Rs. {{ pdfUser?.internet_package_fee }}</td>
+                <td class="col-amount">Rs. {{ pdfUser?.internet_package_fee }}</td>
+              </tr>
+              <tr>
+                <td class="col-sno">2</td>
+                <td class="col-desc">Cable TV Subscription</td>
+                <td class="col-qty">1</td>
+                <td class="col-price">Rs. {{ pdfUser?.cable_package_fee }}</td>
+                <td class="col-amount">Rs. {{ pdfUser?.cable_package_fee }}</td>
+              </tr>
+              <tr>
+                <td class="col-sno">3</td>
+                <td class="col-desc">Wire</td>
+                <td class="col-qty">1</td>
+                <td class="col-price">Rs. {{ pdfUser?.wire }}</td>
+                <td class="col-amount">Rs. {{ pdfUser?.wire }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- ==========================================
+  SUMMARY / TOTALS
+  ========================================== -->
+          <div class="summary-section">
+            <div class="summary-left">
+              <div class="payment-terms">
+                <strong>Payment Method</strong>
+                <p>Bank Transfer / JazzCash / EasyPaisa</p>
+                <p class="bank-details">Phone: 0300-8800263</p>
+                <p class="bank-details">Name: Saqib Abbas Ranjha</p>
+              </div>
+            </div>
+            <div class="summary-right">
+              <div class="total-row">
+                <span>Subtotal</span>
+                <span>Rs. {{ userFee(pdfUser) }}</span>
+              </div>
+              <div class="total-row discount">
+                <span>Discount</span>
+                <span>– Rs. {{ pdfUser?.internet_discount || 0 }}</span>
+              </div>
+              <div class="total-row grand-total">
+                <span>Grand Total</span>
+                <span>Rs. {{ userFee(pdfUser) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ==========================================
+  FOOTER
+  ========================================== -->
+          <div class="invoice-footer">
+            <p>Thank you for choosing Ranjha7Star! We value your trust.</p>
+            <span>This is a system-generated invoice. For queries, contact support.</span>
+          </div>
+
+        </div>
+        <!-- /pdf-container -->
+
+      </div>
+      <!-- /modal-body -->
+
+      <!-- ==========================================
+      FOOTER – action buttons
+      ========================================== -->
+      <div class="modal-footer border-0 px-5 pb-4 pt-2">
+        <button class="btn btn-outline-secondary btn-sm rounded-3 px-4" (click)="closePdfModal()">
+          Close
+        </button>
+        <button class="btn btn-primary btn-sm rounded-3 px-4" (click)="downloadPDF()">
+          <svg class="me-1" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          Download PDF
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,122 @@
+<div class="modal-header border-0">
+  <h5 class="modal-title">{{ user?.user_name || 'User Details' }}</h5>
+  <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.close()"></button>
+</div>
+
+<div class="modal-body p-3 p-md-4">
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <!-- User Details -->
+  <div *ngIf="!isLoading && user" class="d-flex flex-column gap-3">
+
+    <!-- Basic Info -->
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white">
+        Basic Info
+      </div>
+      <div class="card-body p-3">
+        <div class="row">
+          <div class="col-12 col-md-6 mb-2"><strong>Internet ID:</strong> {{ user.internet_id }}</div>
+          <div class="col-12 col-md-6 mb-2"><strong>Name:</strong> {{ user.user_name }}</div>
+          <div class="col-12 col-md-6 mb-2"><strong>Address:</strong> {{ user.address }}</div>
+          <div class="col-12 col-md-6 mb-2"><strong>Sublocality:</strong> {{ user.sublocality }}</div>
+          <div class="col-12 col-md-6 mb-2"><strong>Phone:</strong> {{ user.phone_no }}</div>
+          <div class="col-12 col-md-6 mb-2"><strong>Connection Type:</strong> {{ user.connection_type }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bill Info -->
+    <div *ngIf="user.bills?.length" class="card shadow-sm">
+      <div class="card-header bg-success text-white">
+        Bill Info
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-sm table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Month/Year</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Collected Amount</th>
+                <th>Remaining Amount</th>
+                <th>Method</th>
+                <th>Collected By</th>
+                <th>Collected Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let bill of user.bills">
+                <td>{{ bill.month | titlecase }} {{ bill.year }}</td>
+                <td>Rs. {{ bill.amount }}</td>
+                <td>
+                  <span class="badge" [ngClass]="bill.status === 'paid' ? 'bg-success' : 'bg-warning text-dark'">
+                    {{ bill.status | titlecase }}
+                  </span>
+                </td>
+                <td>{{ bill.collected_amount || '-' }}</td>
+                <td class="text-danger fw-bold">{{ bill.remaining_amount || '-' }}</td>
+                <td>{{ bill.collected_method || '-' }}</td>
+                <td>{{ bill.collected_by || '-' }}</td>
+                <td>
+                  {{ bill.collected_date?.toDate() | date:'dd MMM yyyy, hh:mm a' }}
+                </td>
+
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Advance Info -->
+    <div *ngIf="user.advancePayments?.length" class="card shadow-sm">
+      <div class="card-header bg-info text-white">
+        Advance Info
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-sm table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Month/Year</th>
+                <th>Amount</th>
+                <th>Collected By</th>
+                <th>Collected Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <ng-container *ngFor="let adv of user.advancePayments">
+                <ng-container *ngIf="adv.isAdvance">
+                  <tr>
+                    <td>{{ getAdvanceMonthsString(adv) }}</td>
+                    <td>Rs. {{ adv.advance_amount }}</td>
+                    <td>{{ adv.collected_by || '-' }}</td>
+                    <td>{{ adv.collected_date?.toDate() | date:'dd MMM yyyy, hh:mm a' }}</td>
+                  </tr>
+                </ng-container>
+              </ng-container>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+
+  <!-- No User -->
+  <div *ngIf="!isLoading && !user" class="text-center text-danger py-5">
+    User details not found.
+  </div>
+</div>
+
+<div class="modal-footer border-0 justify-content-center">
+  <button type="button" class="btn btn-secondary px-4" (click)="activeModal.close()">Close</button>
+</div>

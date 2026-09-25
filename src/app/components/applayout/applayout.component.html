@@ -1,0 +1,378 @@
+<div class="content-body">
+
+    <!-- ── Top Bar ─────────────────────────────────────────── -->
+    <header class="app-topbar" [class.full-width]="!sidebarVisible">
+
+        <div class="tb-left">
+            <button #toggleBtn class="tb-menu-btn" (click)="toggleSidebar()"
+                    [title]="sidebarVisible ? 'Hide menu' : 'Show menu'">
+                <i [class]="sidebarVisible ? 'ri-menu-fold-line' : 'ri-menu-unfold-line'"></i>
+            </button>
+
+            <div class="tb-page">
+                <span class="tb-page-icon"><i [class]="currentPage.icon"></i></span>
+                <span class="tb-page-text">
+                    <span class="tb-crumb">{{ currentPage.section }}</span>
+                    <span class="tb-page-title">{{ currentPage.title }}</span>
+                </span>
+            </div>
+        </div>
+
+        <div class="tb-right">
+
+            <!-- Theme switch -->
+            <button class="tb-theme" [class.is-dark]="themeService.isDark()"
+                    (click)="themeService.toggle()"
+                    [title]="themeService.isDark() ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+                    [attr.aria-label]="themeService.isDark() ? 'Switch to light mode' : 'Switch to dark mode'">
+                <span class="tb-theme-icons">
+                    <i class="ri-sun-fill"></i>
+                    <i class="ri-moon-clear-fill"></i>
+                </span>
+                <span class="tb-theme-knob"></span>
+            </button>
+
+            <!-- Signed-in user -->
+            <div class="tb-user" *ngIf="userName">
+                <span class="tb-avatar">{{ userInitial }}</span>
+                <span class="tb-user-text">
+                    <span class="tb-user-name">{{ userName | titlecase }}</span>
+                    <span class="tb-user-role">{{ role }}</span>
+                </span>
+            </div>
+
+            <button class="tb-logout-btn" (click)="openLogoutModal()" title="Sign out">
+                <i class="ri-logout-box-r-line"></i>
+            </button>
+        </div>
+
+    </header>
+
+    <!-- Sidebar -->
+    <nav [ngClass]="{'d-none': !sidebarVisible}" #sidebar class="sidebar">
+
+        <!-- Brand -->
+        <div class="sidebar-brand">
+            <img src="assets/ranjha-logo3.jpeg" alt="Ranjha7star Logo" style="width:36px;height:36px;object-fit:contain;border-radius:50%;flex-shrink:0;" />
+            <span class="brand-text">Ranjha<span class="brand-highlight">7star</span></span>
+            <button class="sidebar-close" (click)="toggleSidebar()" title="Close menu">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+
+        <!-- Scrollable nav area -->
+        <div class="sidebar-nav">
+
+            <!-- Dashboard (standalone) -->
+            <a *ngIf="role === 'admin'" routerLink="/dashboard" routerLinkActive="active"
+                class="nav-link-item" (click)="onMenuClick()">
+                <i class="ri-dashboard-line"></i>
+                <span>Dashboard</span>
+            </a>
+
+            <!-- ── Customers ──────────────────────────────── -->
+            <div class="nav-section" *ngIf="role === 'admin' || role === 'operator'">
+                <div class="section-header" (click)="toggleSection('customers')">
+                    <div class="section-title">
+                        <i class="ri-group-line"></i>
+                        <span>Customers</span>
+                    </div>
+                    <i class="ri-arrow-down-s-line section-arrow"
+                       [class.rotated]="expandedSections['customers']"></i>
+                </div>
+                <div class="section-links" [class.expanded]="expandedSections['customers']">
+                    <a *ngIf="role === 'admin' || role === 'operator'" routerLink="/user-details"
+                       routerLinkActive="active" class="nav-link-item sub-link" (click)="onMenuClick()">
+                        <i class="ri-user-line"></i><span>User Details</span>
+                    </a>
+                    <a *ngIf="role === 'admin' || role === 'operator'" routerLink="/user-collections"
+                       routerLinkActive="active" class="nav-link-item sub-link" (click)="onMenuClick()">
+                        <i class="ri-folders-line"></i><span>User Collections</span>
+                    </a>
+                    <a *ngIf="role === 'admin' || role === 'operator'" routerLink="/new-connection"
+                       routerLinkActive="active" class="nav-link-item sub-link" (click)="onMenuClick()">
+                        <i class="ri-add-circle-line"></i><span>New Connection</span>
+                    </a>
+                    <a *ngIf="role === 'admin'" routerLink="/customer-status"
+                       routerLinkActive="active" class="nav-link-item sub-link" (click)="onMenuClick()">
+                        <i class="ri-shield-check-line"></i><span>Customer Status</span>
+                    </a>
+                    <a *ngIf="role === 'admin'" routerLink="/defaulter-users"
+                       routerLinkActive="active" class="nav-link-item sub-link" (click)="onMenuClick()">
+                        <i class="ri-error-warning-line"></i><span>Defaulter Users</span>
+                    </a>
+                    <a *ngIf="role === 'admin'" routerLink="/complain-details"
+                       routerLinkActive="active" class="nav-link-item sub-link" (click)="onMenuClick()">
+                        <i class="ri-chat-delete-line"></i><span>Complaints</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- ── Finance ────────────────────────────────── -->
+            <div class="nav-section" *ngIf="role === 'admin' || role === 'operator'">
+                <div class="section-header" (click)="toggleSection('finance')">
+                    <div class="section-title">
+                        <i class="ri-money-dollar-circle-line"></i>
+                        <span>Finance</span>
+                    </div>
+                    <i class="ri-arrow-down-s-line section-arrow"
+                       [class.rotated]="expandedSections['finance']"></i>
+                </div>
+                <div class="section-links" [class.expanded]="expandedSections['finance']">
+                    <a *ngIf="role === 'admin'" routerLink="/bill-creator" routerLinkActive="active"
+                       class="nav-link-item sub-link" (click)="onMenuClick()">
+                        <i class="ri-file-text-line"></i><span>Bill Creator</span>
+                    </a>
+                    <a routerLink="/recovery-details" routerLinkActive="active"
+                       class="nav-link-item sub-link" (click)="onMenuClick()">
+                        <i class="ri-refund-2-line"></i><span>Recovery Details</span>
+                    </a>
+                    <a *ngIf="role === 'admin'" routerLink="/recovery-officer" routerLinkActive="active"
+                       class="nav-link-item sub-link" (click)="onMenuClick()">
+                        <i class="ri-user-star-line"></i><span>Recovery Officer</span>
+                    </a>
+                    <a *ngIf="role === 'admin'" routerLink="/ro-reports" routerLinkActive="active"
+                       class="nav-link-item sub-link" (click)="onMenuClick()">
+                        <i class="ri-bar-chart-box-line"></i><span>RO Reports</span>
+                    </a>
+                    <a *ngIf="role === 'admin'" routerLink="/expenses" routerLinkActive="active"
+                       class="nav-link-item sub-link" (click)="onMenuClick()">
+                        <i class="ri-wallet-3-line"></i><span>Expenses</span>
+                    </a>
+                    <a *ngIf="role === 'admin'" routerLink="/borrow-details" routerLinkActive="active"
+                       class="nav-link-item sub-link" (click)="onMenuClick()">
+                        <i class="ri-hand-coin-line"></i><span>Borrow Details</span>
+                    </a>
+                    <a *ngIf="role === 'admin'" routerLink="/payable-details" routerLinkActive="active"
+                       class="nav-link-item sub-link" (click)="onMenuClick()">
+                        <i class="ri-bank-card-line"></i><span>Payable Details</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- ── Network ────────────────────────────────── -->
+            <div class="nav-section" *ngIf="role === 'admin'">
+                <div class="section-header" (click)="toggleSection('network')">
+                    <div class="section-title">
+                        <i class="ri-global-line"></i>
+                        <span>Network</span>
+                    </div>
+                    <i class="ri-arrow-down-s-line section-arrow"
+                       [class.rotated]="expandedSections['network']"></i>
+                </div>
+                <div class="section-links" [class.expanded]="expandedSections['network']">
+                    <a routerLink="/mikrotik-users" routerLinkActive="active"
+                       class="nav-link-item sub-link" (click)="onMenuClick()">
+                        <i class="ri-router-line"></i><span>MikroTik Users</span>
+                    </a>
+                    <a routerLink="/zal-subscribers" routerLinkActive="active"
+                       class="nav-link-item sub-link" (click)="onMenuClick()">
+                        <i class="ri-server-line"></i><span>ZalUltra Subscribers</span>
+                    </a>
+                    <a routerLink="/area-details" routerLinkActive="active"
+                       class="nav-link-item sub-link" (click)="onMenuClick()">
+                        <i class="ri-map-pin-line"></i><span>Area Details</span>
+                    </a>
+                    <a routerLink="/sub-area-details" routerLinkActive="active"
+                       class="nav-link-item sub-link" (click)="onMenuClick()">
+                        <i class="ri-map-2-line"></i><span>Sub-Area Details</span>
+                    </a>
+                    <a routerLink="/city-details" routerLinkActive="active"
+                       class="nav-link-item sub-link" (click)="onMenuClick()">
+                        <i class="ri-building-line"></i><span>City Details</span>
+                    </a>
+                    <a routerLink="/package-details" routerLinkActive="active"
+                       class="nav-link-item sub-link" (click)="onMenuClick()">
+                        <i class="ri-price-tag-3-line"></i><span>Package Details</span>
+                    </a>
+                    <a routerLink="/operator-details" routerLinkActive="active"
+                       class="nav-link-item sub-link" (click)="onMenuClick()">
+                        <i class="ri-user-settings-line"></i><span>Operator Details</span>
+                    </a>
+                    <a routerLink="/router-details" routerLinkActive="active"
+                       class="nav-link-item sub-link" (click)="onMenuClick()">
+                        <i class="ri-router-fill"></i><span>Router Details</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- ── Management ─────────────────────────────── -->
+            <div class="nav-section" *ngIf="role === 'admin'">
+                <div class="section-header" (click)="toggleSection('management')">
+                    <div class="section-title">
+                        <i class="ri-briefcase-line"></i>
+                        <span>Management</span>
+                    </div>
+                    <i class="ri-arrow-down-s-line section-arrow"
+                       [class.rotated]="expandedSections['management']"></i>
+                </div>
+                <div class="section-links" [class.expanded]="expandedSections['management']">
+                    <a routerLink="/material-details" routerLinkActive="active"
+                       class="nav-link-item sub-link" (click)="onMenuClick()">
+                        <i class="ri-tools-line"></i><span>Material Details</span>
+                    </a>
+                    <a routerLink="/stock-details" routerLinkActive="active"
+                       class="nav-link-item sub-link" (click)="onMenuClick()">
+                        <i class="ri-inbox-2-line"></i><span>Stock Details</span>
+                    </a>
+                    <a routerLink="/company-detail" routerLinkActive="active"
+                       class="nav-link-item sub-link" (click)="onMenuClick()">
+                        <i class="ri-building-4-line"></i><span>Company Detail</span>
+                    </a>
+                    <a routerLink="/website-detail" routerLinkActive="active"
+                       class="nav-link-item sub-link" (click)="onMenuClick()">
+                        <i class="ri-global-line"></i><span>Website Content</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- ── Communication ─────────────────────────── -->
+            <div class="nav-section" *ngIf="role === 'admin'">
+                <div class="section-header" (click)="toggleSection('communication')">
+                    <div class="section-title">
+                        <i class="ri-message-3-line"></i>
+                        <span>Communication</span>
+                    </div>
+                    <i class="ri-arrow-down-s-line section-arrow"
+                       [class.rotated]="expandedSections['communication']"></i>
+                </div>
+                <div class="section-links" [class.expanded]="expandedSections['communication']">
+                    <a routerLink="/sms" routerLinkActive="active"
+                       class="nav-link-item sub-link" (click)="onMenuClick()">
+                        <i class="ri-chat-forward-line"></i><span>Mobile SMS</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- ── System ─────────────────────────────────── -->
+            <div class="nav-section" *ngIf="role === 'admin' || role === 'operator'">
+                <div class="section-header" (click)="toggleSection('system')">
+                    <div class="section-title">
+                        <i class="ri-settings-3-line"></i>
+                        <span>System</span>
+                    </div>
+                    <i class="ri-arrow-down-s-line section-arrow"
+                       [class.rotated]="expandedSections['system']"></i>
+                </div>
+                <div class="section-links" [class.expanded]="expandedSections['system']">
+                    <a *ngIf="role === 'admin'" routerLink="/logs" routerLinkActive="active"
+                       class="nav-link-item sub-link" (click)="onMenuClick()">
+                        <i class="ri-file-list-3-line"></i><span>Logs</span>
+                    </a>
+                    <a *ngIf="role === 'admin'" routerLink="/upload-docs" routerLinkActive="active"
+                       class="nav-link-item sub-link" (click)="onMenuClick()">
+                        <i class="ri-upload-cloud-line"></i><span>Upload Docs</span>
+                    </a>
+                    <a routerLink="/settings" routerLinkActive="active"
+                       class="nav-link-item sub-link" (click)="onMenuClick()">
+                        <i class="ri-equalizer-line"></i><span>Settings</span>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Logout -->
+        <div class="sidebar-footer">
+            <button class="logout-btn" (click)="openLogoutModal()">
+                <i class="ri-logout-box-r-line"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content flex-grow-1" [class.full-width]="!sidebarVisible"
+          [ngClass]="{'no-padding': isDashboard}">
+
+        <!-- ── Birthday Notification Banner ── -->
+        <div class="bday-banner" *ngIf="birthdayUsers.length > 0 && !birthdayDismissed">
+
+          <!-- decorative layers -->
+          <div class="bday-shimmer"></div>
+          <span class="bday-confetti c1"></span>
+          <span class="bday-confetti c2"></span>
+          <span class="bday-confetti c3"></span>
+          <span class="bday-confetti c4"></span>
+          <span class="bday-confetti c5"></span>
+
+          <div class="bday-inner">
+
+            <div class="bday-left">
+
+              <!-- icon badge -->
+              <div class="bday-badge">
+                <span class="bday-ring"></span>
+                <i class="ri-cake-3-fill"></i>
+              </div>
+
+              <div class="bday-text">
+                <div class="bday-label">
+                  <span class="bday-dot"></span>
+                  Birthday Today
+                  <span class="bday-count" *ngIf="birthdayUsers.length > 1">{{ birthdayUsers.length }}</span>
+                </div>
+                <div class="bday-headline">
+                  <ng-container *ngFor="let u of birthdayUsers; let last = last">
+                    <span class="bday-name-chip">
+                      <span class="bday-avatar">{{ (u.user_name || '?').charAt(0) | uppercase }}</span>
+                      {{ u.user_name | titlecase }}
+                    </span>
+                  </ng-container>
+                  <span class="bday-suffix">
+                    {{ birthdayUsers.length > 1 ? 'are celebrating today' : 'is celebrating today' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="bday-right">
+              <button class="bday-wish-btn" (click)="goWishBirthdays()">
+                <i class="ri-send-plane-fill"></i>
+                <span>Send Wishes</span>
+              </button>
+              <button class="bday-close-btn" (click)="birthdayDismissed = true" title="Dismiss">
+                <i class="ri-close-line"></i>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <router-outlet></router-outlet>
+    </main>
+
+</div>
+
+<!-- ── Logout Confirmation Modal ──────────────────────────── -->
+<ng-template #logoutModal let-modal>
+    <div class="lm-wrap">
+        <!-- decorative blobs -->
+        <span class="lm-blob lm-blob-1"></span>
+        <span class="lm-blob lm-blob-2"></span>
+
+        <!-- icon -->
+        <div class="lm-icon-wrap">
+            <span class="lm-ring lm-ring-1"></span>
+            <span class="lm-ring lm-ring-2"></span>
+            <div class="lm-icon">
+                <i class="ri-shut-down-line"></i>
+            </div>
+        </div>
+
+        <!-- text -->
+        <h4 class="lm-title">Sign Out?</h4>
+        <p class="lm-subtitle">You're about to sign out of<br><strong>Ranjha7star</strong>. See you soon!</p>
+
+        <!-- actions -->
+        <div class="lm-actions">
+            <button class="lm-btn-cancel" (click)="modal.dismiss()">
+                <i class="ri-arrow-left-line me-1"></i> Stay
+            </button>
+            <button class="lm-btn-logout" (click)="logout(modal)">
+                Sign Out <i class="ri-logout-box-r-line ms-1"></i>
+            </button>
+        </div>
+    </div>
+</ng-template>

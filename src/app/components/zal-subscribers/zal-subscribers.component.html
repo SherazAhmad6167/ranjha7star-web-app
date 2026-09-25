@@ -1,0 +1,600 @@
+<div class="container-fluid zl-wrapper">
+
+  <!-- ══ Page Header ══ -->
+  <div class="zl-page-header mb-4">
+    <div class="zl-header-left">
+      <div class="zl-header-icon"><i class="ri-server-line"></i></div>
+      <div>
+        <h1 class="zl-title">ZalUltra Subscribers</h1>
+        <p class="zl-sub">Live subscriber list from the ZalUltra ISP panel</p>
+      </div>
+    </div>
+    <div class="zl-header-right">
+      <span class="zl-stat-pill" *ngIf="stats">
+        <i class="ri-group-line"></i>
+        <strong>{{ stats.total | number }}</strong> Subscribers
+      </span>
+      <button class="btn-zl-ghost" (click)="refreshAll()" [disabled]="isLoading">
+        <i class="ri-refresh-line" [class.spin]="isLoading"></i> Refresh
+      </button>
+      <button class="btn-zl-add" (click)="openAdd()">
+        <i class="ri-user-add-line"></i> Add Subscriber
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ Connection Error ══ -->
+  <div class="zl-alert mb-4" *ngIf="proxyError">
+    <i class="ri-error-warning-line zl-alert-icon"></i>
+    <div>
+      <p class="zl-alert-title">Cannot load ZalUltra subscribers</p>
+      <p class="zl-alert-text">{{ proxyError }}</p>
+      <code class="zl-alert-code" *ngIf="proxyIsCors">cd backend &amp;&amp; npm start</code>
+      <div><button class="zl-alert-retry" (click)="refreshAll()">Retry</button></div>
+    </div>
+  </div>
+
+  <!-- ══ Branch Totals ══ -->
+  <div class="zl-stat-row mb-4" *ngIf="stats && !proxyError">
+    <div class="zl-stat-card">
+      <div class="zl-stat-icon indigo-bg"><i class="ri-group-line"></i></div>
+      <div>
+        <div class="zl-stat-label">Total Subscribers</div>
+        <div class="zl-stat-value">{{ stats.total | number }}</div>
+      </div>
+    </div>
+    <div class="zl-stat-card">
+      <div class="zl-stat-icon green-bg"><i class="ri-shield-check-line"></i></div>
+      <div>
+        <div class="zl-stat-label">Active</div>
+        <div class="zl-stat-value">{{ stats.active | number }}</div>
+      </div>
+    </div>
+    <div class="zl-stat-card">
+      <div class="zl-stat-icon blue-bg"><i class="ri-wifi-line"></i></div>
+      <div>
+        <div class="zl-stat-label">Online Now</div>
+        <div class="zl-stat-value">{{ stats.online | number }}</div>
+      </div>
+    </div>
+    <div class="zl-stat-card">
+      <div class="zl-stat-icon red-bg"><i class="ri-forbid-line"></i></div>
+      <div>
+        <div class="zl-stat-label">Disabled</div>
+        <div class="zl-stat-value">{{ stats.disable | number }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ Main Card ══ -->
+  <div class="zl-card" *ngIf="!proxyError">
+
+    <!-- Filter Bar -->
+    <div class="zl-filter-bar">
+      <div class="zl-search-group">
+        <label class="zl-filter-label"><i class="ri-search-2-line"></i> Search</label>
+        <div class="zl-search-wrap">
+          <i class="ri-search-line zl-search-icon"></i>
+          <input type="text" class="zl-search-input" placeholder="Username, name, phone…"
+                 [(ngModel)]="searchTerm" (input)="onSearchInput()">
+        </div>
+      </div>
+
+      <div class="zl-select-group">
+        <label class="zl-filter-label"><i class="ri-price-tag-3-line"></i> Package</label>
+        <app-search-select
+          class="zl-filter-select"
+          [(ngModel)]="packageId"
+          (selectionChange)="onFilterChange()"
+          [options]="packages"
+          valueKey="id"
+          displayKey="name"
+          placeholder="All Packages"
+          emptyLabel="All Packages"
+          [allowEmpty]="true"
+          [titleCase]="false">
+        </app-search-select>
+      </div>
+
+      <div class="zl-select-group">
+        <label class="zl-filter-label"><i class="ri-list-settings-line"></i> Per Page</label>
+        <select class="zl-select" [(ngModel)]="pageSize" (change)="onFilterChange()">
+          <option [ngValue]="25">25</option>
+          <option [ngValue]="50">50</option>
+          <option [ngValue]="100">100 (max)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-responsive">
+      <table class="zl-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Username</th>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Package</th>
+            <th>Area</th>
+            <th>Expiry</th>
+            <th>Status</th>
+            <th>Internet</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr *ngIf="isLoading">
+            <td colspan="10" class="zl-loading-cell">
+              <span class="spinner-border spinner-border-sm me-2"></span> Loading subscribers…
+            </td>
+          </tr>
+
+          <tr *ngIf="!isLoading && subscribers.length === 0">
+            <td colspan="10" class="zl-empty">
+              <i class="ri-user-search-line"></i>
+              <div class="zl-empty-title">No subscribers found</div>
+              <div class="zl-empty-sub">Try a different search or clear the filters</div>
+            </td>
+          </tr>
+
+          <tr *ngFor="let s of subscribers; let i = index" [hidden]="isLoading">
+            <td class="zl-row-num">{{ rangeStart + i }}</td>
+            <td class="zl-username">{{ username(s) }}</td>
+            <td class="zl-name">{{ displayName(s) }}</td>
+            <td class="zl-phone">{{ phone(s) }}</td>
+            <td><span class="zl-pkg">{{ packageName(s) }}</span></td>
+            <td><span class="zl-area-tag"><i class="ri-map-pin-line"></i>{{ area(s) }}</span></td>
+            <td class="zl-date">{{ expiry(s) }}</td>
+            <td>
+              <span class="zl-badge"
+                    [class.green]="status(s) === 'active'"
+                    [class.amber]="status(s) === 'pending'"
+                    [class.red]="status(s) === 'inactive'"
+                    [class.grey]="status(s) === 'unknown'">
+                {{ status(s) | titlecase }}
+              </span>
+            </td>
+            <td>
+              <span class="zl-badge" [class.green]="isOnline(s)" [class.red]="!isOnline(s)">
+                <i [class]="isOnline(s) ? 'ri-wifi-line' : 'ri-wifi-off-line'"></i>
+                {{ isOnline(s) ? 'On' : 'Off' }}
+              </span>
+            </td>
+            <td>
+              <div class="zl-actions">
+                <button class="zl-action-btn edit-btn" (click)="openEdit(s)" title="Edit subscriber">
+                  <i class="ri-pencil-line"></i>
+                </button>
+                <button class="zl-action-btn renew-btn" (click)="openRenew(s)" title="Renew / activate">
+                  <i class="ri-flashlight-line"></i>
+                </button>
+                <button class="zl-action-btn off-btn" *ngIf="isOnline(s)"
+                        (click)="askAction(s, 'disable')" title="Disable internet">
+                  <i class="ri-wifi-off-line"></i>
+                </button>
+                <button class="zl-action-btn on-btn" *ngIf="!isOnline(s)"
+                        (click)="askAction(s, 'enable')" title="Enable internet">
+                  <i class="ri-wifi-line"></i>
+                </button>
+                <button class="zl-action-btn del-btn" (click)="askDelete(s)" title="Delete subscriber">
+                  <i class="ri-delete-bin-line"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Footer -->
+    <div class="zl-table-footer">
+      <div class="zl-footer-info">
+        Showing <strong>{{ rangeStart | number }}</strong>–<strong>{{ rangeEnd | number }}</strong>
+        <ng-container *ngIf="knownTotal !== null"> of <strong>{{ totalLabel }}</strong></ng-container>
+        <span class="zl-filtered-note" *ngIf="isFiltered">(filtered)</span>
+      </div>
+
+      <div class="zl-pager">
+        <button class="zl-page-btn" [disabled]="currentPage === 1" (click)="prevPage()">Previous</button>
+
+        <ng-container *ngIf="totalPages !== null">
+          <button class="zl-page-btn" *ngFor="let p of visiblePages"
+                  [class.active]="p === currentPage" (click)="goToPage(p)">{{ p }}</button>
+          <span class="zl-page-total" *ngIf="totalPages && totalPages > 1">of {{ totalPages }}</span>
+        </ng-container>
+
+        <button class="zl-page-btn active" *ngIf="totalPages === null">{{ currentPage }}</button>
+
+        <button class="zl-page-btn" [disabled]="!canGoNext" (click)="nextPage()">Next</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════ Add / Edit Subscriber ══════════ -->
+<ng-template #formModal let-modal>
+  <div class="zlm-wrapper">
+
+    <div class="zlm-header">
+      <div class="zlm-header-left">
+        <div class="zlm-header-icon"><i class="ri-user-add-line"></i></div>
+        <div>
+          <h4 class="zlm-title">{{ editMode ? 'Edit' : 'Add' }} Subscriber</h4>
+          <p class="zlm-subtitle">
+            {{ editMode ? 'Update this subscriber on the ZalUltra panel' : 'Create a subscriber on the ZalUltra panel' }}
+          </p>
+        </div>
+      </div>
+      <button type="button" class="zlm-close-btn" (click)="modal.dismiss()"><i class="ri-close-line"></i></button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="saveSubscriber()">
+      <div class="zlm-body">
+
+        <!-- Personal -->
+        <div class="zlm-section">
+          <div class="zlm-section-head">
+            <div class="zlm-section-icon si-indigo"><i class="ri-user-line"></i></div>
+            <span class="zlm-section-title">Personal Details</span>
+          </div>
+          <div class="zlm-section-body">
+            <div class="row g-3">
+
+              <div class="col-md-6">
+                <label class="zlm-label">Name <span class="req">*</span></label>
+                <input type="text" class="zlm-input" formControlName="fullname" placeholder="Enter name"
+                       [class.zlm-invalid]="form.get('fullname')?.invalid && form.get('fullname')?.touched">
+                <span class="zlm-err" *ngIf="form.get('fullname')?.invalid && form.get('fullname')?.touched">Name is required</span>
+              </div>
+
+              <div class="col-md-6">
+                <label class="zlm-label">Identity <span class="req">*</span></label>
+                <input type="text" class="zlm-input" formControlName="identity" placeholder="National identity"
+                       [class.zlm-invalid]="form.get('identity')?.invalid && form.get('identity')?.touched">
+                <span class="zlm-err" *ngIf="form.get('identity')?.invalid && form.get('identity')?.touched">Identity is required</span>
+              </div>
+
+              <div class="col-md-6">
+                <label class="zlm-label">Phone <span class="req">*</span></label>
+                <input type="text" class="zlm-input" formControlName="phone" placeholder="03xxxxxxxxx"
+                       [class.zlm-invalid]="form.get('phone')?.invalid && form.get('phone')?.touched">
+                <span class="zlm-err" *ngIf="form.get('phone')?.invalid && form.get('phone')?.touched">Phone is required</span>
+              </div>
+
+              <div class="col-md-6">
+                <label class="zlm-label">Email</label>
+                <input type="email" class="zlm-input" formControlName="email" placeholder="Email address">
+              </div>
+
+              <div class="col-md-6">
+                <label class="zlm-label">Address</label>
+                <input type="text" class="zlm-input" formControlName="address" placeholder="Street / village">
+              </div>
+
+              <div class="col-md-6">
+                <label class="zlm-label">Area</label>
+                <app-search-select
+                  formControlName="area"
+                  [options]="areaOptions"
+                  valueKey="id"
+                  displayKey="name"
+                  placeholder="Select area"
+                  [allowEmpty]="true"
+                  emptyLabel="No area">
+                </app-search-select>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Login -->
+        <div class="zlm-section">
+          <div class="zlm-section-head">
+            <div class="zlm-section-icon si-blue"><i class="ri-key-2-line"></i></div>
+            <span class="zlm-section-title">Login &amp; Connection</span>
+          </div>
+          <div class="zlm-section-body">
+            <div class="row g-3">
+
+              <div class="col-md-6">
+                <label class="zlm-label">Username <span class="req">*</span></label>
+                <input type="text" class="zlm-input" formControlName="username" placeholder="Login username"
+                       [class.zlm-invalid]="form.get('username')?.invalid && form.get('username')?.touched">
+                <span class="zlm-err" *ngIf="form.get('username')?.invalid && form.get('username')?.touched">Username is required</span>
+              </div>
+
+              <div class="col-md-6">
+                <label class="zlm-label">Portal Password <span class="req" *ngIf="!editMode">*</span></label>
+                <input type="text" class="zlm-input" formControlName="password"
+                       [placeholder]="editMode ? 'Leave blank to keep current' : 'Portal password'"
+                       [class.zlm-invalid]="form.get('password')?.invalid && form.get('password')?.touched">
+                <span class="zlm-hint" *ngIf="editMode">Leave blank to keep the existing password</span>
+              </div>
+
+              <div class="col-md-6">
+                <label class="zlm-label">Connection Password</label>
+                <input type="text" class="zlm-input" formControlName="connection_password" placeholder="PPPoE password">
+              </div>
+
+              <div class="col-md-6">
+                <label class="zlm-label">NAS / Router</label>
+                <app-search-select
+                  formControlName="nas_id"
+                  [options]="nasOptions"
+                  valueKey="id"
+                  displayKey="name"
+                  placeholder="Select NAS"
+                  [allowEmpty]="true"
+                  emptyLabel="No NAS"
+                  [titleCase]="false">
+                </app-search-select>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Service -->
+        <div class="zlm-section">
+          <div class="zlm-section-head">
+            <div class="zlm-section-icon si-green"><i class="ri-price-tag-3-line"></i></div>
+            <span class="zlm-section-title">Package &amp; Service</span>
+          </div>
+          <div class="zlm-section-body">
+            <div class="row g-3">
+
+              <div class="col-md-6">
+                <label class="zlm-label">Package <span class="req">*</span></label>
+                <app-search-select
+                  formControlName="package_id"
+                  [options]="packages"
+                  valueKey="id"
+                  displayKey="name"
+                  placeholder="Select package"
+                  [allowEmpty]="false"
+                  [titleCase]="false"
+                  [isInvalid]="!!(form.get('package_id')?.invalid && form.get('package_id')?.touched)">
+                </app-search-select>
+                <span class="zlm-err" *ngIf="form.get('package_id')?.invalid && form.get('package_id')?.touched">Package is required</span>
+              </div>
+
+              <div class="col-md-6">
+                <label class="zlm-label">Salesperson <span class="req">*</span></label>
+                <app-search-select
+                  formControlName="salesperson_id"
+                  [options]="salespersonOptions"
+                  valueKey="id"
+                  displayKey="name"
+                  placeholder="Select salesperson"
+                  [allowEmpty]="false"
+                  [titleCase]="false"
+                  [isInvalid]="!!(form.get('salesperson_id')?.invalid && form.get('salesperson_id')?.touched)">
+                </app-search-select>
+                <span class="zlm-err" *ngIf="form.get('salesperson_id')?.invalid && form.get('salesperson_id')?.touched">Salesperson is required</span>
+              </div>
+
+              <div class="col-md-6">
+                <label class="zlm-label">Expiry</label>
+                <input type="datetime-local" class="zlm-input" formControlName="expiration_date">
+              </div>
+
+              <div class="col-md-6">
+                <label class="zlm-label">Status</label>
+                <select class="zlm-input zlm-select" formControlName="profile_status">
+                  <option [ngValue]="2">Active</option>
+                  <option [ngValue]="1">Pending</option>
+                  <option [ngValue]="0">Inactive</option>
+                </select>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="zlm-footer">
+        <button type="button" class="zlm-btn zlm-btn-cancel" (click)="modal.dismiss()">
+          <i class="ri-close-line"></i> Cancel
+        </button>
+        <button type="submit" class="zlm-btn zlm-btn-save" [disabled]="isSaving">
+          <ng-container *ngIf="!isSaving">
+            <i class="ri-save-line"></i> {{ editMode ? 'Update' : 'Create' }} Subscriber
+          </ng-container>
+          <ng-container *ngIf="isSaving">
+            <span class="spinner-border spinner-border-sm"></span> {{ editMode ? 'Updating…' : 'Creating…' }}
+          </ng-container>
+        </button>
+      </div>
+    </form>
+
+  </div>
+</ng-template>
+
+<!-- ══════════ Renew / Activate ══════════ -->
+<ng-template #renewModal let-modal>
+  <div class="zlm-wrapper">
+
+    <div class="zlm-header">
+      <div class="zlm-header-left">
+        <div class="zlm-header-icon"><i class="ri-flashlight-line"></i></div>
+        <div>
+          <h4 class="zlm-title">Renew / Activate</h4>
+          <p class="zlm-subtitle">
+            {{ displayName(selectedSubscriber) }} · expires {{ expiry(selectedSubscriber) }}
+          </p>
+        </div>
+      </div>
+      <button type="button" class="zlm-close-btn" (click)="modal.dismiss()"><i class="ri-close-line"></i></button>
+    </div>
+
+    <form [formGroup]="renewForm">
+      <div class="zlm-body">
+        <div class="zlm-section">
+          <div class="zlm-section-head">
+            <div class="zlm-section-icon si-green"><i class="ri-coins-line"></i></div>
+            <span class="zlm-section-title">Activation Details</span>
+          </div>
+          <div class="zlm-section-body">
+            <div class="row g-3">
+
+              <div class="col-md-6">
+                <label class="zlm-label">Package</label>
+                <app-search-select
+                  formControlName="package_id"
+                  [options]="packages"
+                  valueKey="id"
+                  displayKey="name"
+                  placeholder="Keep current package"
+                  emptyLabel="Keep current package"
+                  [allowEmpty]="true"
+                  [titleCase]="false">
+                </app-search-select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="zlm-label d-block">Payment</label>
+                <div class="d-flex align-items-center gap-3">
+                  <div class="form-check form-switch mb-0">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      role="switch"
+                      id="takePaymentToggle"
+                      formControlName="take_payment"
+                      style="width: 2.5rem; height: 1.25rem; cursor: pointer;"
+                    />
+                  </div>
+                  <span class="badge rounded-pill px-3 py-2"
+                    [ngClass]="renewForm.get('take_payment')?.value ? 'bg-success' : 'bg-secondary'">
+                    <i class="ri-circle-fill me-1" style="font-size: 0.45rem; vertical-align: middle;"></i>
+                    {{ renewForm.get('take_payment')?.value ? 'Collecting payment' : 'No payment' }}
+                  </span>
+                </div>
+                <span class="zlm-hint" *ngIf="!renewForm.get('take_payment')?.value">
+                  Charged to the subscriber&apos;s existing balance
+                </span>
+              </div>
+
+              <ng-container *ngIf="renewForm.get('take_payment')?.value">
+                <div class="col-md-6">
+                  <label class="zlm-label">Payment Method</label>
+                  <select class="zlm-input zlm-select" formControlName="payment_method">
+                    <option [ngValue]="1">Cash</option>
+                    <option [ngValue]="4">Subscriber Balance</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="zlm-label">Payment Amount</label>
+                  <input type="number" class="zlm-input" formControlName="payment_amount" placeholder="0"
+                    [class.is-invalid]="renewForm.get('payment_amount')?.invalid && renewForm.get('payment_amount')?.touched">
+                  <span class="zlm-hint" *ngIf="renewPreview?.required_payment">
+                    Panel is asking for Rs. {{ renewPreview.required_payment }}
+                  </span>
+                </div>
+              </ng-container>
+
+              <div class="col-md-6">
+                <label class="zlm-label">Custom Expiry</label>
+                <input type="datetime-local" class="zlm-input" formControlName="custom_expiry_datetime">
+                <span class="zlm-hint">Leave blank to use the package duration</span>
+              </div>
+
+              <div class="col-12" *ngIf="renewPreview">
+                <label class="zlm-label">Cost Preview</label>
+                <pre class="zlm-preview">{{ renewPreview | json }}</pre>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="zlm-footer">
+        <button type="button" class="zlm-btn zlm-btn-cancel" (click)="modal.dismiss()">
+          <i class="ri-close-line"></i> Cancel
+        </button>
+        <button type="button" class="zlm-btn zlm-btn-ghost" (click)="previewRenew()" [disabled]="isPreviewing">
+          <span class="spinner-border spinner-border-sm" *ngIf="isPreviewing"></span>
+          <i class="ri-eye-line" *ngIf="!isPreviewing"></i> Preview cost
+        </button>
+        <button type="button" class="zlm-btn zlm-btn-save" (click)="confirmRenew()" [disabled]="isActing">
+          <span class="spinner-border spinner-border-sm" *ngIf="isActing"></span>
+          <i class="ri-flashlight-line" *ngIf="!isActing"></i> Activate
+        </button>
+      </div>
+    </form>
+
+  </div>
+</ng-template>
+
+<!-- ══════════ Enable / Disable Internet ══════════ -->
+<ng-template #confirmModal let-modal>
+  <div class="zl-dm-wrap" [class.is-safe]="pendingAction === 'enable'">
+    <button class="zl-dm-close" (click)="modal.dismiss()"><i class="ri-close-line"></i></button>
+
+    <div class="zl-dm-icon-wrap">
+      <span class="zl-dm-icon-ring"></span>
+      <div class="zl-dm-icon">
+        <i [class]="pendingAction === 'enable' ? 'ri-wifi-line' : 'ri-wifi-off-line'"></i>
+      </div>
+    </div>
+
+    <h4 class="zl-dm-title">{{ pendingAction === 'enable' ? 'Enable' : 'Disable' }} Internet?</h4>
+    <p class="zl-dm-msg">
+      {{ pendingAction === 'enable' ? 'Restore' : 'Cut' }} the connection for
+      <strong>{{ displayName(selectedSubscriber) }}</strong>
+      <code>{{ username(selectedSubscriber) }}</code> on the ZalUltra panel.
+    </p>
+
+    <div class="zl-dm-actions">
+      <button class="zl-dm-btn cancel" (click)="modal.dismiss()" [disabled]="isActing">
+        <i class="ri-arrow-left-line"></i> Cancel
+      </button>
+      <button class="zl-dm-btn confirm" [class.safe]="pendingAction === 'enable'"
+              (click)="confirmAction()" [disabled]="isActing">
+        <span class="spinner-border spinner-border-sm" *ngIf="isActing"></span>
+        {{ pendingAction === 'enable' ? 'Enable' : 'Disable' }}
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<!-- ══════════ Delete ══════════ -->
+<ng-template #deleteModal let-modal>
+  <div class="zl-dm-wrap">
+    <button class="zl-dm-close" (click)="modal.dismiss()"><i class="ri-close-line"></i></button>
+
+    <div class="zl-dm-icon-wrap">
+      <span class="zl-dm-icon-ring"></span>
+      <div class="zl-dm-icon"><i class="ri-delete-bin-line"></i></div>
+    </div>
+
+    <h4 class="zl-dm-title">Delete Subscriber?</h4>
+    <p class="zl-dm-msg">
+      Permanently remove <strong>{{ displayName(selectedSubscriber) }}</strong>
+      <code>{{ username(selectedSubscriber) }}</code> from the ZalUltra panel.
+    </p>
+
+    <div class="zl-dm-warn">
+      <i class="ri-error-warning-line"></i>
+      <span>This deletes the subscriber on the panel itself and cannot be undone from here.</span>
+    </div>
+
+    <div class="zl-dm-actions">
+      <button class="zl-dm-btn cancel" (click)="modal.dismiss()" [disabled]="isDeleting">
+        <i class="ri-arrow-left-line"></i> Cancel
+      </button>
+      <button class="zl-dm-btn confirm" (click)="confirmDelete()" [disabled]="isDeleting">
+        <span class="spinner-border spinner-border-sm" *ngIf="isDeleting"></span>
+        Delete
+      </button>
+    </div>
+  </div>
+</ng-template>

@@ -1,0 +1,484 @@
+<div class="container-fluid nc-wrapper">
+
+  <!-- Loading Overlay -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <div class="lo-box">
+      <div class="spinner-border text-primary" role="status"></div>
+      <span class="lo-text">Loading connections...</span>
+    </div>
+  </div>
+
+  <!-- ── Page Header ── -->
+  <div class="nc-page-header mb-4">
+    <div class="nc-header-left">
+      <div class="nc-header-icon"><i class="ri-plug-line"></i></div>
+      <div>
+        <h1 class="nc-title">New Connections</h1>
+        <p class="nc-sub">Manage installation requests and connection status</p>
+      </div>
+    </div>
+    <div class="nc-header-right">
+      <span class="nc-stat-pill">
+        <i class="ri-group-line"></i> <strong>{{ filteredUsers.length }}</strong> Total
+      </span>
+      <button class="btn-nc-add" (click)="openExpenseModal()">
+        <i class="ri-add-line"></i> Add Connection
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Main Card ── -->
+  <div class="nc-card mb-4">
+
+    <!-- Status Tabs -->
+    <div class="nc-card-header">
+      <div class="nc-status-tabs">
+        <button class="nc-tab all-tab" [class.active]="selectedStatus === 'all'"
+          (click)="selectedStatus='all'; onFilterChange()">
+          <i class="ri-list-unordered"></i> All
+          <span class="nc-tab-badge" *ngIf="selectedStatus === 'all'">{{ filteredUsers.length }}</span>
+        </button>
+        <button class="nc-tab received-tab" [class.active]="selectedStatus === 'recieved'"
+          (click)="selectedStatus='recieved'; onFilterChange()">
+          <i class="ri-checkbox-circle-line"></i> Received
+          <span class="nc-tab-badge" *ngIf="selectedStatus === 'recieved'">{{ filteredUsers.length }}</span>
+        </button>
+        <button class="nc-tab pending-tab" [class.active]="selectedStatus === 'pending'"
+          (click)="selectedStatus='pending'; onFilterChange()">
+          <i class="ri-time-line"></i> Pending
+          <span class="nc-tab-badge" *ngIf="selectedStatus === 'pending'">{{ filteredUsers.length }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="nc-filter-bar">
+      <div class="nc-filter-group">
+        <label class="nc-filter-label"><i class="ri-map-pin-line"></i> Area</label>
+        <app-search-select
+          [(ngModel)]="sublocality"
+          (selectionChange)="onAreaChange()"
+          [options]="areaOptions"
+          valueKey="sublocality"
+          displayKey="sublocality"
+          placeholder="All Areas"
+          emptyLabel="All Areas"
+          [allowEmpty]="true">
+        </app-search-select>
+      </div>
+      <div class="nc-filter-group">
+        <label class="nc-filter-label"><i class="ri-map-pin-line"></i> Sub Area</label>
+        <app-search-select
+          [(ngModel)]="subArea"
+          (selectionChange)="onFilterChange()"
+          [options]="filteredSubAreas"
+          valueKey="sub_area"
+          displayKey="sub_area"
+          placeholder="All Sub Areas"
+          emptyLabel="All Sub Areas"
+          [allowEmpty]="true">
+        </app-search-select>
+      </div>
+      <div class="nc-filter-group">
+        <label class="nc-filter-label"><i class="ri-user-settings-line"></i> Operator</label>
+        <select class="nc-select" [(ngModel)]="operatorName" (change)="onFilterChange()">
+          <option value="">All Operators</option>
+          <option *ngFor="let area of internetOperators" [value]="area.operator_name">
+            {{ area.operator_name | titlecase }}
+          </option>
+        </select>
+      </div>
+      <div class="nc-filter-group">
+        <label class="nc-filter-label"><i class="ri-user-received-line"></i> Received By</label>
+        <select class="nc-select" [(ngModel)]="selectedRecievedBy" (change)="onFilterChange()">
+          <option value="">All</option>
+          <option *ngFor="let name of recievedByList" [value]="name">{{ name | titlecase }}</option>
+        </select>
+      </div>
+      <div class="nc-filter-group">
+        <label class="nc-filter-label"><i class="ri-calendar-line"></i> Month</label>
+        <select class="nc-select" [(ngModel)]="selectedMonth" (change)="onFilterChange()">
+          <option [ngValue]="null">All Months</option>
+          <option value="january">January</option>
+          <option value="february">February</option>
+          <option value="march">March</option>
+          <option value="april">April</option>
+          <option value="may">May</option>
+          <option value="june">June</option>
+          <option value="july">July</option>
+          <option value="august">August</option>
+          <option value="september">September</option>
+          <option value="october">October</option>
+          <option value="november">November</option>
+          <option value="december">December</option>
+        </select>
+      </div>
+      <div class="nc-filter-group nc-search-group">
+        <label class="nc-filter-label"><i class="ri-search-line"></i> Search</label>
+        <div class="nc-search-wrap">
+          <i class="ri-search-line nc-search-icon"></i>
+          <input type="text" class="nc-search-input" placeholder="Name, ID, area..."
+            [(ngModel)]="searchTerm" (input)="onFilterChange()" />
+        </div>
+      </div>
+      <div class="nc-filter-group nc-entries-group">
+        <label class="nc-filter-label"><i class="ri-list-ordered"></i> Entries</label>
+        <select class="nc-select" [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+          <option [value]="10">10</option>
+          <option [value]="30">30</option>
+          <option [value]="50">50</option>
+          <option [value]="100">100</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-responsive">
+      <table class="nc-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>User</th>
+            <th>ID</th>
+            <th>Area</th>
+            <th>Sub Area</th>
+            <th>Package</th>
+            <th>Install Date</th>
+            <th>Install Amt</th>
+            <th>Received</th>
+            <th>Remaining</th>
+            <th>Expenses</th>
+            <th>Operator</th>
+            <th>Received By</th>
+            <th>Recv. Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="!pagedUsers.length">
+            <td colspan="16" class="nc-empty">
+              <i class="ri-inbox-2-line"></i>
+              <div class="nc-empty-title">No connections found</div>
+              <div class="nc-empty-sub">Try adjusting your filters</div>
+            </td>
+          </tr>
+          <tr *ngFor="let user of pagedUsers; let i = index" [class.nc-row-inactive]="isInactive(user)">
+            <td class="nc-row-num">{{ (currentPage - 1) * pageSize + i + 1 }}</td>
+            <td>
+              <div class="nc-user-cell">
+                <div class="nc-avatar">{{ user.user_name?.charAt(0)?.toUpperCase() }}</div>
+                <div>
+                  <div class="nc-user-name">{{ user.user_name }}</div>
+                  <span class="nc-inactive-badge" *ngIf="isInactive(user)">
+                    <i class="ri-forbid-2-line"></i> Inactive
+                  </span>
+                </div>
+              </div>
+            </td>
+            <td><span class="nc-id-badge">{{ user.internet_id || '-' }}</span></td>
+            <td><span class="nc-area-tag">{{ user.sublocality || '-' }}</span></td>
+            <td><span class="nc-area-tag" *ngIf="user.sub_area">{{ user.sub_area }}</span><span *ngIf="!user.sub_area">-</span></td>
+            <td><span class="nc-pkg">{{ user.package_label || '-' }}</span></td>
+            <td><span class="nc-date">{{ user.installation_date | date:'dd MMM yy' }}</span></td>
+            <td><span class="nc-amount">{{ user.installation_amount || '-' }}</span></td>
+            <td><span class="nc-received">{{ user.recieved_amount || '-' }}</span></td>
+            <td [class.nc-remaining-danger]="user.remaining_amount > 0">{{ user.remaining_amount || '-' }}</td>
+            <td>{{ user.expenses || '-' }}</td>
+            <td>{{ user.operator_name || '-' }}</td>
+            <td>{{ user.recieved_by | titlecase }}</td>
+            <td><span class="nc-date">{{ user.recieved_date | date:'dd MMM yy' }}</span></td>
+            <td>
+              <span class="nc-status-badge received" *ngIf="user.isRecieved">Received</span>
+              <span class="nc-status-badge pending" *ngIf="!user.isRecieved">Pending</span>
+            </td>
+            <td>
+              <div class="nc-actions">
+                <button class="nc-action-btn edit-btn" (click)="editUser(user)" title="Edit">
+                  <i class="ri-pencil-line"></i>
+                </button>
+                <button class="nc-action-btn pdf-btn" (click)="openPdfModal(user)" title="View PDF">
+                  <i class="ri-file-pdf-line"></i>
+                </button>
+                <button class="nc-action-btn msg-btn" (click)="openMsgModal(user)" title="Send Message">
+                  <i class="ri-message-3-line"></i>
+                </button>
+                <button class="nc-action-btn del-btn" (click)="openDeleteModal(user.id, deleteModal)" title="Delete">
+                  <i class="ri-delete-bin-7-line"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Footer -->
+    <div class="nc-table-footer">
+      <div class="nc-footer-info">
+        Showing <strong>{{ pagedUsers.length }}</strong> of <strong>{{ filteredUsers.length }}</strong> entries
+      </div>
+      <ul class="pagination mb-0">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <button class="page-link" (click)="prevPage()"><i class="ri-arrow-left-s-line"></i></button>
+        </li>
+        <li class="page-item" *ngFor="let page of visiblePages" [class.active]="currentPage === page">
+          <button class="page-link" (click)="goToPage(page)">{{ page }}</button>
+        </li>
+        <li class="page-item" [class.disabled]="currentPage === totalPages">
+          <button class="page-link" (click)="nextPage()"><i class="ri-arrow-right-s-line"></i></button>
+        </li>
+      </ul>
+    </div>
+
+  </div><!-- /nc-card -->
+
+  <!-- ── Date Range + Summary ── -->
+  <div class="nc-summary-section">
+    <div class="nc-date-row mb-3">
+      <div class="nc-filter-group">
+        <label class="nc-filter-label"><i class="ri-calendar-line"></i> From Date</label>
+        <input type="date" class="nc-select" [(ngModel)]="fromDate" (change)="filterByDateRange()" />
+      </div>
+      <div class="nc-filter-group">
+        <label class="nc-filter-label"><i class="ri-calendar-line"></i> To Date</label>
+        <input type="date" class="nc-select" [(ngModel)]="toDate" (change)="filterByDateRange()" />
+      </div>
+    </div>
+    <div class="nc-sum-row">
+      <div class="nc-sum-card">
+        <div class="nc-sum-icon total-icon"><i class="ri-group-line"></i></div>
+        <div class="nc-sum-body">
+          <div class="nc-sum-label">Total Users</div>
+          <div class="nc-sum-amount">{{ totalUsers }}</div>
+        </div>
+      </div>
+      <div class="nc-sum-card">
+        <div class="nc-sum-icon amount-icon"><i class="ri-money-dollar-circle-line"></i></div>
+        <div class="nc-sum-body">
+          <div class="nc-sum-label">Total Amount</div>
+          <div class="nc-sum-amount">Rs. {{ totalRecovery }}</div>
+        </div>
+      </div>
+      <div class="nc-sum-card">
+        <div class="nc-sum-icon received-icon"><i class="ri-checkbox-circle-line"></i></div>
+        <div class="nc-sum-body">
+          <div class="nc-sum-label">Received Amount</div>
+          <div class="nc-sum-amount received-amt">Rs. {{ totalExpenses }}</div>
+        </div>
+      </div>
+      <div class="nc-sum-card">
+        <div class="nc-sum-icon pending-icon"><i class="ri-time-line"></i></div>
+        <div class="nc-sum-body">
+          <div class="nc-sum-label">Pending Amount</div>
+          <div class="nc-sum-amount pending-amt">Rs. {{ totalProfit }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /nc-wrapper -->
+
+
+<!-- ── Delete Modal ── -->
+<ng-template #deleteModal let-modal>
+  <div class="gdm-wrap">
+    <button class="gdm-close" type="button" (click)="modal.dismiss()" [disabled]="isDeleting">
+      <i class="ri-close-line"></i>
+    </button>
+    <div class="gdm-icon"><i class="ri-delete-bin-6-line"></i></div>
+    <h5 class="gdm-title">Delete Connection?</h5>
+    <p class="gdm-text">This action cannot be undone.</p>
+    <div class="gdm-actions">
+      <button class="gdm-btn gdm-cancel" type="button" (click)="modal.dismiss()" [disabled]="isDeleting">Cancel</button>
+      <button class="gdm-btn gdm-confirm" type="button" (click)="confirmDelete(modal)" [disabled]="isDeleting">
+        <span *ngIf="!isDeleting"><i class="ri-delete-bin-6-line"></i> Delete</span>
+        <span *ngIf="isDeleting" class="d-flex align-items-center gap-2">
+          <span class="spinner-border spinner-border-sm" role="status"></span> Deleting...
+        </span>
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+
+<!-- ── Messaging Modal ── -->
+<ng-template #msgModal let-modal>
+  <div class="wa-modal">
+    <div class="wa-modal-header">
+      <div class="wa-header-icon"><i class="ri-message-3-line"></i></div>
+      <div>
+        <div class="wa-header-title">{{ selectedMsgUser?.user_name }}</div>
+        <div class="wa-header-sub">{{ selectedMsgUser?.mobile_no }}</div>
+      </div>
+    </div>
+    <div class="wa-modal-body">
+      <div class="wa-option-row">
+        <div class="wa-option-info">
+          <div class="wa-option-icon reminder"><i class="ri-hand-heart-line"></i></div>
+          <div>
+            <div class="wa-option-title">Welcome Message</div>
+            <div class="wa-option-desc">Send welcome greeting to new customer</div>
+          </div>
+        </div>
+        <div class="wa-option-actions">
+          <button class="btn-wa" title="WhatsApp" (click)="sendWhatsapp(selectedMsgUser); modal.close()">
+            <i class="ri-whatsapp-line"></i>
+          </button>
+          <button class="btn-sms" title="SMS" (click)="sendSmsWelcome(selectedMsgUser); modal.close()">
+            <i class="ri-mail-send-line"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+
+<!-- ── PDF Modal (unchanged) ── -->
+<div class="modal fade show d-block" *ngIf="showPdfModal">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="container my-4">
+                <div #pdfContent class="card shadow border-primary">
+                    <div class="watermark">
+                        <img src="assets/ranjha-logo3.jpeg" alt="watermark">
+                    </div>
+                    <div class="card-body border-bottom">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <img src="assets/ranjha-logo3.jpeg" alt="logo" width="80" height="80" />
+                                <h3 class="text-primary fw-bold mb-0">Ranjha 7 Star</h3>
+                                <small>Cable TV & Internet</small><br />
+                                <small>Powered by Nasstec Airnet</small><br />
+                                <small>& ZONG 5G</small>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <h5 class="fw-bold text-primary">RANJHA 7 STAR INTERNET</h5>
+                                <div>Complaint / WhatsApp</div>
+                                <div class="fw-bold">0307-6801030</div>
+                                <div class="fw-bold">0307-6801094</div>
+                                <div class="fw-bold">0300-8800263</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-2 px-3">
+                        <div><strong>Head Office:</strong> Bhagowal Kalan</div>
+                        <div><strong>Sub Office:</strong> Tanda, Near Noble Mobile</div>
+                    </div>
+                    <div class="bg-primary text-white text-center py-2 fw-bold">
+                        NEW INTERNET CONNECTION INSTALLATION FORM
+                    </div>
+                    <div class="card-body">
+                        <div class="justify-content-between mb-3">
+                            <div class="d-flex justify-content-between mb-3">
+                                <div>Application No: {{ selectedUser?.internet_id }}</div>
+                                <div>Date: {{ selectedUser?.createdAt | date:'dd/MM/yyyy' }}</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-7">
+                                <div class="border p-3 mb-3 rounded">
+                                    <h6 class="bg-primary text-white p-2 rounded">1. Customer Information</h6>
+                                    <label class="form-label mt-2">Customer Name</label>
+                                    <input class="form-control mb-2" placeholder="Customer Name" [value]="selectedUser?.user_name">
+                                    <label class="form-label">Father / Husband Name</label>
+                                    <input class="form-control mb-2" placeholder="Father / Husband Name" [value]="selectedUser?.father_name">
+                                    <label class="form-label">CNIC No</label>
+                                    <input class="form-control mb-2" placeholder="CNIC No" [value]="selectedUser?.cnic">
+                                    <label class="form-label">Mobile Number</label>
+                                    <input class="form-control mb-2" placeholder="Mobile Number" [value]="selectedUser?.mobile_no">
+                                    <label class="form-label">Alternate Number</label>
+                                    <input class="form-control mb-2" placeholder="Alternate Number" [value]="selectedUser?.alter_mobile_no">
+                                    <label class="form-label">Complete Address</label>
+                                    <textarea class="form-control" rows="3" placeholder="Complete Address">{{ selectedUser?.address }}</textarea>
+                                </div>
+                                <div class="border p-3 mb-3 rounded">
+                                    <h6 class="bg-primary text-white p-2 rounded">2. Connection & Payment Details</h6>
+                                    <div class="row mb-2" *ngFor="let item of paymentFields">
+                                        <div class="col-6">{{ item.label }}</div>
+                                        <div class="col-6"><input class="form-control" [value]="selectedUser?.[item.key]"></div>
+                                    </div>
+                                    <div class="row mb-2" *ngIf="extraReceived(selectedUser) > 0">
+                                        <div class="col-6">Extra Amount</div>
+                                        <div class="col-6"><input class="form-control" [value]="extraReceived(selectedUser)"></div>
+                                    </div>
+                                    <div *ngIf="selectedUser?.connection_payment === 'Free' || selectedUser?.connection_payment === 'Offer'"
+                                        class="mt-3 p-2 border rounded bg-light text-danger fw-semibold">
+                                        Note: The modem and cable (wire) remain the property of the company and must be returned upon service termination.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="border p-3 mb-3 rounded">
+                                    <h6 class="bg-primary text-white p-2 rounded">CNIC Front Side</h6>
+                                    <div class="cnic-box">
+                                        <img *ngIf="selectedUser?.cnic_front" [src]="selectedUser?.cnic_front" class="img-fluid h-100">
+                                    </div>
+                                </div>
+                                <div class="border p-3 mb-3 rounded">
+                                    <h6 class="bg-primary text-white p-2 rounded">CNIC Back Side</h6>
+                                    <div class="cnic-box">
+                                        <img *ngIf="selectedUser?.cnic_back" [src]="selectedUser?.cnic_back" class="img-fluid h-100">
+                                    </div>
+                                </div>
+                                <div class="border p-3 mb-3 rounded">
+                                    <h6 class="bg-primary text-white p-2 rounded">3. Installation Details</h6>
+                                    <div class="row mb-2" *ngFor="let item of installFields">
+                                        <div class="col-6">{{ item.label }}</div>
+                                        <div class="col-6"><input class="form-control" [value]="selectedUser?.[item.key]"></div>
+                                    </div>
+                                </div>
+                                <div class="border p-3 rounded">
+                                    <h6 class="bg-primary text-white p-2 rounded">4. Terms & Conditions</h6>
+                                    <ul class="small">
+                                        <li>Customer must pay monthly fee before due date.</li>
+                                        <li>Equipment remains company property.</li>
+                                        <li>Damage charges apply.</li>
+                                        <li>Service may vary due to technical reasons.</li>
+                                        <li>Non-payment may suspend service.</li>
+                                        <li>Company is not responsible for power outages.</li>
+                                        <li>Router relocation charges will apply.</li>
+                                        <ng-container *ngIf="selectedUser?.connection_payment === 'Free' || selectedUser?.connection_payment === 'Offer'">
+                                            <li>Modem must be returned upon disconnection.</li>
+                                            <li>Cable (wire) cannot be removed or shifted without permission.</li>
+                                        </ng-container>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-2 px-3">
+                            <div class="fw-bold">
+                                <strong>Complaint Time:</strong> Summer (9:00 AM – 7:00 PM) | Winter (10:00 AM – 5:00 PM)
+                            </div>
+                        </div>
+                        <div class="row mt-4 text-center fw-bold align-items-center">
+                            <div class="col-md-4 offset-md-8 d-flex flex-column align-items-center">
+                                <img src="assets/signature.jpeg" alt="Authorized Signature" width="100" height="70" class="mb-2" />
+                                <div class="border-top pt-2 w-75">Authorized Signature</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer flex justify-content-between border-0 px-5 pb-4 pt-2">
+                    <button class="btn btn-outline-secondary btn-sm rounded-3 px-4" (click)="closePdfModal()">Close</button>
+                    <button class="btn btn-primary btn-sm rounded-3 px-4" (click)="downloadPDF()">
+                        <svg class="me-1" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        Download PDF
+                    </button>
+                    <button class="btn btn-warning btn-sm rounded-3 px-4 ms-2" (click)="downloadImage()">
+                        <svg class="me-1" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        Download Image
+                    </button>
+                    <button class="btn btn-success btn-sm rounded-3 px-4 ms-2" (click)="sendPdfToWhatsApp()">
+                        <i class="ri-whatsapp-line"></i> WhatsApp
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
