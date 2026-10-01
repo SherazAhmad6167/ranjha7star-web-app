@@ -18,6 +18,8 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { ComplainModalComponent } from '../complain-modal/complain-modal.component';
 import { TemplateMapperService } from '../../shared/template-mapper.service';
+import { openWhatsApp } from '../../shared/whatsapp';
+import { toWhatsappNumber } from '../../shared/phone';
 
 @Component({
   selector: 'app-complain-details',
@@ -339,32 +341,12 @@ export class ComplainDetailsComponent {
     });
   }
 
+  /** International digits for WhatsApp - see toWhatsappNumber for the formats handled. */
   formatPhoneNumber(phone: string): string {
-    console.log('Phone Number:', phone);
-    phone = phone.replace(/\D/g, ''); 
-
-    if (phone.startsWith('03')) {
-      return '92' + phone.substring(1);
-    }
-
-    if (phone.startsWith('3')) {
-      return '92' + phone;
-    }
-
-    if (phone.startsWith('92')) {
-      return phone;
-    }
-
-    if (phone.startsWith('+92')) {
-      return phone.substring(1);
-    }
-
-    return phone;
+    return toWhatsappNumber(phone);
   }
 
   sendWelcomeMessage(phone: string, message: string) {
-    const encodedMessage = encodeURIComponent(message);
-    const url = `https://wa.me/${phone}?text=${encodedMessage}`;
-    window.open(url, '_blank');
+    openWhatsApp(phone, message);
   }
 }

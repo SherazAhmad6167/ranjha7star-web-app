@@ -58,6 +58,13 @@ $accent-border: #bfdbfe;
 }
 .ror-row-num { color: #94a3b8; font-weight: 600; font-size: 12px; }
 .ror-mono { font-family: 'Courier New', monospace; font-size: 12.5px; color: #475569; }
+.ror-internet-id {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
 .ror-amount-badge { display: inline-flex; padding: 2px 8px; border-radius: 6px; background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; font-size: 12px; font-weight: 700; }
 
 @media (max-width: 767px) { .ror-wrapper { padding-top: 24px; padding-bottom: 24px; } .ror-filter-grid { flex-direction: column; } .ror-summary-grid { grid-template-columns: 1fr 1fr; } }

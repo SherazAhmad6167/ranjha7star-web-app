@@ -15,6 +15,35 @@
     </span>
   </div>
 
+  <!-- ── WhatsApp App ── -->
+  <div class="st-card st-wa-card mb-4">
+    <div class="st-card-header">
+      <div class="st-card-icon icon-whatsapp"><i class="ri-whatsapp-line"></i></div>
+      <div>
+        <div class="st-card-title">WhatsApp App</div>
+        <div class="st-card-sub">Which WhatsApp customer messages are sent from on this device</div>
+      </div>
+    </div>
+    <div class="st-wa-body">
+      <button type="button" class="st-wa-option" [class.active]="whatsappApp === 'whatsapp'"
+        (click)="selectWhatsappApp('whatsapp')">
+        <i class="ri-whatsapp-fill"></i>
+        <span>WhatsApp</span>
+        <i class="ri-checkbox-circle-fill st-wa-check" *ngIf="whatsappApp === 'whatsapp'"></i>
+      </button>
+      <button type="button" class="st-wa-option business" [class.active]="whatsappApp === 'business'"
+        (click)="selectWhatsappApp('business')">
+        <i class="ri-briefcase-4-fill"></i>
+        <span>WhatsApp Business</span>
+        <i class="ri-checkbox-circle-fill st-wa-check" *ngIf="whatsappApp === 'business'"></i>
+      </button>
+    </div>
+    <div class="st-wa-note">
+      <i class="ri-information-line"></i>
+      Applies on Android phones. On a computer, WhatsApp Web / Desktop sends from whichever account is linked to it.
+    </div>
+  </div>
+
   <!-- ── Templates Grid ── -->
   <div class="st-grid">
     <div class="st-card" *ngFor="let item of templates">

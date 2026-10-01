@@ -9,6 +9,8 @@ import {
   getDocs,
 } from '@angular/fire/firestore';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { RecoveryOfficerModalComponent } from '../recovery-officer-modal/recovery-officer-modal.component';
 import { CommonModule } from '@angular/common';
@@ -16,6 +18,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialFormComponent } from '../material-form/material-form.component';
 import html2canvas from 'html2canvas';
 import html2pdf from 'html2pdf.js';
+import { openWhatsApp } from '../../shared/whatsapp';
+import { toWhatsappNumber } from '../../shared/phone';
 
 @Component({
   selector: 'app-material-details',
@@ -65,10 +69,41 @@ getFilteredItems() {
     private modalService: NgbModal,
     private firestore: Firestore,
     private toastr: ToastrService,
+    private route: ActivatedRoute,
+    private router: Router,
   ) {}
+
+  // Record id to open, from the admin's "New Material" notification (?open=<id>).
+  private pendingOpenId: string | null = null;
+  private queryParamSub?: Subscription;
 
   ngOnInit(): void {
     this.loadUsers();
+    this.queryParamSub = this.route.queryParamMap.subscribe((params) => {
+      const id = params.get('open');
+      if (!id) return;
+      this.pendingOpenId = id;
+      if (!this.isLoading) this.loadUsers(); // refetch so a just-added record is included
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.queryParamSub?.unsubscribe();
+  }
+
+  private openPendingMaterial() {
+    if (!this.pendingOpenId) return;
+    const id = this.pendingOpenId;
+    this.pendingOpenId = null;
+    // Drop ?open so a refresh doesn't reopen it.
+    this.router.navigate([], { relativeTo: this.route, queryParams: {}, replaceUrl: true });
+
+    const record = this.users.find((u) => u.id === id);
+    if (record) {
+      this.openPdfModal(record);
+    } else {
+      this.toastr.warning('This material record no longer exists');
+    }
   }
 
   get pagedUsers() {
@@ -102,6 +137,7 @@ getFilteredItems() {
 
       this.filteredUsers = this.users;
       this.updateTotalPages();
+      this.openPendingMaterial();
 
       console.log('Fetched area:', this.users);
     } catch (error) {
@@ -303,27 +339,9 @@ getFilteredItems() {
     return heightPx * pxToMm + 10; // +10mm buffer for margins
   }
 
-   formatPhoneNumber(phone: string): string {
-    console.log('Phone Number:', phone);
-    phone = phone.replace(/\D/g, ''); // remove spaces/dashes
-
-    if (phone.startsWith('03')) {
-      return '92' + phone.substring(1);
-    }
-
-    if (phone.startsWith('3')) {
-      return '92' + phone;
-    }
-
-    if (phone.startsWith('92')) {
-      return phone;
-    }
-
-    if (phone.startsWith('+92')) {
-      return phone.substring(1);
-    }
-
-    return phone;
+  /** International digits for WhatsApp - see toWhatsappNumber for the formats handled. */
+  formatPhoneNumber(phone: string): string {
+    return toWhatsappNumber(phone);
   }
 
 
@@ -343,9 +361,7 @@ Your installation form is ready.
 Download Image:
 ${fileUrl}`;
 
-      const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-
-      window.open(url, '_blank');
+      openWhatsApp(phone, message);
 
       this.isLoadingModal = false;
     } catch (err) {

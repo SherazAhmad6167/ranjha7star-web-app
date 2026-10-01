@@ -101,16 +101,22 @@ $accent-border: #c4b5fd;
 }
 
 /* ── Summary Section ── */
-.rd-summary-section { margin-top: 32px; }
+.rd-summary-section { margin-bottom: 24px; }
 .rd-summary-header { display: flex; align-items: center; gap: 12px; }
 .rd-summary-icon { width: 36px; height: 36px; border-radius: 9px; background: linear-gradient(135deg, $accent, $accent-dark); display: flex; align-items: center; justify-content: center; font-size: 17px; color: #fff; }
 .rd-summary-title { font-size: 16px; font-weight: 700; color: #1e293b; margin: 0; }
+
+/* Dates + stat cards share one line; the cards take the spare width, and the
+   dates only stretch once they wrap onto their own line (narrow screens). */
+.rd-summary-row { display: flex; align-items: stretch; gap: 12px; flex-wrap: wrap; }
+.rd-summary-row .rd-date-row { flex: 1 1 auto; }
+.rd-summary-row .rd-stat-row { flex: 999 1 520px; }
 
 .rd-date-row { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; background: #fff; border-radius: 14px; padding: 14px 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); border: 1px solid #f1f5f9; }
 .rd-date-group { display: flex; flex-direction: column; gap: 4px; }
 .rd-date-input { padding: 8px 12px; border-radius: 8px; border: 1px solid #dde2e8; font-size: 13px; color: #334155; &:focus { border-color: $accent; outline: none; } }
 
-.rd-stat-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.rd-stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
 .rd-stat-card { background: #fff; border-radius: 14px; padding: 16px 18px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); border: 1px solid #f1f5f9; display: flex; align-items: center; gap: 14px; }
 .rd-stat-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
   &.blue-bg  { background: #eff6ff; color: #2563eb; }

@@ -96,6 +96,14 @@
         </select>
       </div>
       <div class="nc-filter-group">
+        <label class="nc-filter-label"><i class="ri-user-follow-line"></i> Status</label>
+        <select class="nc-select" [(ngModel)]="customerStatus" (change)="onFilterChange()">
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+      <div class="nc-filter-group">
         <label class="nc-filter-label"><i class="ri-calendar-line"></i> Month</label>
         <select class="nc-select" [(ngModel)]="selectedMonth" (change)="onFilterChange()">
           <option [ngValue]="null">All Months</option>

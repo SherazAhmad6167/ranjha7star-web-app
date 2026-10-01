@@ -209,6 +209,64 @@
   }
 }
 
+/* ── WhatsApp App card ── */
+.st-card-icon.icon-whatsapp { background: #f0fdf4; color: #16a34a; }
+
+.st-wa-card:hover { box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07); }
+
+.st-wa-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 20px 10px;
+}
+
+.st-wa-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 200px;
+  padding: 11px 16px;
+  border-radius: 10px;
+  border: 1.5px solid #e2e8f0;
+  background: #fff;
+  color: #334155;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  > i:first-child { font-size: 20px; color: #25d366; }
+  &.business > i:first-child { color: #0f766e; }
+
+  &:hover { border-color: #86efac; background: #f8fffb; }
+
+  &.active {
+    border-color: #16a34a;
+    background: #f0fdf4;
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
+  }
+  &.business.active {
+    border-color: #0f766e;
+    background: #f0fdfa;
+    box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+  }
+
+  .st-wa-check { margin-left: auto; font-size: 17px; color: #16a34a; }
+  &.business .st-wa-check { color: #0f766e; }
+}
+
+.st-wa-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 0 20px 16px;
+  font-size: 12px;
+  color: #64748b;
+
+  i { font-size: 14px; margin-top: 1px; }
+}
+
 /* ── Responsive ── */
 @media (max-width: 991px) {
   .st-grid { grid-template-columns: 1fr; }
@@ -216,4 +274,5 @@
 
 @media (max-width: 767px) {
   .st-wrapper { padding-top: 24px; padding-bottom: 24px; }
+  .st-wa-option { flex: 1 1 100%; }
 }

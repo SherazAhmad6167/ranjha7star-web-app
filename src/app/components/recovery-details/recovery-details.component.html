@@ -27,6 +27,51 @@
     </div>
   </div>
 
+  <!-- ── Summary Section ── -->
+  <div class="rd-summary-section">
+    <div class="rd-summary-header mb-3">
+      <div class="rd-summary-icon"><i class="ri-pie-chart-2-line"></i></div>
+      <h2 class="rd-summary-title">Date Range Summary</h2>
+    </div>
+
+    <div class="rd-summary-row">
+      <div class="rd-date-row">
+        <div class="rd-date-group">
+          <label class="rd-filter-label"><i class="ri-calendar-event-line"></i> From Date</label>
+          <input type="date" class="rd-date-input" [(ngModel)]="fromDate" (change)="filterByDateRange()">
+        </div>
+        <div class="rd-date-group">
+          <label class="rd-filter-label"><i class="ri-calendar-check-line"></i> To Date</label>
+          <input type="date" class="rd-date-input" [(ngModel)]="toDate" (change)="filterByDateRange()">
+        </div>
+      </div>
+
+      <div class="rd-stat-row">
+        <div class="rd-stat-card">
+          <div class="rd-stat-icon blue-bg"><i class="ri-money-dollar-circle-line"></i></div>
+          <div class="rd-stat-body">
+            <div class="rd-stat-label">Total Recovery</div>
+            <div class="rd-stat-value">{{ totalRecovery }}</div>
+          </div>
+        </div>
+        <div class="rd-stat-card">
+          <div class="rd-stat-icon red-bg"><i class="ri-coins-line"></i></div>
+          <div class="rd-stat-body">
+            <div class="rd-stat-label">Total Expenses</div>
+            <div class="rd-stat-value">Rs. {{ totalExpenses }}</div>
+          </div>
+        </div>
+        <div class="rd-stat-card">
+          <div class="rd-stat-icon green-bg"><i class="ri-wallet-3-line"></i></div>
+          <div class="rd-stat-body">
+            <div class="rd-stat-label">Remaining Amount</div>
+            <div class="rd-stat-value">{{ remainingAmount }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ── Main Card ── -->
   <div class="rd-card mb-4">
 
@@ -206,49 +251,6 @@
           <button class="page-link" (click)="nextPage()">Next</button>
         </li>
       </ul>
-    </div>
-  </div>
-
-  <!-- ── Summary Section ── -->
-  <div class="rd-summary-section">
-    <div class="rd-summary-header mb-3">
-      <div class="rd-summary-icon"><i class="ri-pie-chart-2-line"></i></div>
-      <h2 class="rd-summary-title">Date Range Summary</h2>
-    </div>
-
-    <div class="rd-date-row mb-3">
-      <div class="rd-date-group">
-        <label class="rd-filter-label"><i class="ri-calendar-event-line"></i> From Date</label>
-        <input type="date" class="rd-date-input" [(ngModel)]="fromDate" (change)="filterByDateRange()">
-      </div>
-      <div class="rd-date-group">
-        <label class="rd-filter-label"><i class="ri-calendar-check-line"></i> To Date</label>
-        <input type="date" class="rd-date-input" [(ngModel)]="toDate" (change)="filterByDateRange()">
-      </div>
-    </div>
-
-    <div class="rd-stat-row">
-      <div class="rd-stat-card">
-        <div class="rd-stat-icon blue-bg"><i class="ri-money-dollar-circle-line"></i></div>
-        <div class="rd-stat-body">
-          <div class="rd-stat-label">Total Recovery</div>
-          <div class="rd-stat-value">{{ totalRecovery }}</div>
-        </div>
-      </div>
-      <div class="rd-stat-card">
-        <div class="rd-stat-icon red-bg"><i class="ri-receipt-2-line"></i></div>
-        <div class="rd-stat-body">
-          <div class="rd-stat-label">Total Expenses</div>
-          <div class="rd-stat-value">Rs. {{ totalExpenses }}</div>
-        </div>
-      </div>
-      <div class="rd-stat-card">
-        <div class="rd-stat-icon green-bg"><i class="ri-wallet-3-line"></i></div>
-        <div class="rd-stat-body">
-          <div class="rd-stat-label">Remaining Amount</div>
-          <div class="rd-stat-value">{{ remainingAmount }}</div>
-        </div>
-      </div>
     </div>
   </div>
 

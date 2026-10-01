@@ -65,6 +65,7 @@ totalProfit: number = 0;
   ) {}
 
   ngOnInit(): void {
+    this.setCurrentMonthRange();
     this.loadExpenses();
     this.loadOperatorName();
   }
@@ -122,7 +123,8 @@ totalProfit: number = 0;
 
       this.filteredUsers = this.users;
       this.updateTotalPages();
-      this.calculateTotals(this.users);
+      // Summary boxes follow the Date Range Summary (current month by default)
+      this.calculateTotals(this.usersInDateRange());
 
       console.log('Fetched users:', this.users);
     } catch (error) {
@@ -300,7 +302,25 @@ filterByDateRange() {
     return;
   }
 
-  this.filteredUsers = this.users.filter((user: any) => {
+  this.filteredUsers = this.usersInDateRange();
+
+  this.calculateTotals(this.filteredUsers);
+}
+
+// Default Date Range Summary = 1st to last day of the current month
+setCurrentMonthRange() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1;
+  const lastDay = new Date(year, month, 0).getDate();
+  const mm = String(month).padStart(2, '0');
+
+  this.fromDate = `${year}-${mm}-01`;
+  this.toDate = `${year}-${mm}-${String(lastDay).padStart(2, '0')}`;
+}
+
+usersInDateRange() {
+  return this.users.filter((user: any) => {
     const userDate = new Date(user.date);
 
     const from = this.fromDate ? new Date(this.fromDate) : null;
@@ -320,8 +340,6 @@ filterByDateRange() {
 
     return true;
   });
-
-  this.calculateTotals(this.filteredUsers);
 }
 
 calculateTotals(data: any[]) {

@@ -2,7 +2,16 @@ import { CommonModule } from '@angular/common';
 import { Component, ElementRef, HostListener, TemplateRef, ViewChild } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { Firestore, collection, getDocs } from '@angular/fire/firestore';
+import {
+  Firestore,
+  collection,
+  doc,
+  getDocs,
+  onSnapshot,
+  query,
+  updateDoc,
+  where,
+} from '@angular/fire/firestore';
 import { ThemeService } from '../../shared/theme.service';
 
 @Component({
@@ -16,6 +25,16 @@ export class ApplayoutComponent {
   role: string | null = '';
   birthdayUsers: any[] = [];
   birthdayDismissed = false;
+  // New material issue forms the admin hasn't ticked yet (adminSeen === false).
+  materialAlerts: any[] = [];
+  private materialUnsub: (() => void) | null = null;
+  private readonly materialItemLabels: Record<string, string> = {
+    modem: 'Modem', pigtail: 'Pectail', choti_dabi: 'Choti Dabi', bari_dabi: 'Bari Dabi',
+    swab: 'Swab', splitter: 'Splitter', meter_bag: 'Meter Bag', cable_tie: 'Cable Tie',
+    fiber_cable: 'Fiber Cable', sleeve: 'Sleeve', cutter: 'Cutter', paper_cutter: 'Paper Cutter',
+    plass: 'Plass', passive_node: 'Passive Node', cable_node: 'Cable Node', adaptor: 'Adaptor',
+    nito: 'Nito Tape', osaka: 'Osaka Tape', packingTape: 'Packing Tape',
+  };
   @ViewChild('sidebar') sidebar!: ElementRef;
   @ViewChild('toggleBtn') toggleBtn!: ElementRef;
   isDashboard = false;
@@ -94,6 +113,57 @@ export class ApplayoutComponent {
     this.userInitial = (this.userName.trim().charAt(0) || '?').toUpperCase();
     this.setCurrentPage(this.route.url);
     this.checkBirthdays();
+    if (this.role === 'admin') this.watchMaterialAlerts();
+  }
+
+  ngOnDestroy() {
+    this.materialUnsub?.();
+  }
+
+  /** Live-listens so materials added by operators pop up without a reload. */
+  watchMaterialAlerts() {
+    const q = query(collection(this.firestore, 'materialDetails'), where('adminSeen', '==', false));
+    this.materialUnsub = onSnapshot(
+      q,
+      (snap) => {
+        const toTime = (v: any) => (v?.toDate ? v.toDate().getTime() : new Date(v || 0).getTime());
+        this.materialAlerts = snap.docs
+          .map((d) => ({ id: d.id, ...(d.data() as any) }))
+          .sort((a, b) => toTime(b.createdAt) - toTime(a.createdAt));
+      },
+      (err) => console.error('Material alerts listener failed', err),
+    );
+  }
+
+  /** Issued items with a quantity, e.g. [{label:'Modem', qty:'1'}]. */
+  materialItems(m: any): { label: string; qty: string }[] {
+    return Object.keys(this.materialItemLabels)
+      .filter((k) => {
+        const v = m?.[k];
+        return v !== undefined && v !== null && String(v).trim() !== '' && String(v) !== '0';
+      })
+      .map((k) => ({ label: this.materialItemLabels[k], qty: String(m[k]) }));
+  }
+
+  trackById(_: number, m: any) {
+    return m.id;
+  }
+
+  openMaterial(m: any) {
+    this.route.navigate(['/material-details'], { queryParams: { open: m.id } });
+  }
+
+  async markMaterialSeen(m: any) {
+    // Hide right away; the listener drops it too once the write lands.
+    this.materialAlerts = this.materialAlerts.filter((x) => x.id !== m.id);
+    try {
+      await updateDoc(doc(this.firestore, 'materialDetails', m.id), {
+        adminSeen: true,
+        adminSeenAt: new Date(),
+      });
+    } catch (err) {
+      console.error('Failed to mark material as seen', err);
+    }
   }
 
   private setCurrentPage(url: string) {
@@ -150,7 +220,10 @@ export class ApplayoutComponent {
 
   logout(modal: any) {
     modal.close();
+    // The WhatsApp choice belongs to the device, not the account: keep it.
+    const whatsappApp = localStorage.getItem('whatsappApp');
     localStorage.clear();
+    if (whatsappApp) localStorage.setItem('whatsappApp', whatsappApp);
     this.route.navigate(['/login']);
   }
 

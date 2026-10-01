@@ -14,6 +14,7 @@ import {
   DEFAULT_REVIEW_APPROVED_TEMPLATE,
   DEFAULT_REVIEW_DECLINED_TEMPLATE,
 } from '../../shared/message-templates';
+import { getWhatsappApp, setWhatsappApp, WhatsappApp } from '../../shared/whatsapp';
 
 @Component({
   selector: 'app-settings',
@@ -54,6 +55,8 @@ export class SettingsComponent {
     },
   ];
 
+  whatsappApp: WhatsappApp | null = getWhatsappApp();
+
   constructor(
     private firestore: Firestore,
     private toastr: ToastrService,
@@ -87,6 +90,14 @@ export class SettingsComponent {
     });
     this.loadTemplates();
     this.toastr.success('Saved successfully');
+  }
+
+  selectWhatsappApp(app: WhatsappApp) {
+    setWhatsappApp(app);
+    this.whatsappApp = app;
+    this.toastr.success(
+      `Messages will be sent from ${app === 'business' ? 'WhatsApp Business' : 'WhatsApp'}`,
+    );
   }
 
   resetTemplate(item: any) {

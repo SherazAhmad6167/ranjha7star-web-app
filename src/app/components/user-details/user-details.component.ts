@@ -29,6 +29,7 @@ import { UserModalComponent } from '../user-modal/user-modal.component';
 import html2canvas from 'html2canvas';
 import html2pdf from 'html2pdf.js';
 import { TemplateMapperService } from '../../shared/template-mapper.service';
+import { openWhatsApp } from '../../shared/whatsapp';
 
 @Component({
   selector: 'app-user-details',
@@ -50,6 +51,7 @@ export class UserDetailsComponent {
   totalPages = 1;
   sublocality: string = '';
   subArea: string = '';
+  customerStatus: '' | 'active' | 'inactive' = '';
   subInternetArea: any[] = [];
   internetAreas: any[] = [];
   role: string = '';
@@ -240,6 +242,10 @@ export class UserDetailsComponent {
 
       const matchesSubArea = !this.subArea || user.sub_area === this.subArea;
 
+      const matchesCustomerStatus =
+        !this.customerStatus ||
+        (this.customerStatus === 'inactive' ? this.isInactive(user) : !this.isInactive(user));
+
       let matchesSublocality = true;
 
       if (this.role === 'operator') {
@@ -249,7 +255,7 @@ export class UserDetailsComponent {
         matchesSublocality = !this.sublocality || user.sublocality === this.sublocality;
       }
 
-      return matchesSearch && matchesSublocality && matchesSubArea;
+      return matchesSearch && matchesSublocality && matchesSubArea && matchesCustomerStatus;
     });
 
     this.currentPage = 1;
@@ -781,9 +787,7 @@ Thank you!`;
   }
 
   sendWelcomeMessage(phone: string, message: string) {
-    const encodedMessage = encodeURIComponent(message);
-    const url = `https://wa.me/${phone}?text=${encodedMessage}`;
-    window.open(url, '_blank');
+    openWhatsApp(phone, message);
   }
 
 

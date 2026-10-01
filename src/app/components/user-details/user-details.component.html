@@ -69,6 +69,15 @@
           </app-search-select>
         </div>
 
+        <div class="ud-filter-item">
+          <label class="ud-filter-label"><i class="ri-user-follow-line"></i> Status</label>
+          <select class="form-select ud-select" [(ngModel)]="customerStatus" (change)="onFilterChange()">
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+
         <div class="ud-filter-item ud-search-item">
           <label class="ud-filter-label"><i class="ri-search-line"></i> Search</label>
           <div class="ud-search-wrap">
@@ -187,7 +196,7 @@
               <i class="ri-group-line"></i>
               <div class="ud-empty-title">No users found</div>
               <div class="ud-empty-sub">
-                {{ searchTerm || sublocality || subArea ? 'Try adjusting your filters' : 'Add your first user to get started' }}
+                {{ searchTerm || sublocality || subArea || customerStatus ? 'Try adjusting your filters' : 'Add your first user to get started' }}
               </div>
             </td>
           </tr>

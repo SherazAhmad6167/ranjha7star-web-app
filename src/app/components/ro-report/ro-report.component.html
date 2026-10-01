@@ -147,6 +147,7 @@
               <th>#</th>
               <th>Internet ID</th>
               <th>Name</th>
+              <th>Area</th>
               <th>Address</th>
               <th>Bill Month-Year</th>
               <th>Total Amount</th>
@@ -158,8 +159,9 @@
           <tbody>
             <tr *ngFor="let user of filteredUsers; let i = index">
               <td class="ror-row-num">{{ i + 1 }}</td>
-              <td class="ror-mono">{{ user.internet_id || '-' }}</td>
+              <td class="ror-internet-id">{{ user.internet_id || '-' }}</td>
               <td>{{ user.user_name || '-' }}</td>
+              <td>{{ user.sublocality || '-' }}</td>
               <td>{{ user.address || '-' }}</td>
               <td>
                 <ng-container *ngFor="let b of user.bills">

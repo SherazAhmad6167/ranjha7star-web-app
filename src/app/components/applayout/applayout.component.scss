@@ -270,10 +270,71 @@
   }
 }
 
+// ── New Material Banner (reuses the bday-* layout, orange theme) ──
+.mat-banner {
+  position: relative;
+  margin-top: 12px;
+  border-radius: 14px;
+  overflow: hidden;
+  animation: bdaySlideDown 0.5s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+  background:
+    radial-gradient(120% 180% at 8% 50%, rgba(255,255,255,0.16) 0%, transparent 55%),
+    linear-gradient(115deg, #9a3412 0%, #ea580c 45%, #f97316 75%, #fb923c 100%);
+  box-shadow:
+    0 6px 24px -6px rgba(154, 52, 18, 0.5),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.18);
+
+  .mat-badge i {
+    background: linear-gradient(140deg, #ea580c, #f59e0b);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+  .mat-avatar { color: #ea580c; }
+  .mat-open-btn { color: #ea580c; }
+  .mat-tick-btn:hover {
+    background: #22c55e;
+    border-color: #22c55e;
+    color: #fff;
+    transform: scale(1.08);
+  }
+}
+
+.mat-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.85);
+  white-space: nowrap;
+}
+
+.mat-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.mat-item {
+  font-size: 0.72rem;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 6px;
+  padding: 1px 8px;
+  white-space: nowrap;
+
+  b { font-weight: 800; }
+}
+
+.bday-banner + .mat-banner,
+.mat-banner + .mat-banner { margin-top: 8px; }
+
 // Edge-to-edge layouts (dashboard, mobile) have no side padding
-.no-padding > .bday-banner { margin-top: 0; border-radius: 0; }
+.no-padding > .bday-banner,
+.no-padding > .mat-banner { margin-top: 0; border-radius: 0; }
 @media (max-width: 992px) {
-  .bday-banner { margin-top: 0; border-radius: 0; }
+  .bday-banner, .mat-banner { margin-top: 0; border-radius: 0; }
 }
 
 // ── Mobile ──
@@ -286,7 +347,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bday-banner, .bday-shimmer, .bday-badge, .bday-ring, .bday-confetti {
+  .bday-banner, .mat-banner, .bday-shimmer, .bday-badge, .bday-ring, .bday-confetti {
     animation: none !important;
   }
   .bday-confetti { display: none; }

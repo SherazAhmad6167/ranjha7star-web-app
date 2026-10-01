@@ -21,6 +21,8 @@ import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { NewConnectionModalComponent } from '../new-connection-modal/new-connection-modal.component';
 import html2pdf from 'html2pdf.js';
 import html2canvas from 'html2canvas';
+import { openWhatsApp } from '../../shared/whatsapp';
+import { toWhatsappNumber } from '../../shared/phone';
 
 @Component({
   selector: 'app-new-connection',
@@ -59,6 +61,7 @@ export class NewConnectionComponent {
   totalExpenses: number = 0;
   totalProfit: number = 0;
   selectedStatus: 'all' | 'recieved' | 'pending' = 'all';
+  customerStatus: '' | 'active' | 'inactive' = '';
   recievedByList: string[] = [];
   operatorList: string[] = [];
   selectOperator: string = '';
@@ -572,6 +575,11 @@ export class NewConnectionComponent {
         matchesStatus = user.isRecieved === false;
       }
 
+      // 🟢 Customer Status (active / inactive)
+      const matchesCustomerStatus =
+        !this.customerStatus ||
+        (this.customerStatus === 'inactive' ? this.isInactive(user) : !this.isInactive(user));
+
       // 📅 Date Filter
       let matchesDate = true;
       if (userDate) {
@@ -599,6 +607,7 @@ export class NewConnectionComponent {
         matchesRecievedBy &&
         matchesOperator &&
         matchesStatus &&
+        matchesCustomerStatus &&
         matchesDate &&
         matchesMonth
       );
@@ -710,27 +719,9 @@ export class NewConnectionComponent {
     const heightPx = element.scrollHeight;
     return heightPx * pxToMm + 10; // +10mm buffer for margins
   }
+  /** International digits for WhatsApp - see toWhatsappNumber for the formats handled. */
   formatPhoneNumber(phone: string): string {
-    console.log('Phone Number:', phone);
-    phone = phone.replace(/\D/g, ''); // remove spaces/dashes
-
-    if (phone.startsWith('03')) {
-      return '92' + phone.substring(1);
-    }
-
-    if (phone.startsWith('3')) {
-      return '92' + phone;
-    }
-
-    if (phone.startsWith('92')) {
-      return phone;
-    }
-
-    if (phone.startsWith('+92')) {
-      return phone.substring(1);
-    }
-
-    return phone;
+    return toWhatsappNumber(phone);
   }
 
   async sendPdfToWhatsApp() {
@@ -747,9 +738,7 @@ Your installation form is ready.
 Download Image:
 ${fileUrl}`;
 
-      const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-
-      window.open(url, '_blank');
+      openWhatsApp(phone, message);
     } catch (err) {
       console.error(err);
       alert('Error generating PDF');
@@ -954,9 +943,7 @@ ${fileUrl}`;
   }
 
   sendWelcomeMessage(phone: string, message: string) {
-    const encodedMessage = encodeURIComponent(message);
-    const url = `https://wa.me/${phone}?text=${encodedMessage}`;
-    window.open(url, '_blank');
+    openWhatsApp(phone, message);
   }
 
   openMsgModal(user: any) {

@@ -23,6 +23,8 @@ import html2canvas from 'html2canvas';
 import { UserCollectionModalComponent } from '../user-collection-modal/user-collection-modal.component';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TemplateMapperService } from '../../shared/template-mapper.service';
+import { openWhatsApp } from '../../shared/whatsapp';
+import { toWhatsappNumber } from '../../shared/phone';
 
 @Component({
   selector: 'app-users-collections',
@@ -2060,31 +2062,12 @@ export class UsersCollectionsComponent {
     });
   }
 
+  /** International digits for WhatsApp - see toWhatsappNumber for the formats handled. */
   formatPhoneNumber(phone: string): string {
-    phone = phone.replace(/\D/g, ''); // remove spaces/dashes
-
-    if (phone.startsWith('03')) {
-      return '92' + phone.substring(1);
-    }
-
-    if (phone.startsWith('3')) {
-      return '92' + phone;
-    }
-
-    if (phone.startsWith('92')) {
-      return phone;
-    }
-
-    if (phone.startsWith('+92')) {
-      return phone.substring(1);
-    }
-
-    return phone;
+    return toWhatsappNumber(phone);
   }
 
   sendWelcomeMessage(phone: string, message: string) {
-    const encodedMessage = encodeURIComponent(message);
-    const url = `https://wa.me/${phone}?text=${encodedMessage}`;
-    window.open(url, '_blank');
+    openWhatsApp(phone, message);
   }
 }

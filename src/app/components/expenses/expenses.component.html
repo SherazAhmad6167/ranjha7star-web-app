@@ -27,6 +27,51 @@
     </div>
   </div>
 
+  <!-- ── Summary Section ── -->
+  <div class="ex-summary-section">
+    <div class="ex-summary-header mb-3">
+      <div class="ex-summary-icon"><i class="ri-pie-chart-2-line"></i></div>
+      <h2 class="ex-summary-title">Date Range Summary</h2>
+    </div>
+
+    <div class="ex-summary-row">
+      <div class="ex-date-row">
+        <div class="ex-date-group">
+          <label class="ex-filter-label"><i class="ri-calendar-event-line"></i> From Date</label>
+          <input type="date" class="ex-date-input" [(ngModel)]="fromDate" (change)="filterByDateRange()">
+        </div>
+        <div class="ex-date-group">
+          <label class="ex-filter-label"><i class="ri-calendar-check-line"></i> To Date</label>
+          <input type="date" class="ex-date-input" [(ngModel)]="toDate" (change)="filterByDateRange()">
+        </div>
+      </div>
+
+      <div class="ex-stat-row">
+        <div class="ex-stat-card">
+          <div class="ex-stat-icon blue-bg"><i class="ri-money-dollar-circle-line"></i></div>
+          <div class="ex-stat-body">
+            <div class="ex-stat-label">Total Recovery</div>
+            <div class="ex-stat-value">{{ totalRecovery }}</div>
+          </div>
+        </div>
+        <div class="ex-stat-card">
+          <div class="ex-stat-icon red-bg"><i class="ri-coins-line"></i></div>
+          <div class="ex-stat-body">
+            <div class="ex-stat-label">Total Expenses</div>
+            <div class="ex-stat-value">Rs. {{ totalExpenses }}</div>
+          </div>
+        </div>
+        <div class="ex-stat-card">
+          <div class="ex-stat-icon green-bg"><i class="ri-line-chart-line"></i></div>
+          <div class="ex-stat-body">
+            <div class="ex-stat-label">Total Profit</div>
+            <div class="ex-stat-value">{{ totalProfit }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ── Main Card ── -->
   <div class="ex-card mb-4">
 
@@ -181,47 +226,6 @@
           <button class="page-link" (click)="nextPage()">Next</button>
         </li>
       </ul>
-    </div>
-  </div>
-
-  <!-- ── Summary Section ── -->
-  <div class="ex-summary-section">
-    <div class="ex-summary-header mb-3">
-      <div class="ex-summary-icon"><i class="ri-pie-chart-2-line"></i></div>
-      <h2 class="ex-summary-title">Date Range Summary</h2>
-    </div>
-    <div class="ex-date-row mb-3">
-      <div class="ex-date-group">
-        <label class="ex-filter-label"><i class="ri-calendar-event-line"></i> From Date</label>
-        <input type="date" class="ex-date-input" [(ngModel)]="fromDate" (change)="filterByDateRange()">
-      </div>
-      <div class="ex-date-group">
-        <label class="ex-filter-label"><i class="ri-calendar-check-line"></i> To Date</label>
-        <input type="date" class="ex-date-input" [(ngModel)]="toDate" (change)="filterByDateRange()">
-      </div>
-    </div>
-    <div class="ex-stat-row">
-      <div class="ex-stat-card">
-        <div class="ex-stat-icon blue-bg"><i class="ri-money-dollar-circle-line"></i></div>
-        <div class="ex-stat-body">
-          <div class="ex-stat-label">Total Recovery</div>
-          <div class="ex-stat-value">{{ totalRecovery }}</div>
-        </div>
-      </div>
-      <div class="ex-stat-card">
-        <div class="ex-stat-icon red-bg"><i class="ri-coins-line"></i></div>
-        <div class="ex-stat-body">
-          <div class="ex-stat-label">Total Expenses</div>
-          <div class="ex-stat-value">Rs. {{ totalExpenses }}</div>
-        </div>
-      </div>
-      <div class="ex-stat-card">
-        <div class="ex-stat-icon green-bg"><i class="ri-line-chart-line"></i></div>
-        <div class="ex-stat-body">
-          <div class="ex-stat-label">Total Profit</div>
-          <div class="ex-stat-value">{{ totalProfit }}</div>
-        </div>
-      </div>
     </div>
   </div>
 

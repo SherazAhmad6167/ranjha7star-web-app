@@ -24,6 +24,8 @@ import {
 import { DD_MM_YYYY_DATE_PROVIDERS } from '../../shared/date-picker.config';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { whatsappConfig } from '../../../environment/environment';
+import { openWhatsApp } from '../../shared/whatsapp';
+import { toWhatsappNumber } from '../../shared/phone';
 
 @Component({
   selector: 'app-user-modal',
@@ -554,26 +556,9 @@ export class UserModalComponent {
     }
   }
 
+  /** International digits for WhatsApp - see toWhatsappNumber for the formats handled. */
   formatPhoneNumber(phone: string): string {
-    phone = phone.replace(/\D/g, ''); // remove spaces/dashes
-
-    if (phone.startsWith('03')) {
-      return '92' + phone.substring(1);
-    }
-
-    if (phone.startsWith('3')) {
-      return '92' + phone;
-    }
-
-    if (phone.startsWith('92')) {
-      return phone;
-    }
-
-    if (phone.startsWith('+92')) {
-      return phone.substring(1);
-    }
-
-    return phone;
+    return toWhatsappNumber(phone);
   }
 
   async checkWhatsAppNumber(phone: string): Promise<boolean> {
@@ -600,9 +585,7 @@ Thank you!`;
   }
 
   sendWelcomeMessage(phone: string, message: string) {
-    const encodedMessage = encodeURIComponent(message);
-    const url = `https://wa.me/${phone}?text=${encodedMessage}`;
-    window.open(url, '_blank');
+    openWhatsApp(phone, message);
   }
 
   onImageSelect(event: any) {

@@ -340,6 +340,51 @@
           </div>
         </div>
 
+        <!-- ── New Material Notification (admin only) ── -->
+        <div class="mat-banner" *ngFor="let m of materialAlerts; trackBy: trackById">
+          <div class="bday-shimmer"></div>
+
+          <div class="bday-inner">
+            <div class="bday-left">
+              <div class="bday-badge mat-badge">
+                <span class="bday-ring"></span>
+                <i class="ri-tools-fill"></i>
+              </div>
+
+              <div class="bday-text">
+                <div class="bday-label">
+                  <span class="bday-dot"></span>
+                  New Material Issued
+                  <span class="bday-count" *ngIf="m.issue_no">#{{ m.issue_no }}</span>
+                </div>
+                <div class="bday-headline">
+                  <span class="bday-name-chip">
+                    <span class="bday-avatar mat-avatar">{{ (m.name || '?').charAt(0) | uppercase }}</span>
+                    {{ m.name | titlecase }}
+                  </span>
+                  <span class="bday-suffix" *ngIf="m.purpose">{{ m.purpose }}</span>
+                  <span class="mat-meta" *ngIf="m.date"><i class="ri-calendar-line"></i> {{ m.date | date:'dd-MM-yyyy' }}</span>
+                  <span class="mat-meta" *ngIf="m.addedBy"><i class="ri-user-line"></i> by {{ m.addedBy | titlecase }}</span>
+                </div>
+                <div class="mat-items" *ngIf="materialItems(m) as items">
+                  <span class="mat-item" *ngFor="let it of items.slice(0, 5)">{{ it.label }} <b>&times; {{ it.qty }}</b></span>
+                  <span class="mat-item" *ngIf="items.length > 5">+{{ items.length - 5 }} more</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="bday-right">
+              <button class="bday-wish-btn mat-open-btn" (click)="openMaterial(m)">
+                <i class="ri-external-link-line"></i>
+                <span>Open</span>
+              </button>
+              <button class="bday-close-btn mat-tick-btn" (click)="markMaterialSeen(m)" title="Mark as seen">
+                <i class="ri-check-line"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
         <router-outlet></router-outlet>
     </main>
 

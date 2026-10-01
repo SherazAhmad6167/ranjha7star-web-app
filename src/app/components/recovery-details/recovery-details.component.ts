@@ -18,6 +18,8 @@ import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { ExpenseModalComponent } from '../expense-modal/expense-modal.component';
 import { RecoveryDetailModalComponent } from '../recovery-detail-modal/recovery-detail-modal.component';
 import { TemplateMapperService } from '../../shared/template-mapper.service';
+import { openWhatsApp } from '../../shared/whatsapp';
+import { toWhatsappNumber } from '../../shared/phone';
 
 @Component({
   selector: 'app-recovery-details',
@@ -87,6 +89,7 @@ export class RecoveryDetailsComponent {
       await this.resolveOperatorName();
     }
 
+    this.setCurrentMonthRange();
     this.loadExpenses();
     this.loadOperatorName();
     this.loadRecoveryTemplate();
@@ -151,13 +154,9 @@ export class RecoveryDetailsComponent {
     return null;
   }
 
+  /** International digits for WhatsApp - see toWhatsappNumber for the formats handled. */
   formatPhoneNumber(phone: string): string {
-    phone = (phone || '').replace(/\D/g, '');
-    if (phone.startsWith('03'))  return '92' + phone.substring(1);
-    if (phone.startsWith('3'))   return '92' + phone;
-    if (phone.startsWith('92'))  return phone;
-    if (phone.startsWith('+92')) return phone.substring(1);
-    return phone;
+    return toWhatsappNumber(phone);
   }
 
   async sendSms(user: any) {
@@ -175,7 +174,7 @@ export class RecoveryDetailsComponent {
     if (!this.recoveryTemplate) { this.toastr.error('Recovery template not configured in Settings'); return; }
     const phone = this.formatPhoneNumber(user.operator_phone || '');
     const message = this.templateMapper.map(this.recoveryTemplate, user);
-    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
+    openWhatsApp(phone, message);
   }
 
   async loadOperatorName() {
@@ -231,7 +230,8 @@ export class RecoveryDetailsComponent {
 
       this.filteredUsers = this.users;
       this.updateTotalPages();
-      this.calculateTotals(this.users);
+      // Summary boxes follow the Date Range Summary (current month by default)
+      this.calculateTotals(this.usersInDateRange());
 
       console.log('Fetched users:', this.users);
     } catch (error) {
@@ -414,7 +414,25 @@ export class RecoveryDetailsComponent {
       return;
     }
 
-    this.filteredUsers = this.users.filter((user: any) => {
+    this.filteredUsers = this.usersInDateRange();
+
+    this.calculateTotals(this.filteredUsers);
+  }
+
+  // Default Date Range Summary = 1st to last day of the current month
+  setCurrentMonthRange() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const lastDay = new Date(year, month, 0).getDate();
+    const mm = String(month).padStart(2, '0');
+
+    this.fromDate = `${year}-${mm}-01`;
+    this.toDate = `${year}-${mm}-${String(lastDay).padStart(2, '0')}`;
+  }
+
+  usersInDateRange() {
+    return this.users.filter((user: any) => {
       const userDate = new Date(user.date);
 
       const from = this.fromDate ? new Date(this.fromDate) : null;
@@ -434,8 +452,6 @@ export class RecoveryDetailsComponent {
 
       return true;
     });
-
-    this.calculateTotals(this.filteredUsers);
   }
 
   calculateTotals(data: any[]) {
