@@ -16,11 +16,12 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { NewConnectionModalComponent } from '../new-connection-modal/new-connection-modal.component';
-import { CustomerStatusModalComponent } from '../customer-status-modal/customer-status-modal.component';
+import { CustomerStatusModalComponent } from '../customer-status-modal/customer-status-modal.component';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-customer-status',
-  imports: [FormsModule, CommonModule, ReactiveFormsModule, ToastrModule, SearchSelectComponent],
+  imports: [FormsModule, CommonModule, ReactiveFormsModule, ToastrModule, SearchSelectComponent, LoaderComponent],
   templateUrl: './customer-status.component.html',
   styleUrl: './customer-status.component.scss'
 })

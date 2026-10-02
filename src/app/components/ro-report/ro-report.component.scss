@@ -22,10 +22,6 @@ $accent-border: #bfdbfe;
 .ror-btn-group { flex: 0 0 auto; justify-content: flex-end; }
 .btn-ror-show { display: inline-flex; align-items: center; gap: 6px; padding: 9px 22px; border-radius: 10px; font-size: 13px; font-weight: 600; background: linear-gradient(135deg, $accent, $accent-dark); color: #fff; border: none; cursor: pointer; transition: all 0.2s; i { font-size: 16px; } &:hover { box-shadow: 0 4px 14px rgba(37,99,235,0.4); transform: translateY(-1px); } }
 
-/* ── Loading ── */
-.ror-loading { display: flex; align-items: center; justify-content: center; gap: 14px; padding: 40px; }
-.ror-spinner { color: $accent; width: 30px; height: 30px; }
-.ror-loading-text { font-size: 14px; font-weight: 600; color: #475569; }
 
 /* ── Section Header ── */
 .ror-section-header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }

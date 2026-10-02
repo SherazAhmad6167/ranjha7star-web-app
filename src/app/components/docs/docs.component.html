@@ -1,10 +1,6 @@
 <div class="container-fluid ud-wrapper">
 
-  <div *ngIf="isLoading" class="loading-overlay">
-    <div class="spinner-border" role="status">
-      <span class="visually-hidden">Loading...</span>
-    </div>
-  </div>
+  <app-loader [show]="isLoading" message="Loading documents…"></app-loader>
 
   <!-- ── Page Header ── -->
   <!-- <div class="ud-page-header mb-4">

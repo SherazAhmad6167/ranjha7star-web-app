@@ -19,11 +19,12 @@ import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { TemplateMapperService } from '../../shared/template-mapper.service';
 import { ActivatedRoute } from '@angular/router';
 import { isCarried } from '../../shared/bill-carry';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-sms',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule, SearchSelectComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule, SearchSelectComponent, LoaderComponent],
   templateUrl: './sms.component.html',
   styleUrl: './sms.component.scss',
 })

@@ -61,10 +61,7 @@
   </div>
 
   <!-- Loading -->
-  <div *ngIf="isLoading" class="ror-loading">
-    <div class="spinner-border ror-spinner" role="status"></div>
-    <span class="ror-loading-text">Generating report...</span>
-  </div>
+  <app-loader mode="inline" [show]="isLoading" message="Generating report…"></app-loader>
 
   <!-- ── Report Summary ── -->
   <div *ngIf="reportData" class="mb-4">

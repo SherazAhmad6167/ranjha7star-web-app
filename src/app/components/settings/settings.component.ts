@@ -15,10 +15,11 @@ import {
   DEFAULT_REVIEW_DECLINED_TEMPLATE,
 } from '../../shared/message-templates';
 import { getWhatsappApp, setWhatsappApp, WhatsappApp } from '../../shared/whatsapp';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-settings',
-  imports: [CommonModule, FormsModule, ToastrModule],
+  imports: [CommonModule, FormsModule, ToastrModule, LoaderComponent],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss',
 })
@@ -56,28 +57,38 @@ export class SettingsComponent {
   ];
 
   whatsappApp: WhatsappApp | null = getWhatsappApp();
+  isLoading = false;
 
   constructor(
     private firestore: Firestore,
     private toastr: ToastrService,
   ) {}
 
-  ngOnInit() {
-    this.loadTemplates();
+  // the loader covers the first load only - the quiet reload after a save stays quiet
+  async ngOnInit() {
+    this.isLoading = true;
+    try {
+      await this.loadTemplates();
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   async loadTemplates() {
-    for (let item of this.templates) {
-      const ref = doc(this.firestore, `messageTemplates/${item.id}`);
-      const snap = await getDoc(ref);
+    // one read per template, all in flight together
+    await Promise.all(
+      this.templates.map(async (item) => {
+        const ref = doc(this.firestore, `messageTemplates/${item.id}`);
+        const snap = await getDoc(ref);
 
-      if (snap.exists()) {
-        item.message = snap.data()['message'];
-      } else if (item.default) {
-        // Show the built-in wording so it can be reviewed and saved as-is.
-        item.message = item.default;
-      }
-    }
+        if (snap.exists()) {
+          item.message = snap.data()['message'];
+        } else if (item.default) {
+          // Show the built-in wording so it can be reviewed and saved as-is.
+          item.message = item.default;
+        }
+      }),
+    );
   }
 
   async saveTemplate(item: any) {

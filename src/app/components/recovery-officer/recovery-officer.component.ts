@@ -12,11 +12,12 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { RecoveryOfficerModalComponent } from '../recovery-officer-modal/recovery-officer-modal.component';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-recovery-officer',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule, LoaderComponent],
   templateUrl: './recovery-officer.component.html',
   styleUrl: './recovery-officer.component.scss',
 })

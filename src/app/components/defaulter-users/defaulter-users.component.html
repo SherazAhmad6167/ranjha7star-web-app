@@ -1,12 +1,7 @@
 <div class="container-fluid du-wrapper">
 
   <!-- Loading Overlay -->
-  <div *ngIf="isLoading" class="loading-overlay">
-    <div class="lo-box">
-      <div class="spinner-border text-danger" role="status"></div>
-      <span class="lo-text">Loading defaulters...</span>
-    </div>
-  </div>
+  <app-loader [show]="isLoading" message="Loading defaulters…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="du-page-header mb-4">

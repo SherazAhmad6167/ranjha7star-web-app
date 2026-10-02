@@ -8,6 +8,7 @@ import {
 import { ToastrService } from 'ngx-toastr';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { RouterModalComponent } from '../router-modal/router-modal.component';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 export type RouterStatus = 'Available' | 'Installed' | 'Returned' | 'Faulty';
 
@@ -27,7 +28,7 @@ interface RouterRecord {
 @Component({
   selector: 'app-router',
   standalone: true,
-  imports: [CommonModule, FormsModule, DatePipe],
+  imports: [CommonModule, FormsModule, DatePipe, LoaderComponent],
   templateUrl: './router.component.html',
   styleUrl: './router.component.scss'
 })

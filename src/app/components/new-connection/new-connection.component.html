@@ -1,12 +1,7 @@
 <div class="container-fluid nc-wrapper">
 
   <!-- Loading Overlay -->
-  <div *ngIf="isLoading" class="loading-overlay">
-    <div class="lo-box">
-      <div class="spinner-border text-primary" role="status"></div>
-      <span class="lo-text">Loading connections...</span>
-    </div>
-  </div>
+  <app-loader [show]="isLoading" message="Loading connections…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="nc-page-header mb-4">

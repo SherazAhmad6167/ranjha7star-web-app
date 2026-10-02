@@ -15,10 +15,7 @@
   </div>
 
   <!-- ── Loading overlay ── -->
-  <div *ngIf="isLoading" class="sam-loading">
-    <div class="spinner-border" style="color:#a21caf" role="status"></div>
-    <span>Loading...</span>
-  </div>
+  <app-loader mode="contained" [show]="isLoading" message="Please wait…"></app-loader>
 
   <!-- ── Body ── -->
   <form [formGroup]="userForm" (ngSubmit)="onSubmit()">

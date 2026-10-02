@@ -1,177 +1,298 @@
-<div *ngIf="!showDashboard" class="splash-screen">
-
-    <!-- animated background blobs -->
-    <div class="splash-blob splash-blob-1"></div>
-    <div class="splash-blob splash-blob-2"></div>
-    <div class="splash-blob splash-blob-3"></div>
-
-    <div class="splash-card">
-
-        <!-- Logo -->
-        <div class="splash-logo">
-            <div class="splash-logo-ring"></div>
-            <div class="splash-logo-pulse"></div>
-            <img src="assets/ranjha-logo3.jpeg" alt="Ranjha7star" class="splash-logo-img">
-        </div>
-
-        <!-- Brand -->
-        <div class="splash-brand">
-            <p class="splash-eyebrow">Internet Management Portal</p>
-            <h1 class="splash-title">Ranjha<span>7star</span></h1>
-            <p class="splash-sub">Manage customers, billing &amp; network from one place</p>
-        </div>
-
-        <!-- Feature pills -->
-        <div class="splash-pills">
-            <div class="splash-pill">
-                <i class="fas fa-users"></i>
-                <span>Customers</span>
-            </div>
-            <div class="splash-pill">
-                <i class="fas fa-file-invoice-dollar"></i>
-                <span>Billing</span>
-            </div>
-            <div class="splash-pill">
-                <i class="fas fa-router"></i>
-                <span>MikroTik</span>
-            </div>
-            <div class="splash-pill">
-                <i class="fas fa-chart-bar"></i>
-                <span>Analytics</span>
-            </div>
-        </div>
-
-        <!-- CTA -->
-        <button class="splash-btn" (click)="goToDashboard()">
-            <i class="fas fa-th-large"></i>
-            <span>Open Dashboard</span>
-            <div class="splash-btn-icon"><i class="fas fa-chevron-right"></i></div>
-        </button>
-
-        <p class="splash-footer">Ranjha7star Cable Network &copy; 2026</p>
-
-    </div>
-</div>
-
-
 <div class="background-color">
 
     <!-- DASHBOARD SECTION -->
-    <section *ngIf="showDashboard" id="dashboards">
+    <section id="dashboards" [class.is-booting]="boot === 'running'">
+
+        <!-- ── Loading screen: ticks off each real load, then lifts ───── -->
+        <div class="boot" *ngIf="boot !== 'done'" [class.boot-leaving]="boot === 'leaving'"
+            [class.boot-complete]="bootComplete" role="status" aria-label="Loading dashboard">
+            <div class="boot-bg" aria-hidden="true">
+                <span class="boot-orb boot-orb-1"></span>
+                <span class="boot-orb boot-orb-2"></span>
+                <!-- stars speed up with real progress, then jump to light speed on exit -->
+                <canvas class="boot-stars" warpField #stars="warpField"
+                    [warpSpeed]="0.15 + bootProgress / 250" [warp]="bootEnding"></canvas>
+            </div>
+
+            <div class="boot-stage">
+                <button type="button" class="boot-core" (click)="boostSignal(stars)"
+                    aria-label="Boost the signal">
+                    <span class="bc-wave"></span>
+                    <span class="bc-wave"></span>
+                    <span class="bc-wave"></span>
+                    <span class="bc-burst" *ngFor="let b of bursts"></span>
+                    <span class="bc-orbit bc-orbit-1"><span class="bc-packet"></span></span>
+                    <span class="bc-orbit bc-orbit-2"><span class="bc-packet"></span></span>
+                    <span class="bc-orbit bc-orbit-3"><span class="bc-packet"></span></span>
+                    <span class="bc-ring"></span>
+                    <img src="assets/ranjha-logo3.jpeg" alt="">
+                    <span class="bc-hint" *ngIf="!bootComplete">
+                        <ng-container *ngIf="boosts; else tapHint"><i class="fas fa-bolt"></i>&times;{{ boosts }}</ng-container>
+                        <ng-template #tapHint>Tap to boost</ng-template>
+                    </span>
+                </button>
+
+                <div class="boot-text">
+                    <span class="boot-eyebrow">
+                        {{ greeting }}<ng-container *ngIf="userName">, {{ userName | titlecase }}</ng-container>
+                    </span>
+                    <h2 class="boot-title" *ngIf="!bootComplete">Syncing your <span>network</span></h2>
+                    <h2 class="boot-title boot-title-online" *ngIf="bootComplete">Your network is <span>online</span></h2>
+                    <p class="boot-quip" aria-hidden="true">
+                        <span *ngFor="let q of [quip]" [class.is-fact]="q.icon">
+                            <i *ngIf="q.icon" class="fas {{ q.icon }}"></i>{{ q.text }}
+                        </span>
+                    </p>
+                    <p class="boot-offline" *ngIf="!isOnline">
+                        <i class="fas fa-plug-circle-xmark"></i>Offline &middot; showing data saved on this device
+                    </p>
+                </div>
+
+                <div class="boot-progress">
+                    <div class="bp-track">
+                        <div class="bp-fill" [style.transform]="'scaleX(' + (bootProgress || 4) / 100 + ')'"></div>
+                    </div>
+                    <span class="bp-pct">{{ bootProgress }}%</span>
+                </div>
+
+                <ul class="boot-steps">
+                    <li *ngFor="let s of bootSteps" [class.is-done]="s.done" [class.is-failed]="s.failed">
+                        <span class="bs-icon"><i class="fas {{ s.icon }}"></i></span>
+                        <span class="bs-label">{{ s.label }}</span>
+                        <span class="bs-detail" *ngIf="s.detail">{{ s.detail }}</span>
+                        <span class="bs-state">
+                            <i *ngIf="s.done" class="fas" [class.fa-check]="!s.failed" [class.fa-exclamation]="s.failed"></i>
+                        </span>
+                    </li>
+                </ul>
+
+                <button type="button" class="boot-skip" (click)="finishBoot()">
+                    Skip to dashboard <i class="fas fa-forward"></i>
+                </button>
+            </div>
+        </div>
 
 
-        <div class="dashboard-title-row">
-            <h3 class="dashboard-title d-flex justify-content-center align-items-center gap-2">
-                <i class="fas fa-chart-pie"></i>
-                Ranjha7star Dashboard
-            </h3>
+        <!-- ── Hero header ─────────────────────────────────────────────── -->
+        <div class="dash-hero">
+            <span class="dh-orb dh-orb-1" aria-hidden="true"></span>
+            <span class="dh-orb dh-orb-2" aria-hidden="true"></span>
+            <span class="dh-orb dh-orb-3" aria-hidden="true"></span>
+
+            <div class="dh-brand">
+                <div class="dh-logo">
+                    <span class="dh-logo-ring" aria-hidden="true"></span>
+                    <img src="assets/ranjha-logo3.jpeg" alt="Ranjha7star">
+                </div>
+                <div class="dh-text">
+                    <span class="dh-eyebrow">
+                        {{ greeting }}<ng-container *ngIf="userName">, {{ userName | titlecase }}</ng-container>
+                    </span>
+                    <h1 class="dh-heading">Ranjha<span>7star</span> Dashboard</h1>
+                    <p class="dh-tagline">Customers, billing &amp; network at a glance</p>
+                </div>
+            </div>
+
+            <div class="dh-meta">
+                <span class="dh-pill" [class.dh-pill-offline]="!isOnline">
+                    <span class="dh-dot"></span>{{ isOnline ? 'Online' : 'Offline' }}
+                </span>
+                <span class="dh-pill">
+                    <i class="far fa-calendar"></i>{{ today | date: 'EEE, d MMM y' }}
+                </span>
+            </div>
         </div>
 
 
 
+
+        <!-- ── Overview stat cards ─────────────────────────────────────── -->
+        <div class="dash-heading">
+            <span class="dash-heading-bar"></span>
+            <h5>Overview</h5>
+            <span class="dash-heading-hint">
+                <i class="far fa-calendar"></i>{{ today | date: 'MMMM y' }}
+            </span>
+        </div>
 
         <div class="dashboard">
-            <div class="card card-1" routerLink="/user-details">
-                <div class="icon">
-                    <i class="fas fa-user"></i>
-                </div>
-                <h3>Users: {{ getTotalUsers('areaUsers') }}</h3>
-                <p>Count of total users</p>
-            </div>
 
-            <div class="card card-2" routerLink="/package-details">
-                <div class="icon">
-                    <i class="fas fa-chart-line"></i>
+            <a class="stat-card sc-rose" routerLink="/user-details">
+                <i class="fas fa-users sc-watermark" aria-hidden="true"></i>
+                <div class="sc-top">
+                    <span class="sc-icon"><i class="fas fa-users"></i></span>
+                    <span class="sc-chip">Total</span>
                 </div>
-                <h3>Packages: {{ getTotalAreas('packageUsers') }}</h3>
-                <p>All Packages we have</p>
-            </div>
-
-            <div class="card card-3" routerLink="/area-details">
-                <div class="icon">
-                    <i class="fas fa-map-marked-alt"></i>
+                <span class="sc-label">Users</span>
+                <span class="sc-value"><span [countUp]="boot === 'running' ? 0 : getTotalUsers('areaUsers')"></span></span>
+                <div class="sc-foot">
+                    <span class="sc-caption">Count of total users</span>
+                    <span class="sc-arrow"><i class="fas fa-arrow-right"></i></span>
                 </div>
-                <h3>Areas: {{ getTotalAreas('areaUsers') }}</h3>
-                <p>All Areas we have</p>
-            </div>
+            </a>
 
-            <div class="card card-8" routerLink="/bill-creator">
-                <div class="icon">
-                    <i class="fas fa-money-bill-wave"></i>
+            <a class="stat-card sc-sky" routerLink="/package-details">
+                <i class="fas fa-gauge-high sc-watermark" aria-hidden="true"></i>
+                <div class="sc-top">
+                    <span class="sc-icon"><i class="fas fa-gauge-high"></i></span>
+                    <span class="sc-chip">Total</span>
                 </div>
-                <h3>Amount: {{ totalAmount }}</h3>
-                <p>Total Bill generated this month</p>
-            </div>
-
-            <div class="card card-4" routerLink="/recovery-details">
-                <div class="icon">
-                    <i class="fas fa-money-bill-wave"></i>
+                <span class="sc-label">Packages</span>
+                <span class="sc-value"><span [countUp]="boot === 'running' ? 0 : getTotalAreas('packageUsers')"></span></span>
+                <div class="sc-foot">
+                    <span class="sc-caption">All packages we have</span>
+                    <span class="sc-arrow"><i class="fas fa-arrow-right"></i></span>
                 </div>
-                <h3>Expenses: {{ totalExpenses }}</h3>
-                <p>Total Expenses this Month</p>
-            </div>
+            </a>
 
-            <!-- Recovery -->
-            <div class="card card-5" routerLink="/recovery-details">
-                <div class="icon">
-                    <i class="fas fa-hand-holding-usd"></i>
+            <a class="stat-card sc-violet" routerLink="/area-details">
+                <i class="fas fa-map-location-dot sc-watermark" aria-hidden="true"></i>
+                <div class="sc-top">
+                    <span class="sc-icon"><i class="fas fa-map-location-dot"></i></span>
+                    <span class="sc-chip">Total</span>
                 </div>
-                <h3>Recovery: {{ totalRecovery }}</h3>
-                <p>Total Recovery this Month</p>
-            </div>
-
-            <!-- Profit -->
-            <div class="card card-6" routerLink="/recovery-details">
-                <div class="icon">
-                    <i class="fas fa-chart-line"></i>
+                <span class="sc-label">Areas</span>
+                <span class="sc-value"><span [countUp]="boot === 'running' ? 0 : getTotalAreas('areaUsers')"></span></span>
+                <div class="sc-foot">
+                    <span class="sc-caption">All areas we have</span>
+                    <span class="sc-arrow"><i class="fas fa-arrow-right"></i></span>
                 </div>
-                <h3>Profit: {{ totalProfit }}</h3>
-                <p>Total Profit this Month</p>
-            </div>
+            </a>
 
-            <div class="card card-7" routerLink="/new-connection">
-                <div class="icon">
-                    <i class="fas fa-user-plus"></i>
+            <a class="stat-card sc-slate" routerLink="/bill-creator">
+                <i class="fas fa-file-invoice-dollar sc-watermark" aria-hidden="true"></i>
+                <div class="sc-top">
+                    <span class="sc-icon"><i class="fas fa-file-invoice-dollar"></i></span>
+                    <span class="sc-chip">This month</span>
                 </div>
-                <h3>New Connections: {{ totalNewConnections }}</h3>
-                <p>New Connection added this month</p>
-            </div>
+                <span class="sc-label">Bill Amount</span>
+                <span class="sc-value"><small>Rs.</small><span [countUp]="boot === 'running' ? 0 : totalAmount"></span></span>
+                <div class="sc-foot">
+                    <span class="sc-caption">Total bill generated this month</span>
+                    <span class="sc-arrow"><i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
 
+            <a class="stat-card sc-orange" routerLink="/recovery-details">
+                <i class="fas fa-receipt sc-watermark" aria-hidden="true"></i>
+                <div class="sc-top">
+                    <span class="sc-icon"><i class="fas fa-receipt"></i></span>
+                    <span class="sc-chip">This month</span>
+                </div>
+                <span class="sc-label">Expenses</span>
+                <span class="sc-value"><small>Rs.</small><span [countUp]="boot === 'running' ? 0 : totalExpenses"></span></span>
+                <div class="sc-foot">
+                    <span class="sc-caption">Total expenses this month</span>
+                    <span class="sc-arrow"><i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+
+            <a class="stat-card sc-fuchsia" routerLink="/recovery-details">
+                <i class="fas fa-hand-holding-dollar sc-watermark" aria-hidden="true"></i>
+                <div class="sc-top">
+                    <span class="sc-icon"><i class="fas fa-hand-holding-dollar"></i></span>
+                    <span class="sc-chip">This month</span>
+                </div>
+                <span class="sc-label">Recovery</span>
+                <span class="sc-value"><small>Rs.</small><span [countUp]="boot === 'running' ? 0 : totalRecovery"></span></span>
+                <div class="sc-foot">
+                    <span class="sc-caption">Total recovery this month</span>
+                    <span class="sc-arrow"><i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+
+            <a class="stat-card sc-emerald" routerLink="/recovery-details">
+                <i class="fas fa-arrow-trend-up sc-watermark" aria-hidden="true"></i>
+                <div class="sc-top">
+                    <span class="sc-icon"><i class="fas fa-arrow-trend-up"></i></span>
+                    <span class="sc-chip">This month</span>
+                </div>
+                <span class="sc-label">Profit</span>
+                <span class="sc-value"><small>Rs.</small><span [countUp]="boot === 'running' ? 0 : totalProfit"></span></span>
+                <div class="sc-foot">
+                    <span class="sc-caption">Total profit this month</span>
+                    <span class="sc-arrow"><i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+
+            <a class="stat-card sc-indigo" routerLink="/new-connection">
+                <i class="fas fa-user-plus sc-watermark" aria-hidden="true"></i>
+                <div class="sc-top">
+                    <span class="sc-icon"><i class="fas fa-user-plus"></i></span>
+                    <span class="sc-chip">This month</span>
+                </div>
+                <span class="sc-label">New Connections</span>
+                <span class="sc-value"><span [countUp]="boot === 'running' ? 0 : totalNewConnections"></span></span>
+                <div class="sc-foot">
+                    <span class="sc-caption">New connections added this month</span>
+                    <span class="sc-arrow"><i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
 
         </div>
 
 
+
+        <!-- ── Quick actions ───────────────────────────────────────────── -->
+        <div class="dash-heading">
+            <span class="dash-heading-bar"></span>
+            <h5>Quick Actions</h5>
+        </div>
 
         <div class="dashboard-buttons">
 
-            <button class="dash-btn btn-1" (click)="openUserModal()">
-                <i class="fas fa-user-circle"></i>
-                <span>User Details</span>
+            <button type="button" class="dash-btn qa-blue" (click)="openUserModal()">
+                <span class="qa-icon"><i class="fas fa-user-circle"></i></span>
+                <span class="qa-text">
+                    <span class="qa-label">User Details</span>
+                    <span class="qa-hint">Add a new subscriber</span>
+                </span>
+                <span class="qa-go"><i class="fas fa-plus"></i></span>
             </button>
 
-            <button class="dash-btn btn-2" (click)="openNewConnectionModal()">
-                <i class="fas fa-wifi"></i>
-                <span>New Connection</span>
+            <button type="button" class="dash-btn qa-violet" (click)="openNewConnectionModal()">
+                <span class="qa-icon"><i class="fas fa-wifi"></i></span>
+                <span class="qa-text">
+                    <span class="qa-label">New Connection</span>
+                    <span class="qa-hint">Register a new connection</span>
+                </span>
+                <span class="qa-go"><i class="fas fa-plus"></i></span>
             </button>
 
-            <button class="dash-btn btn-3" (click)="openExpensesModal()">
-                <i class="fas fa-wallet"></i>
-                <span>Expenses</span>
+            <button type="button" class="dash-btn qa-emerald" (click)="openExpensesModal()">
+                <span class="qa-icon"><i class="fas fa-wallet"></i></span>
+                <span class="qa-text">
+                    <span class="qa-label">Expenses</span>
+                    <span class="qa-hint">Record an expense</span>
+                </span>
+                <span class="qa-go"><i class="fas fa-plus"></i></span>
             </button>
 
-            <button class="dash-btn btn-4" (click)="openRecoveryOfficerModal()">
-                <i class="fas fa-user-shield"></i>
-                <span>Recovery Officer</span>
+            <button type="button" class="dash-btn qa-rose" (click)="openRecoveryOfficerModal()">
+                <span class="qa-icon"><i class="fas fa-user-shield"></i></span>
+                <span class="qa-text">
+                    <span class="qa-label">Recovery Officer</span>
+                    <span class="qa-hint">Add a recovery officer</span>
+                </span>
+                <span class="qa-go"><i class="fas fa-plus"></i></span>
             </button>
 
-            <button class="dash-btn btn-5" (click)="openAreaDetailsModal()">
-                <i class="fas fa-map-location-dot"></i>
-                <span>Area Details</span>
+            <button type="button" class="dash-btn qa-orange" (click)="openAreaDetailsModal()">
+                <span class="qa-icon"><i class="fas fa-map-location-dot"></i></span>
+                <span class="qa-text">
+                    <span class="qa-label">Area Details</span>
+                    <span class="qa-hint">Add a coverage area</span>
+                </span>
+                <span class="qa-go"><i class="fas fa-plus"></i></span>
             </button>
 
-            <button class="dash-btn btn-6" (click)="openCustomerStatusModal()">
-                <i class="fas fa-user-check"></i>
-                <span>Customer Status</span>
+            <button type="button" class="dash-btn qa-slate" (click)="openCustomerStatusModal()">
+                <span class="qa-icon"><i class="fas fa-user-check"></i></span>
+                <span class="qa-text">
+                    <span class="qa-label">Customer Status</span>
+                    <span class="qa-hint">Add a customer status</span>
+                </span>
+                <span class="qa-go"><i class="fas fa-plus"></i></span>
             </button>
 
         </div>

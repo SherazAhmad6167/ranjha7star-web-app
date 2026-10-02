@@ -17,11 +17,12 @@ import {
   Validators,
 } from '@angular/forms';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-customer-status-modal',
-  imports: [FormsModule, ReactiveFormsModule, CommonModule, ToastrModule, SearchSelectComponent],
+  imports: [FormsModule, ReactiveFormsModule, CommonModule, ToastrModule, SearchSelectComponent, LoaderComponent],
   templateUrl: './customer-status-modal.component.html',
   styleUrl: './customer-status-modal.component.scss',
 })

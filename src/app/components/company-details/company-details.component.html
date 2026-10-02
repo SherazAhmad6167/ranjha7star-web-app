@@ -1,12 +1,7 @@
 <div class="container-fluid co-wrapper">
 
   <!-- Loading overlay -->
-  <div *ngIf="isLoading" class="loading-overlay">
-    <div class="lo-box">
-      <div class="spinner-border co-spinner" role="status"></div>
-      <span class="lo-text">Loading details...</span>
-    </div>
-  </div>
+  <app-loader [show]="isLoading" message="Loading company details…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="co-page-header mb-4">

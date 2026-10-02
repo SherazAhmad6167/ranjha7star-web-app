@@ -23,10 +23,11 @@ import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { SmsService } from '../../shared/sms.service';
 import { TemplateMapperService } from '../../shared/template-mapper.service';
 import { DEFAULT_RECOVERY_RECEIVED_TEMPLATE } from '../../shared/message-templates';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-recovery-detail-modal',
-  imports: [CommonModule, ReactiveFormsModule, ToastrModule, SearchSelectComponent],
+  imports: [CommonModule, ReactiveFormsModule, ToastrModule, SearchSelectComponent, LoaderComponent],
   templateUrl: './recovery-detail-modal.component.html',
   styleUrl: './recovery-detail-modal.component.scss',
 })

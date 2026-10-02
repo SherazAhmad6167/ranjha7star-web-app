@@ -20,11 +20,12 @@ import {
   Validators,
 } from '@angular/forms';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-package-modal',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule, LoaderComponent],
   templateUrl: './package-modal.component.html',
   styleUrl: './package-modal.component.scss',
 })

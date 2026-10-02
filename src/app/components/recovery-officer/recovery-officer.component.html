@@ -1,11 +1,6 @@
 <div class="container-fluid rof-wrapper">
 
-  <div *ngIf="isLoading" class="loading-overlay">
-    <div class="lo-box">
-      <div class="spinner-border rof-spinner" role="status"></div>
-      <span class="lo-text">Loading officers...</span>
-    </div>
-  </div>
+  <app-loader [show]="isLoading" message="Loading officers…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="rof-page-header mb-4">

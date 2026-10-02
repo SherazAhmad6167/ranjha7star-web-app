@@ -1,11 +1,7 @@
 <div class="container-fluid md-wrapper">
 
   <!-- Loading overlay -->
-  <div *ngIf="isLoading" class="loading-overlay">
-    <div class="lo-box">
-      <img src="assets/loader-africa.svg" alt="Loading..." class="custom-loader" />
-    </div>
-  </div>
+  <app-loader [show]="isLoading" message="Loading materials…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="md-page-header mb-4">
@@ -154,9 +150,7 @@
 
             <div class="container my-4 position-relative">
 
-                <div *ngIf="isLoadingModal" class="loading-overlay">
-                    <img src="assets/loader-africa.svg" alt="Loading..." class="custom-loader" />
-                </div>
+                <app-loader [show]="isLoadingModal" message="Preparing document…"></app-loader>
 
                 <div #pdfContent class="card shadow border-primary">
                     <div class="watermark">

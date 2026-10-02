@@ -1,11 +1,6 @@
 <div class="container-fluid op-wrapper">
 
-  <div *ngIf="isLoading" class="loading-overlay">
-    <div class="lo-box">
-      <div class="spinner-border op-spinner" role="status"></div>
-      <span class="lo-text">Loading operators...</span>
-    </div>
-  </div>
+  <app-loader [show]="isLoading" message="Loading operators…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="op-page-header mb-4">

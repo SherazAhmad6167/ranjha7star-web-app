@@ -1,0 +1,25 @@
+@if (visible) {
+  <div class="ldr" [attr.data-mode]="mode" [class.ldr-leaving]="leaving"
+    role="status" aria-live="polite" [attr.aria-label]="message">
+    <div class="ldr-card">
+      <span class="ldr-stars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+
+      <div class="ldr-core" aria-hidden="true">
+        <span class="lc-wave"></span>
+        <span class="lc-wave"></span>
+        <span class="lc-orbit lc-orbit-1"><span class="lc-packet"></span></span>
+        <span class="lc-orbit lc-orbit-2"><span class="lc-packet"></span></span>
+        <span class="lc-ring"></span>
+        <img src="assets/ranjha-logo3.jpeg" alt="">
+      </div>
+
+      <p class="ldr-msg">{{ message }}</p>
+      <p class="ldr-quip" aria-hidden="true">
+        @for (q of [quip]; track q) {
+          <span>{{ q }}</span>
+        }
+      </p>
+      <div class="ldr-bar" aria-hidden="true"><span></span></div>
+    </div>
+  </div>
+}

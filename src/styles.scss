@@ -1,7 +1,6 @@
  /* --- Styles from v12 (Unchanged) --- */
 
-/* Height of the fixed app top bar - the layout and the dashboard splash
-   both offset themselves by it. */
+/* Height of the fixed app top bar - the layout offsets itself by it. */
 :root { --topbar-h: 58px; }
 @media (max-width: 576px) { :root { --topbar-h: 52px; } }
 
@@ -605,14 +604,6 @@ body.dark-mode .modal-footer {
 body.dark-mode .modal-title { color: #e2e8f0 !important; }
 body.dark-mode .btn-close { filter: invert(1) grayscale(1); }
 
-/* ── Dashboard stat cards (gradient cards keep their look, tweak text) ── */
-body.dark-mode .dashboard-title {
-  background: linear-gradient(135deg, #a78bfa, #60a5fa, #34d399) !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  background-clip: text !important;
-}
-
 /* ── Analytic cards ── */
 body.dark-mode .analytic-card {
   background: #1a1a2e !important;
@@ -997,17 +988,6 @@ body.dark-mode [class*="-action-btn"] {
 body.dark-mode [class*="-action-btn"]:hover {
   background: #252540 !important;
 }
-
-/* ── Loading overlay ── */
-body.dark-mode .loading-overlay {
-  background: rgba(10, 10, 22, 0.78) !important;
-}
-body.dark-mode .lo-box {
-  background: #1a1a2e !important;
-  border-color: #2a2a40 !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
-}
-body.dark-mode .lo-text { color: #94a3b8 !important; }
 
 /* ── Shared search-select dropdown ── */
 body.dark-mode .ss-trigger {

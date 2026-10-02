@@ -19,11 +19,12 @@ import { ExpenseModalComponent } from '../expense-modal/expense-modal.component'
 import { RecoveryDetailModalComponent } from '../recovery-detail-modal/recovery-detail-modal.component';
 import { TemplateMapperService } from '../../shared/template-mapper.service';
 import { openWhatsApp } from '../../shared/whatsapp';
-import { toWhatsappNumber } from '../../shared/phone';
+import { toWhatsappNumber } from '../../shared/phone';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-recovery-details',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule, LoaderComponent],
   templateUrl: './recovery-details.component.html',
   styleUrl: './recovery-details.component.scss',
 })

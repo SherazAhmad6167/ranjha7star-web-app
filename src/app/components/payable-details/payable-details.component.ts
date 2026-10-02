@@ -14,11 +14,12 @@ import {
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
-import { PayableModalComponent } from '../payable-modal/payable-modal.component';
+import { PayableModalComponent } from '../payable-modal/payable-modal.component';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-payable-details',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule, LoaderComponent],
   templateUrl: './payable-details.component.html',
   styleUrl: './payable-details.component.scss',
 })

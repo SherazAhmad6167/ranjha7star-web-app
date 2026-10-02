@@ -33,11 +33,12 @@ import {
   releaseCarried,
   settleCarried,
   unsettleCarried,
-} from '../../shared/bill-carry';
+} from '../../shared/bill-carry';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-users-collections',
-  imports: [CommonModule, FormsModule, ToastrModule, ReactiveFormsModule, SearchSelectComponent],
+  imports: [CommonModule, FormsModule, ToastrModule, ReactiveFormsModule, SearchSelectComponent, LoaderComponent],
   templateUrl: './users-collections.component.html',
   styleUrl: './users-collections.component.scss',
 })

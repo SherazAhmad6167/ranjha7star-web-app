@@ -1,14 +1,7 @@
 <div class="container-fluid uc-wrapper">
 
   <!-- Loading Overlay -->
-  <div *ngIf="isLoading" class="loading-overlay">
-    <div class="lo-box">
-      <div class="spinner-border text-success" role="status">
-        <span class="visually-hidden">Loading...</span>
-      </div>
-      <span class="lo-text">Loading collections...</span>
-    </div>
-  </div>
+  <app-loader [show]="isLoading" message="Loading collections…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="uc-page-header mb-4">

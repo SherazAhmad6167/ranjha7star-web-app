@@ -13,11 +13,12 @@ import {
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { PackageModalComponent } from '../package-modal/package-modal.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-package-details',
-  imports: [CommonModule, ToastrModule, FormsModule],
+  imports: [CommonModule, ToastrModule, FormsModule, LoaderComponent],
   templateUrl: './package-details.component.html',
   styleUrl: './package-details.component.scss',
 })

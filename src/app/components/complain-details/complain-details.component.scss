@@ -5,16 +5,6 @@ $accent-border: #fde68a;
 
 .cd-wrapper { padding-top: 16px; padding-bottom: 40px; }
 
-.loading-overlay {
-  position: fixed; inset: 0; background: rgba(255,255,255,0.75);
-  backdrop-filter: blur(2px); display: flex; align-items: center; justify-content: center; z-index: 1050;
-}
-.lo-box {
-  display: flex; flex-direction: column; align-items: center; gap: 14px;
-  padding: 28px 40px; background: #fff; border-radius: 14px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.12); border: 1px solid $accent-light;
-}
-.lo-text { font-size: 13px; font-weight: 600; color: #475569; }
 
 .cd-page-header {
   display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
@@ -199,8 +189,6 @@ $accent-border: #fde68a;
 .msg-card-desc  { font-size: 11.5px; color: #64748b; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .msg-card-arrow { font-size: 18px; color: #cbd5e1; flex-shrink: 0; }
 
-/* Loader image (original used an SVG loader) */
-.custom-loader { width: 60px; height: 60px; }
 
 @media (max-width: 767px) {
   .cd-wrapper { padding-top: 24px; padding-bottom: 24px; }

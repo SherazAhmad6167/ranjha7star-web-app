@@ -3,11 +3,7 @@
     <h2 class="m-0">Deleted Recovery Officers</h2>
   </div>
 
-  <div *ngIf="isLoading" class="loading-overlay">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Loading...</span>
-    </div>
-  </div>
+  <app-loader [show]="isLoading" message="Loading deleted officers…"></app-loader>
 
   <div class="card">
     <div class="card-body">

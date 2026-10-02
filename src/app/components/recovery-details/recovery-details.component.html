@@ -1,11 +1,6 @@
 <div class="container-fluid rd-wrapper">
 
-  <div *ngIf="isLoading" class="loading-overlay">
-    <div class="lo-box">
-      <div class="spinner-border rd-spinner" role="status"></div>
-      <span class="lo-text">Loading recovery details...</span>
-    </div>
-  </div>
+  <app-loader [show]="isLoading" message="Loading recovery details…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="rd-page-header mb-4">

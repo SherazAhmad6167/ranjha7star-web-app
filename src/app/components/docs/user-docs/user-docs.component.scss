@@ -6,11 +6,6 @@ $accent-border:#a5f3fc;
 /* ── Wrapper ── */
 .ud-wrapper { padding: 32px 0; }
 
-/* ── Loading overlay ── */
-.ud-loading-overlay {
-  position: fixed; inset: 0; background: rgba(255,255,255,0.75);
-  backdrop-filter: blur(2px); display: flex; align-items: center; justify-content: center; z-index: 1050;
-}
 
 /* ── Page Header ── */
 .ud-page-header {

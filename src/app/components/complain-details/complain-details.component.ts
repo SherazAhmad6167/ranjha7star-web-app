@@ -19,11 +19,12 @@ import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { ComplainModalComponent } from '../complain-modal/complain-modal.component';
 import { TemplateMapperService } from '../../shared/template-mapper.service';
 import { openWhatsApp } from '../../shared/whatsapp';
-import { toWhatsappNumber } from '../../shared/phone';
+import { toWhatsappNumber } from '../../shared/phone';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-complain-details',
-  imports: [CommonModule, FormsModule, ToastrModule, SearchSelectComponent],
+  imports: [CommonModule, FormsModule, ToastrModule, SearchSelectComponent, LoaderComponent],
   templateUrl: './complain-details.component.html',
   styleUrl: './complain-details.component.scss',
 })

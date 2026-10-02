@@ -1,12 +1,7 @@
 <div class="container-fluid cd-wrapper">
 
   <!-- Loading Overlay -->
-  <div *ngIf="isLoading" class="loading-overlay">
-    <div class="lo-box">
-      <div class="spinner-border" style="color:#d97706" role="status"></div>
-      <span class="lo-text">Loading complaints...</span>
-    </div>
-  </div>
+  <app-loader [show]="isLoading" message="Loading complaints…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="cd-page-header mb-4">

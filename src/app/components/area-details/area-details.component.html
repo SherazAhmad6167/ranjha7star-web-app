@@ -1,11 +1,6 @@
 <div class="container-fluid ar-wrapper">
 
-  <div *ngIf="isLoading" class="loading-overlay">
-    <div class="lo-box">
-      <div class="spinner-border ar-spinner" role="status"></div>
-      <span class="lo-text">Loading...</span>
-    </div>
-  </div>
+  <app-loader [show]="isLoading" message="Loading areas…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="ar-page-header mb-4">

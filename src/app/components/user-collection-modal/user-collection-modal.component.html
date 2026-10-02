@@ -5,11 +5,7 @@
 
 <div class="modal-body p-3 p-md-4">
   <!-- Loading -->
-  <div *ngIf="isLoading" class="text-center py-5">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Loading...</span>
-    </div>
-  </div>
+  <app-loader mode="inline" [show]="isLoading" message="Loading details…"></app-loader>
 
   <!-- User Details -->
   <div *ngIf="!isLoading && user" class="d-flex flex-column gap-3">

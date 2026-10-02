@@ -1,12 +1,7 @@
 <div class="container-fluid sk-wrapper">
 
   <!-- Loading overlay -->
-  <div *ngIf="isLoading" class="loading-overlay">
-    <div class="lo-box">
-      <div class="spinner-border sk-spinner" role="status"></div>
-      <span class="lo-text">Loading stock...</span>
-    </div>
-  </div>
+  <app-loader [show]="isLoading" message="Loading stock…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="sk-page-header mb-4">

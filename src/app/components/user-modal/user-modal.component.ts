@@ -25,7 +25,8 @@ import { DD_MM_YYYY_DATE_PROVIDERS } from '../../shared/date-picker.config';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { whatsappConfig } from '../../../environment/environment';
 import { openWhatsApp } from '../../shared/whatsapp';
-import { toWhatsappNumber } from '../../shared/phone';
+import { toWhatsappNumber } from '../../shared/phone';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-user-modal',
@@ -36,6 +37,7 @@ import { toWhatsappNumber } from '../../shared/phone';
     ToastrModule,
     SearchSelectComponent,
     NgbDatepickerModule,
+    LoaderComponent,
   ],
   providers: [...DD_MM_YYYY_DATE_PROVIDERS],
   templateUrl: './user-modal.component.html',

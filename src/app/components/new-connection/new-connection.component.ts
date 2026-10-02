@@ -22,11 +22,12 @@ import { NewConnectionModalComponent } from '../new-connection-modal/new-connect
 import html2pdf from 'html2pdf.js';
 import html2canvas from 'html2canvas';
 import { openWhatsApp } from '../../shared/whatsapp';
-import { toWhatsappNumber } from '../../shared/phone';
+import { toWhatsappNumber } from '../../shared/phone';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-new-connection',
-  imports: [FormsModule, CommonModule, ReactiveFormsModule, ToastrModule, SearchSelectComponent],
+  imports: [FormsModule, CommonModule, ReactiveFormsModule, ToastrModule, SearchSelectComponent, LoaderComponent],
   templateUrl: './new-connection.component.html',
   styleUrl: './new-connection.component.scss',
 })

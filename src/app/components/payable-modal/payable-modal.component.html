@@ -15,10 +15,7 @@
   </div>
 
   <!-- ── Loading ── -->
-  <div *ngIf="isLoading" class="pm-loading">
-    <div class="spinner-border" style="color:#0369a1" role="status"></div>
-    <span>Loading...</span>
-  </div>
+  <app-loader mode="contained" [show]="isLoading" message="Please wait…"></app-loader>
 
   <!-- ── Body ── -->
   <div class="pm-body">

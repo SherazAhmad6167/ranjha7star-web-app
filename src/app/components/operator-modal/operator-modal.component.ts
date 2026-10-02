@@ -18,7 +18,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-operator-modal',
@@ -26,7 +27,8 @@ import { ToastrModule, ToastrService } from 'ngx-toastr';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    ToastrModule
+    ToastrModule,
+    LoaderComponent,
   ],
   templateUrl: './operator-modal.component.html',
   styleUrl: './operator-modal.component.scss'

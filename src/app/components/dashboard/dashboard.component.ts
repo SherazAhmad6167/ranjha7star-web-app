@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, HostListener, OnDestroy } from '@angular/core';
 import {
   collection,
   doc,
@@ -20,6 +20,8 @@ import { CustomerStatusModalComponent } from '../customer-status-modal/customer-
 import { RouterLink } from '@angular/router';
 import { MikrotikService, MikrotikServer } from '../../shared/mikrotik.service';
 import { ZalDashboardCardComponent } from '../zal-dashboard-card/zal-dashboard-card.component';
+import { CountUpDirective } from '../../shared/count-up.directive';
+import { WarpFieldDirective } from '../../shared/warp-field.directive';
 
 export interface MikrotikServerStat {
   id: MikrotikServer;
@@ -32,6 +34,36 @@ export interface MikrotikServerStat {
   disabled: number;
 }
 
+/** One row on the loading screen, ticked off when its data lands. */
+interface BootStep {
+  key: string;
+  icon: string;
+  label: string;
+  detail: string;
+  done: boolean;
+  failed: boolean;
+}
+
+/** A line under the loading title: a joke, or (with an icon) a real fact. */
+interface BootLine {
+  icon?: string;
+  text: string;
+}
+
+/** Facts from the last full load, shown straight away on the next visit. */
+const BOOT_FACTS_KEY = 'dashBootFacts';
+
+const BOOT_QUIPS = [
+  'Untangling the fiber cables…',
+  'Counting every rupee (twice)…',
+  'Waking up the routers…',
+  'Asking the packets to hurry up…',
+  'Tightening the loose connectors…',
+  'Checking who paid on time…',
+  'Teaching the charts to stand tall…',
+  'Polishing the numbers…',
+];
+
 interface ChartState {
   categories: string[];
   series: number[] | any[];
@@ -42,12 +74,25 @@ interface ChartState {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, NgApexchartsModule, RouterLink, ZalDashboardCardComponent],
+  imports: [CommonModule, NgApexchartsModule, RouterLink, ZalDashboardCardComponent, CountUpDirective, WarpFieldDirective],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
-export class DashboardComponent {
-  showDashboard = false;
+export class DashboardComponent implements OnDestroy {
+  readonly today = new Date();
+  readonly greeting =
+    this.today.getHours() < 12 ? 'Good morning'
+    : this.today.getHours() < 17 ? 'Good afternoon'
+    : 'Good evening';
+  readonly userName = localStorage.getItem('name') || localStorage.getItem('username') || '';
+  isOnline = navigator.onLine;
+
+  @HostListener('window:online')
+  onOnline() { this.isOnline = true; }
+
+  @HostListener('window:offline')
+  onOffline() { this.isOnline = false; }
+
   expandedChartId: string | null = null;
   charts: Record<string, ChartState> = {};
 
@@ -56,6 +101,28 @@ export class DashboardComponent {
     { id: 2, label: '195.9998', ip: '103.66.149.195', loading: true, error: null, total: 0, active: 0, disabled: 0 },
   ];
 
+  /* ── Loading screen ── */
+  boot: 'running' | 'leaving' | 'done' = 'running';
+  bootSteps: BootStep[] = [
+    { key: 'users',       icon: 'fa-users',               label: 'Counting subscribers',     detail: '', done: false, failed: false },
+    { key: 'packages',    icon: 'fa-gauge-high',          label: 'Lining up packages',       detail: '', done: false, failed: false },
+    { key: 'bills',       icon: 'fa-file-invoice-dollar', label: 'Crunching the bills',      detail: '', done: false, failed: false },
+    { key: 'recovery',    icon: 'fa-hand-holding-dollar', label: 'Totting up recovery',      detail: '', done: false, failed: false },
+    { key: 'connections', icon: 'fa-user-plus',           label: 'Checking new connections', detail: '', done: false, failed: false },
+  ];
+  quip: BootLine = { text: '' };
+  bootEnding = false;
+  bootComplete = false;
+  boosts = 0;
+  bursts: number[] = [];
+  private bootFacts = this.readBootFacts();
+  private quipTick = 0;
+  private quipIndex = Math.floor(Math.random() * BOOT_QUIPS.length);
+  private factIndex = Math.floor(Math.random() * 4);
+  private quipTimer?: ReturnType<typeof setInterval>;
+  private bootCapTimer?: ReturnType<typeof setTimeout>;
+  private bootExitTimer?: ReturnType<typeof setTimeout>;
+
   constructor(
     private firestore: Firestore,
     private modalService: NgbModal,
@@ -63,13 +130,157 @@ export class DashboardComponent {
   ) {}
 
   async ngOnInit() {
-    this.loadRecoveryDetails();
-    this.loadNewConnections();
     this.loadMikrotikStats();
-    await this.loadAreaUsersChart();
-    await this.loadPackageUsersChart();
-    await this.loadBillCollectionChart();
-    await this.loadBillCreatorPieChart();
+    this.startBoot();
+
+    // users and billCreator each feed several cards and charts - fetch them once and share
+    const users = this.getCollection('users');
+    const bills = this.getCollection('billCreator');
+    const packageDoc = this.getDocument('internetPackage/internetPackageDoc');
+
+    await Promise.all([
+      this.bootStep('users', users.then((u) => {
+        this.loadAreaUsersChart(u);
+        return `${u.length.toLocaleString('en-US')} · ${this.getTotalAreas('areaUsers')} areas`;
+      })),
+      this.bootStep('packages', Promise.all([users, packageDoc]).then(([u, pkg]) => {
+        this.loadPackageUsersChart(u, pkg);
+        return `${this.getTotalAreas('packageUsers')} plans`;
+      })),
+      this.bootStep('bills', Promise.all([users, bills]).then(([u, b]) => {
+        this.loadBills(b);
+        this.loadBillCollectionChart(u);
+        this.loadBillCreatorPieChart(u, b);
+        return `Rs ${this.totalAmount.toLocaleString('en-US')}`;
+      })),
+      this.bootStep('recovery', this.loadRecoveryDetails().then(
+        () => `Rs ${this.totalRecovery.toLocaleString('en-US')}`,
+      )),
+      this.bootStep('connections', this.loadNewConnections().then(
+        () => `${this.totalNewConnections} new`,
+      )),
+    ]);
+
+    // only a clean, un-skipped load earns "online" and refreshes the saved facts
+    if (!this.bootEnding && this.bootSteps.every((s) => !s.failed)) {
+      this.bootComplete = true;
+      this.saveBootFacts();
+    }
+    this.finishBoot(650); // let "network online" land before lifting
+  }
+
+  ngOnDestroy() {
+    clearInterval(this.quipTimer);
+    clearTimeout(this.bootCapTimer);
+    clearTimeout(this.bootExitTimer);
+  }
+
+  get bootProgress(): number {
+    const done = this.bootSteps.filter((s) => s.done).length;
+    return Math.round((done / this.bootSteps.length) * 100);
+  }
+
+  private startBoot() {
+    this.showNextQuip();
+    this.quipTimer = setInterval(() => this.showNextQuip(), 2600);
+    // never hold the dashboard hostage on a slow or offline connection
+    this.bootCapTimer = setTimeout(() => this.finishBoot(), 15000);
+  }
+
+  /** Alternates a real fact from the last sync with a joke (facts first). */
+  private showNextQuip() {
+    if (this.bootFacts.length && this.quipTick++ % 2 === 0) {
+      this.quip = this.bootFacts[this.factIndex++ % this.bootFacts.length];
+    } else {
+      this.quipIndex = (this.quipIndex + 1) % BOOT_QUIPS.length;
+      this.quip = { text: BOOT_QUIPS[this.quipIndex] };
+    }
+  }
+
+  /** Tap on the logo: a shockwave and a burst of star speed. Just for fun. */
+  boostSignal(stars: WarpFieldDirective) {
+    stars.boost();
+    const id = ++this.boosts;
+    this.bursts = [...this.bursts, id];
+    setTimeout(() => (this.bursts = this.bursts.filter((b) => b !== id)), 800);
+  }
+
+  private readBootFacts(): BootLine[] {
+    try {
+      const facts = JSON.parse(localStorage.getItem(BOOT_FACTS_KEY) || '[]');
+      return Array.isArray(facts) ? facts.filter((f) => f && typeof f.text === 'string') : [];
+    } catch {
+      return [];
+    }
+  }
+
+  private saveBootFacts() {
+    const facts: BootLine[] = [];
+    const subscribers = this.getTotalUsers('areaUsers');
+    if (subscribers) {
+      facts.push({
+        icon: 'fa-tower-broadcast',
+        text: `${subscribers.toLocaleString('en-US')} subscribers across ${this.getTotalAreas('areaUsers')} areas`,
+      });
+    }
+    const area = this.topOf('areaUsers');
+    if (area) {
+      facts.push({ icon: 'fa-trophy', text: `Biggest area: ${area.name} · ${area.value.toLocaleString('en-US')} subscribers` });
+    }
+    const plan = this.topOf('packageUsers');
+    if (plan && subscribers) {
+      facts.push({ icon: 'fa-bolt', text: `Most popular plan: ${plan.name} · ${Math.round((plan.value / subscribers) * 100)}% of users` });
+    }
+    const month = this.topOf('billCollection');
+    if (month) {
+      const [m, y] = month.name.toLowerCase().split('-');
+      const label = `${m.charAt(0).toUpperCase()}${m.slice(1)} ${y ?? ''}`.trim();
+      facts.push({ icon: 'fa-sack-dollar', text: `Best collection month: ${label} · Rs ${month.value.toLocaleString('en-US')}` });
+    }
+    try {
+      localStorage.setItem(BOOT_FACTS_KEY, JSON.stringify(facts));
+    } catch {
+      // storage full or blocked - the loader just shows jokes next time
+    }
+  }
+
+  /** The largest bar in a chart, skipping blank / "undefined" categories. */
+  private topOf(chartId: string): { name: string; value: number } | null {
+    const chart = this.charts[chartId];
+    if (!chart) return null;
+    let best: { name: string; value: number } | null = null;
+    for (let i = 0; i < chart.categories.length; i++) {
+      const name = chart.categories[i];
+      const value = Number(chart.series[i]) || 0;
+      if (!name || name === 'undefined' || name === 'null') continue;
+      if (value > 0 && (!best || value > best.value)) best = { name, value };
+    }
+    return best;
+  }
+
+  /** Awaits one load and ticks its row off; a failure is shown, never thrown. */
+  private async bootStep(key: string, work: Promise<string>) {
+    const step = this.bootSteps.find((s) => s.key === key)!;
+    try {
+      step.detail = await work;
+    } catch (err) {
+      console.error(`Dashboard: loading ${key} failed`, err);
+      step.detail = 'Unavailable';
+      step.failed = true;
+    }
+    step.done = true;
+  }
+
+  /** Lifts the loading screen: fade out, then drop it from the DOM. */
+  finishBoot(holdMs = 0) {
+    if (this.bootEnding) return;
+    this.bootEnding = true;
+    clearInterval(this.quipTimer);
+    clearTimeout(this.bootCapTimer);
+    this.bootExitTimer = setTimeout(() => {
+      this.boot = 'leaving';
+      this.bootExitTimer = setTimeout(() => (this.boot = 'done'), 700);
+    }, holdMs);
   }
 
   loadMikrotikStats() {
@@ -233,9 +444,7 @@ export class DashboardComponent {
       🚀 AREA USERS CHART
   ================================= */
 
-  async loadAreaUsersChart() {
-    const users = await this.getCollection('users');
-
+  loadAreaUsersChart(users: any[]) {
     const grouped = this.groupAndCount(users, 'sublocality');
 
     const chartData = this.convertToChartArrays(grouped);
@@ -252,24 +461,13 @@ export class DashboardComponent {
       🚀 LOAD PACKAGE USERS CHART
 ================================ */
 
-  async loadPackageUsersChart() {
-    // 1️⃣ Get all packages from internetPackageDoc
-    const packageDocRef = doc(
-      this.firestore,
-      'internetPackage/internetPackageDoc',
-    );
-    const packageSnap = await getDoc(packageDocRef);
+  loadPackageUsersChart(users: any[], packageDoc: any) {
+    // 1️⃣ All packages from internetPackageDoc
+    const packages: string[] = packageDoc
+      ? packageDoc.internetPackage.map((p: any) => p.package_name)
+      : [];
 
-    let packages: string[] = [];
-    if (packageSnap.exists()) {
-      const data: any = packageSnap.data();
-      packages = data.internetPackage.map((p: any) => p.package_name);
-    }
-
-    // 2️⃣ Get users
-    const users = await this.getCollection('users');
-
-    // 3️⃣ Count users per package
+    // 2️⃣ Count users per package
     const grouped: Record<string, number> = {};
     packages.forEach((pkg) => (grouped[pkg] = 0)); // initialize all packages with 0
 
@@ -282,7 +480,7 @@ export class DashboardComponent {
 
     const chartData = this.convertToChartArrays(grouped);
 
-    // 4️⃣ Initialize chart (generic)
+    // 3️⃣ Initialize chart (generic)
     this.initializeChart(
       'packageUsers',
       chartData.categories,
@@ -291,11 +489,8 @@ export class DashboardComponent {
     );
   }
 
-  async loadBillCollectionChart() {
-    // 1️⃣ Get all users
-    const users = await this.getCollection('users');
-
-    // 2️⃣ Prepare month-year sums
+  loadBillCollectionChart(users: any[]) {
+    // 1️⃣ Prepare month-year sums
     const monthYearMap: Record<string, number> = {};
 
     users.forEach((user) => {
@@ -310,7 +505,7 @@ export class DashboardComponent {
       }
     });
 
-    // 3️⃣ Sort keys by year+month order
+    // 2️⃣ Sort keys by year+month order
     const monthOrder = [
       'january',
       'february',
@@ -338,7 +533,7 @@ export class DashboardComponent {
 
     const series = sortedKeys.map((k) => monthYearMap[k]);
 
-    // 4️⃣ Initialize Bill Collection chart (direct ApexCharts object)
+    // 3️⃣ Initialize Bill Collection chart (direct ApexCharts object)
     this.charts['billCollection'] = {
       categories: sortedKeys.map((k) => k.toUpperCase()),
       series: series,
@@ -376,14 +571,13 @@ export class DashboardComponent {
     };
   }
 
-  async loadBillCreatorPieChart() {
+  loadBillCreatorPieChart(users: any[], bills: any[]) {
     const monthOrder = [
       'january', 'february', 'march', 'april', 'may', 'june',
       'july', 'august', 'september', 'october', 'november', 'december',
     ];
 
     // 1️⃣ Bill amounts generated (billCreator collection)
-    const bills = await this.getCollection('billCreator');
     const generatedMap: Record<string, number> = {};
     bills.forEach((bill: any) => {
       const key = `${bill.month}-${bill.year}`.toLowerCase();
@@ -392,7 +586,6 @@ export class DashboardComponent {
     });
 
     // 2️⃣ Bill amounts collected (paid bills inside users collection)
-    const users = await this.getCollection('users');
     const collectedMap: Record<string, number> = {};
     users.forEach((user: any) => {
       if (Array.isArray(user['bills'])) {
@@ -466,14 +659,6 @@ export class DashboardComponent {
         },
       },
     };
-  }
-
-  goToDashboard() {
-    this.showDashboard = true;
-  }
-
-  goBack() {
-    this.showDashboard = false;
   }
 
   toggleExpand(chartId: string): void {
@@ -647,39 +832,25 @@ filteredBills: any[] = [];
 bills: any[] = [];        // ✅ array hona chahiye
 totalAmount: number = 0;  // ✅ total amount ke liye
 
-async loadBills() {
-  try {
-    const billsRef = collection(this.firestore, 'billCreator');
-    const snapshot = await getDocs(billsRef);
+loadBills(bills: any[]) {
+  const now = new Date();
+  const currentMonth = now.toLocaleString('en-US', { month: 'long' }).toLowerCase();
+  const currentYear = now.getFullYear().toString();
 
-    const now = new Date();
-    const currentMonth = now.toLocaleString('en-US', { month: 'long' }).toLowerCase();
-    const currentYear = now.getFullYear().toString();
+  // ✅ all bills
+  this.bills = bills;
 
-    // ✅ all bills
-    this.bills = snapshot.docs.map((docSnap) => ({
-      id: docSnap.id,
-      ...docSnap.data(),
-    }));
+  // ✅ filter current month (e.g. July)
+  this.filteredBills = this.bills.filter((bill: any) => {
+    return (
+      bill.month?.toLowerCase() === currentMonth &&
+      bill.year === currentYear
+    );
+  });
 
-    // ✅ filter current month (e.g. July)
-    this.filteredBills = this.bills.filter((bill: any) => {
-      return (
-        bill.month?.toLowerCase() === currentMonth &&
-        bill.year === currentYear
-      );
-    });
-
-    // ✅ total amount calculate
-    this.totalAmount = this.filteredBills.reduce((sum, bill: any) => {
-      return sum + (bill.amount || 0);
-    }, 0);
-
-    console.log('Current Month Bills:', this.filteredBills);
-    console.log('Total Amount:', this.totalAmount);
-
-  } catch (error) {
-    console.error('Error fetching bills:', error);
-  }
+  // ✅ total amount calculate
+  this.totalAmount = this.filteredBills.reduce((sum, bill: any) => {
+    return sum + (bill.amount || 0);
+  }, 0);
 }
 }

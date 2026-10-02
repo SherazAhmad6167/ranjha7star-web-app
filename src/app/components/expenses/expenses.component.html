@@ -1,11 +1,6 @@
 <div class="container-fluid ex-wrapper">
 
-  <div *ngIf="isLoading" class="loading-overlay">
-    <div class="lo-box">
-      <div class="spinner-border ex-spinner" role="status"></div>
-      <span class="lo-text">Loading expenses...</span>
-    </div>
-  </div>
+  <app-loader [show]="isLoading" message="Loading expenses…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="ex-page-header mb-4">

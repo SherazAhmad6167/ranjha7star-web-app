@@ -134,10 +134,7 @@
     </div>
 
     <!-- Loading State -->
-    <div *ngIf="isLoading" class="text-center py-5">
-      <div class="spinner-border text-primary mb-3" role="status"></div>
-      <p class="text-muted mb-0">Loading PPP secrets from router {{ activeServerTab.label }}...</p>
-    </div>
+    <app-loader mode="inline" [show]="isLoading" [message]="'Loading PPP secrets from router ' + activeServerTab.label + '…'"></app-loader>
 
     <!-- Table -->
     <div class="table-responsive" *ngIf="!isLoading">

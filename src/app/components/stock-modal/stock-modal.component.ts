@@ -3,11 +3,12 @@ import { Component, Input } from '@angular/core';
 import { addDoc, collection, doc, Firestore, updateDoc } from '@angular/fire/firestore';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-stock-modal',
-  imports: [CommonModule, ReactiveFormsModule, ToastrModule],
+  imports: [CommonModule, ReactiveFormsModule, ToastrModule, LoaderComponent],
   templateUrl: './stock-modal.component.html',
   styleUrl: './stock-modal.component.scss'
 })

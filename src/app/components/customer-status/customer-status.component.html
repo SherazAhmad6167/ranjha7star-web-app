@@ -1,12 +1,7 @@
 <div class="container-fluid cs-wrapper">
 
   <!-- Loading Overlay -->
-  <div *ngIf="isLoading" class="loading-overlay">
-    <div class="lo-box">
-      <div class="spinner-border" style="color:#7c3aed" role="status"></div>
-      <span class="lo-text">Loading statuses...</span>
-    </div>
-  </div>
+  <app-loader [show]="isLoading" message="Loading statuses…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="cs-page-header mb-4">

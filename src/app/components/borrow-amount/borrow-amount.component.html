@@ -1,11 +1,6 @@
 <div class="container-fluid bd-wrapper">
 
-  <div *ngIf="isLoading" class="loading-overlay">
-    <div class="lo-box">
-      <div class="spinner-border bd-spinner" role="status"></div>
-      <span class="lo-text">Loading borrow records...</span>
-    </div>
-  </div>
+  <app-loader [show]="isLoading" message="Loading borrow records…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="bd-page-header mb-4">

@@ -5,12 +5,13 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { ZalService, ZalError, ZalStats, ZAL_MAX_LIMIT } from '../../shared/zal.service';
 import { SearchSelectComponent } from '../../shared/search-select/search-select.component';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 type NetAction = 'enable' | 'disable';
 
 @Component({
   selector: 'app-zal-subscribers',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule, SearchSelectComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule, SearchSelectComponent, LoaderComponent],
   templateUrl: './zal-subscribers.component.html',
   styleUrl: './zal-subscribers.component.scss',
 })

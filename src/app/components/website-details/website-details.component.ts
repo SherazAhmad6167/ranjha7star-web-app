@@ -26,7 +26,8 @@ import { TemplateMapperService } from '../../shared/template-mapper.service';
 import {
   DEFAULT_REVIEW_APPROVED_TEMPLATE,
   DEFAULT_REVIEW_DECLINED_TEMPLATE,
-} from '../../shared/message-templates';
+} from '../../shared/message-templates';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 /** Cloudinary unsigned upload — same account/preset the rest of the app uses. */
 const CLOUD_NAME = 'mghs1aiu';
@@ -46,7 +47,7 @@ interface ConfirmBox {
 
 @Component({
   selector: 'app-website-details',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, LoaderComponent],
   templateUrl: './website-details.component.html',
   styleUrl: './website-details.component.scss',
 })

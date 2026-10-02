@@ -89,34 +89,8 @@
   }
 }
 
-/* ── Loading Overlay ── */
-.loading-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(2px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1050;
-}
 
-.lo-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  padding: 28px 40px;
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-}
 
-.lo-text {
-  font-size: 13px;
-  font-weight: 600;
-  color: #475569;
-}
 
 /* ── Users Card ── */
 .ud-card {
@@ -529,7 +503,6 @@ $ctrl-focus-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
   .ud-filter-item, .ud-filter-item.ud-search-item { min-width: 0; width: 100%; }
 }
 
-.custom-loader { width: 80px; object-fit: contain; }
 .badge { font-size: 0.8rem; }
 
 // .pdf-container {
@@ -886,10 +859,6 @@ $ctrl-focus-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
   .meta-item { justify-content: flex-start; }
   .address-section { flex-direction: column; gap: 12px; }
   .summary-section { flex-direction: column; gap: 12px; }
-}.custom-loader {
-  width: 100px;
-  height: 100px;
-  object-fit: contain;
 }
 
 /* ── WhatsApp Modal ── */

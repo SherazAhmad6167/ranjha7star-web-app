@@ -2,10 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { addDoc, collection, Firestore, serverTimestamp } from '@angular/fire/firestore';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
-import * as Papa from 'papaparse';
+import * as Papa from 'papaparse';
+import { LoaderComponent } from '../../../shared/loader/loader.component';
 @Component({
   selector: 'app-user-docs',
-  imports: [CommonModule, ToastrModule],
+  imports: [CommonModule, ToastrModule, LoaderComponent],
   templateUrl: './user-docs.component.html',
   styleUrl: './user-docs.component.scss'
 })

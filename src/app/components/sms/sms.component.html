@@ -325,9 +325,7 @@
   <!-- ── INBOX TAB ───────────────────────────────── -->
   <div *ngIf="activeTab === 'inbox'">
 
-    <div *ngIf="isLoading" class="loading-overlay">
-      <img src="assets/loader-africa.svg" alt="Loading..." class="custom-loader" />
-    </div>
+    <app-loader [show]="isLoading" message="Loading SMS logs…"></app-loader>
 
     <div class="card">
       <div class="card-body">

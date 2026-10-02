@@ -17,11 +17,12 @@ import {
   Validators,
 } from '@angular/forms';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-complain-modal',
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, ToastrModule, SearchSelectComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, ToastrModule, SearchSelectComponent, LoaderComponent],
   templateUrl: './complain-modal.component.html',
   styleUrl: './complain-modal.component.scss',
 })

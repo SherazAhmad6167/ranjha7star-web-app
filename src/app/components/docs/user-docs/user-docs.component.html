@@ -1,8 +1,6 @@
 <div class="ud-wrapper">
 
-  <div *ngIf="isLoading" class="ud-loading-overlay">
-    <div class="spinner-border" style="color:#0891b2" role="status"></div>
-  </div>
+  <app-loader [show]="isLoading" message="Loading documents…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="ud-page-header mb-4">

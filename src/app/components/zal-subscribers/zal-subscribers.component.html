@@ -126,8 +126,8 @@
         <tbody>
 
           <tr *ngIf="isLoading">
-            <td colspan="10" class="zl-loading-cell">
-              <span class="spinner-border spinner-border-sm me-2"></span> Loading subscribers…
+            <td colspan="10" class="p-0">
+              <app-loader mode="inline" [show]="isLoading" message="Loading subscribers…"></app-loader>
             </td>
           </tr>
 

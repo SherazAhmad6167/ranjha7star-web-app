@@ -1,11 +1,6 @@
 <div class="container-fluid cy-wrapper">
 
-  <div *ngIf="isLoading" class="loading-overlay">
-    <div class="lo-box">
-      <div class="spinner-border cy-spinner" role="status"></div>
-      <span class="lo-text">Loading...</span>
-    </div>
-  </div>
+  <app-loader [show]="isLoading" message="Loading cities…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="cy-page-header mb-4">

@@ -1,11 +1,6 @@
 <div class="container-fluid pd-wrapper">
 
-  <div *ngIf="isLoading" class="loading-overlay">
-    <div class="lo-box">
-      <div class="spinner-border pd-spinner" role="status"></div>
-      <span class="lo-text">Loading payable records...</span>
-    </div>
-  </div>
+  <app-loader [show]="isLoading" message="Loading payable records…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="pd-page-header mb-4">

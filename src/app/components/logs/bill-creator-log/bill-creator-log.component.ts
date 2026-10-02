@@ -14,11 +14,12 @@ import {
 } from '@angular/fire/firestore';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { Toast, ToastrModule, ToastrService } from 'ngx-toastr';
+import { Toast, ToastrModule, ToastrService } from 'ngx-toastr';
+import { LoaderComponent } from '../../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-bill-creator-log',
-  imports: [FormsModule, ReactiveFormsModule, CommonModule],
+  imports: [FormsModule, ReactiveFormsModule, CommonModule, LoaderComponent],
   templateUrl: './bill-creator-log.component.html',
   styleUrl: './bill-creator-log.component.scss',
 })

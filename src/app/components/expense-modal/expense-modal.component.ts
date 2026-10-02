@@ -3,11 +3,12 @@ import { Component, Input } from '@angular/core';
 import { addDoc, collection, doc, Firestore, getDoc, updateDoc } from '@angular/fire/firestore';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrService } from 'ngx-toastr';
+import { ToastrService } from 'ngx-toastr';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-expense-modal',
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, LoaderComponent],
   templateUrl: './expense-modal.component.html',
   styleUrl: './expense-modal.component.scss'
 })

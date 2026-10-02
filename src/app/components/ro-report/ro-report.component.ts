@@ -14,6 +14,7 @@ import { FormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { isCarried } from '../../shared/bill-carry';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 interface Bill {
   amount: number;
@@ -50,7 +51,7 @@ interface User {
 
 @Component({
   selector: 'app-ro-report',
-  imports: [CommonModule, FormsModule, ToastrModule, SearchSelectComponent],
+  imports: [CommonModule, FormsModule, ToastrModule, SearchSelectComponent, LoaderComponent],
   templateUrl: './ro-report.component.html',
   styleUrl: './ro-report.component.scss',
 })

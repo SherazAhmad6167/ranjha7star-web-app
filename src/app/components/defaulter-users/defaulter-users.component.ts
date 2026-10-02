@@ -18,10 +18,11 @@ import {
   NgbActiveModal,
   NgbModal,
   NgbModule,
-} from '@ng-bootstrap/ng-bootstrap';
+} from '@ng-bootstrap/ng-bootstrap';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 @Component({
   selector: 'app-defaulter-users',
-  imports: [CommonModule, FormsModule, SearchSelectComponent],
+  imports: [CommonModule, FormsModule, SearchSelectComponent, LoaderComponent],
   templateUrl: './defaulter-users.component.html',
   styleUrl: './defaulter-users.component.scss',
 })

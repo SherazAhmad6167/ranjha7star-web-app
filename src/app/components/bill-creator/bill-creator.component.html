@@ -28,14 +28,7 @@
     </div>
 
     <!-- ══ Loading Overlay ══ -->
-    <div *ngIf="isLoading" class="loading-overlay">
-        <div class="lo-box">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <div class="lo-text">{{ overlayMessage }}</div>
-        </div>
-    </div>
+    <app-loader [show]="isLoading" [message]="overlayMessage"></app-loader>
 
     <!-- ══ Bill Generator Card ══ -->
     <div class="generator-card mb-4">

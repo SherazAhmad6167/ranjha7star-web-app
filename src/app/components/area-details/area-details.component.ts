@@ -13,11 +13,12 @@ import {
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
-import { AreaModalComponent } from '../area-modal/area-modal.component';
+import { AreaModalComponent } from '../area-modal/area-modal.component';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-area-details',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule, LoaderComponent],
   templateUrl: './area-details.component.html',
   styleUrl: './area-details.component.scss',
 })

@@ -14,11 +14,12 @@ import {
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
-import { ExpenseModalComponent } from '../expense-modal/expense-modal.component';
+import { ExpenseModalComponent } from '../expense-modal/expense-modal.component';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-expenses',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule, LoaderComponent],
   templateUrl: './expenses.component.html',
   styleUrl: './expenses.component.scss',
 })

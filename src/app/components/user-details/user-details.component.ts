@@ -29,11 +29,12 @@ import { UserModalComponent } from '../user-modal/user-modal.component';
 import html2canvas from 'html2canvas';
 import html2pdf from 'html2pdf.js';
 import { TemplateMapperService } from '../../shared/template-mapper.service';
-import { openWhatsApp } from '../../shared/whatsapp';
+import { openWhatsApp } from '../../shared/whatsapp';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-user-details',
-  imports: [CommonModule, FormsModule, ToastrModule, SearchSelectComponent],
+  imports: [CommonModule, FormsModule, ToastrModule, SearchSelectComponent, LoaderComponent],
   templateUrl: './user-details.component.html',
   styleUrl: './user-details.component.scss',
 })

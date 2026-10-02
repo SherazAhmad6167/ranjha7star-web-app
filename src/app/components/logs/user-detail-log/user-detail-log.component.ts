@@ -18,10 +18,11 @@ import {
   NgbActiveModal,
   NgbModal,
   NgbModule,
-} from '@ng-bootstrap/ng-bootstrap';
+} from '@ng-bootstrap/ng-bootstrap';
+import { LoaderComponent } from '../../../shared/loader/loader.component';
 @Component({
   selector: 'app-user-detail-log',
-  imports: [CommonModule, FormsModule, SearchSelectComponent],
+  imports: [CommonModule, FormsModule, SearchSelectComponent, LoaderComponent],
   templateUrl: './user-detail-log.component.html',
   styleUrl: './user-detail-log.component.scss',
 })

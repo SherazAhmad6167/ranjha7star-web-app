@@ -17,10 +17,7 @@
   </div>
 
   <!-- ── Loading ── -->
-  <div *ngIf="isLoading" class="csm-loading">
-    <div class="spinner-border text-primary" role="status"></div>
-    <span>Loading...</span>
-  </div>
+  <app-loader mode="contained" [show]="isLoading" message="Please wait…"></app-loader>
 
   <!-- ── Body ── -->
   <div class="csm-body">

@@ -1,11 +1,6 @@
 <div class="container-fluid pk-wrapper">
 
-  <div *ngIf="isLoading" class="loading-overlay">
-    <div class="lo-box">
-      <div class="spinner-border pk-spinner" role="status"></div>
-      <span class="lo-text">Loading...</span>
-    </div>
-  </div>
+  <app-loader [show]="isLoading" message="Loading packages…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="pk-page-header mb-4">

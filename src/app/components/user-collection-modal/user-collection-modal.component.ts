@@ -2,11 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { doc, Firestore, getDoc } from '@angular/fire/firestore';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { carriedToLabel, isCarried } from '../../shared/bill-carry';
+import { carriedToLabel, isCarried } from '../../shared/bill-carry';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-user-collection-modal',
-  imports: [CommonModule],
+  imports: [CommonModule, LoaderComponent],
   templateUrl: './user-collection-modal.component.html',
   styleUrl: './user-collection-modal.component.scss'
 })

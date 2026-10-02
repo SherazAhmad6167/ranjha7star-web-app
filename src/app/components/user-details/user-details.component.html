@@ -27,12 +27,7 @@
   </div>
 
   <!-- ══ Loading Overlay ══ -->
-  <div *ngIf="isLoading" class="loading-overlay">
-    <div class="lo-box">
-      <img src="assets/loader-africa.svg" alt="Loading..." class="custom-loader" />
-      <div class="lo-text">Loading users...</div>
-    </div>
-  </div>
+  <app-loader [show]="isLoading" message="Loading users…"></app-loader>
 
   <!-- ══ Users Table Card ══ -->
   <div class="ud-card">

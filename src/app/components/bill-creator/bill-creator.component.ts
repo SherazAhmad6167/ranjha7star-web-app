@@ -22,6 +22,7 @@ import {
   releaseCarried,
   settleCarried,
 } from '../../shared/bill-carry';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 /** A user with no bill for the chosen month (see findMissingUsers). */
 interface MissedUser {
@@ -38,7 +39,7 @@ interface MissedUser {
 
 @Component({
   selector: 'app-bill-creator',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule, SearchSelectComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule, SearchSelectComponent, LoaderComponent],
   templateUrl: './bill-creator.component.html',
   styleUrl: './bill-creator.component.scss',
 })

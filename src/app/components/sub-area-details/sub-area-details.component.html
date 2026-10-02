@@ -1,11 +1,6 @@
 <div class="container-fluid sa-wrapper">
 
-  <div *ngIf="isLoading" class="loading-overlay">
-    <div class="lo-box">
-      <div class="spinner-border sa-spinner" role="status"></div>
-      <span class="lo-text">Loading...</span>
-    </div>
-  </div>
+  <app-loader [show]="isLoading" message="Loading sub-areas…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="sa-page-header mb-4">

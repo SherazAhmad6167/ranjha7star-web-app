@@ -17,10 +17,7 @@
   </div>
 
   <!-- ── Loading overlay ── -->
-  <div *ngIf="isLoading" class="loading-overlay">
-    <div class="spinner-border text-primary" role="status"></div>
-    <span>Loading...</span>
-  </div>
+  <app-loader mode="contained" [show]="isLoading" message="Getting your location…"></app-loader>
 
   <!-- ── Body ── -->
   <div class="ncm-body">

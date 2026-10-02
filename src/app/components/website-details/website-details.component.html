@@ -1,12 +1,7 @@
 <div class="container-fluid wb-wrapper">
 
   <!-- Loading overlay -->
-  <div *ngIf="isLoading" class="loading-overlay">
-    <div class="lo-box">
-      <div class="spinner-border wb-spinner" role="status"></div>
-      <span class="lo-text">Loading website content...</span>
-    </div>
-  </div>
+  <app-loader [show]="isLoading" message="Loading website content…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="wb-page-header mb-4">
@@ -67,10 +62,7 @@
       </div>
 
       <!-- Loading -->
-      <div *ngIf="isLoadingReviews" class="rv-loading">
-        <div class="spinner-border wb-spinner-sm"></div>
-        <span>Loading reviews&hellip;</span>
-      </div>
+      <app-loader mode="inline" [show]="isLoadingReviews" message="Loading reviews…"></app-loader>
 
       <!-- Empty -->
       <div *ngIf="!isLoadingReviews && !filteredReviews.length" class="rv-none">

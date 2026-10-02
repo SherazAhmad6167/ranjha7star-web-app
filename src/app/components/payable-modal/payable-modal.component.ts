@@ -3,14 +3,16 @@ import { Component, Input } from '@angular/core';
 import { addDoc, collection, doc, Firestore, updateDoc } from '@angular/fire/firestore';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-payable-modal',
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    ToastrModule
+    ToastrModule,
+    LoaderComponent,
   ],
   templateUrl: './payable-modal.component.html',
   styleUrl: './payable-modal.component.scss'

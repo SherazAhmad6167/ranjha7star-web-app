@@ -14,11 +14,12 @@ import {
 } from '@angular/fire/firestore';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
-import { FormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { LoaderComponent } from '../../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-package-log',
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, LoaderComponent],
   templateUrl: './package-log.component.html',
   styleUrl: './package-log.component.scss',
 })

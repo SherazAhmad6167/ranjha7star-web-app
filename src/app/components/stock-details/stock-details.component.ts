@@ -15,11 +15,12 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { PayableModalComponent } from '../payable-modal/payable-modal.component';
-import { StockModalComponent } from '../stock-modal/stock-modal.component';
+import { StockModalComponent } from '../stock-modal/stock-modal.component';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-stock-details',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule, LoaderComponent],
   templateUrl: './stock-details.component.html',
   styleUrl: './stock-details.component.scss'
 })
