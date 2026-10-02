@@ -15,7 +15,7 @@ import {
 } from '@angular/fire/firestore';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
 import { ComplainModalComponent } from '../complain-modal/complain-modal.component';
 import { TemplateMapperService } from '../../shared/template-mapper.service';
 import { openWhatsApp } from '../../shared/whatsapp';
@@ -24,7 +24,7 @@ import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-complain-details',
-  imports: [CommonModule, FormsModule, ToastrModule, SearchSelectComponent, LoaderComponent],
+  imports: [CommonModule, FormsModule, SearchSelectComponent, LoaderComponent],
   templateUrl: './complain-details.component.html',
   styleUrl: './complain-details.component.scss',
 })
@@ -57,7 +57,7 @@ export class ComplainDetailsComponent {
   constructor(
     private modalService: NgbModal,
     private firestore: Firestore,
-    private toastr: ToastrService,
+    private toastr: ToastService,
     private templateMapper: TemplateMapperService,
   ) {}
 

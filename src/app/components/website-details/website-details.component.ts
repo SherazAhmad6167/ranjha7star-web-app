@@ -20,7 +20,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
 import { SmsService } from '../../shared/sms.service';
 import { TemplateMapperService } from '../../shared/template-mapper.service';
 import {
@@ -91,7 +91,7 @@ export class WebsiteDetailsComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private firestore: Firestore,
-    private toastr: ToastrService,
+    private toastr: ToastService,
     private modalService: NgbModal,
     private sms: SmsService,
     private templateMapper: TemplateMapperService,

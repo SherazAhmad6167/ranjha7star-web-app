@@ -14,14 +14,14 @@ import {
 } from '@angular/fire/firestore';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
 import { NewConnectionModalComponent } from '../new-connection-modal/new-connection-modal.component';
 import { CustomerStatusModalComponent } from '../customer-status-modal/customer-status-modal.component';
 import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-customer-status',
-  imports: [FormsModule, CommonModule, ReactiveFormsModule, ToastrModule, SearchSelectComponent, LoaderComponent],
+  imports: [FormsModule, CommonModule, ReactiveFormsModule, SearchSelectComponent, LoaderComponent],
   templateUrl: './customer-status.component.html',
   styleUrl: './customer-status.component.scss'
 })
@@ -53,7 +53,7 @@ export class CustomerStatusComponent {
     constructor(
       private modalService: NgbModal,
       private firestore: Firestore,
-      private toastr: ToastrService,
+      private toastr: ToastService,
     ) {}
   
     ngOnInit(): void {

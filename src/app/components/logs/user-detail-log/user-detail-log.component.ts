@@ -13,7 +13,7 @@ import {
   where,
 } from '@angular/fire/firestore';
 import { FormsModule } from '@angular/forms';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../../shared/toast/toast.service';
 import {
   NgbActiveModal,
   NgbModal,
@@ -42,7 +42,7 @@ export class UserDetailLogComponent {
   constructor(
     private modalService: NgbModal,
     private firestore: Firestore,
-    private toastr: ToastrService,
+    private toastr: ToastService,
   ) {}
 
   ngOnInit(): void {

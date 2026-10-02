@@ -1,123 +1,110 @@
-<div class="login-page">
+<div class="lg-page" [class.is-warping]="success">
 
-    <!-- ═══ DESKTOP: left hero panel (≥992px only) ═══ -->
-    <div class="login-hero d-none d-lg-flex">
-        <div class="hero-content">
-            <div class="hero-icon">
-                <img src="assets/ranjha-logo3.jpeg" alt="Ranjha7star Logo" style="width:72px;height:72px;object-fit:contain;border-radius:50%;" />
-            </div>
-            <h1>Ranjha<span>7star</span></h1>
-            <p>Internet Service Provider Management System</p>
-            <div class="hero-features">
-                <div class="hero-feature">
-                    <i class="ri-shield-check-line"></i>
-                    <span>Secure Access</span>
-                </div>
-                <div class="hero-feature">
-                    <i class="ri-speed-line"></i>
-                    <span>Real-time Monitoring</span>
-                </div>
-                <div class="hero-feature">
-                    <i class="ri-customer-service-2-line"></i>
-                    <span>Customer Management</span>
-                </div>
-            </div>
-        </div>
+    <!-- ═══ Space backdrop: stars speed up as the form fills, warp on sign-in ═══ -->
+    <div class="lg-space" aria-hidden="true">
+        <span class="lg-orb lg-orb-1"></span>
+        <span class="lg-orb lg-orb-2"></span>
+        <span class="lg-orb lg-orb-3"></span>
+        <canvas class="lg-stars" warpField [warpSpeed]="starSpeed" [warp]="success"></canvas>
     </div>
 
-    <!-- ═══ DESKTOP: right form panel (≥992px only) ═══ -->
-    <div class="login-form-panel d-none d-lg-flex">
-        <div class="login-card">
-            <div class="login-header">
-                <h2>Welcome back</h2>
-                <p>Sign in to your account to continue</p>
+    <div class="lg-shell">
+
+        <!-- ═══ Brand ═══ -->
+        <div class="lg-brand">
+            <div class="lg-core" aria-hidden="true">
+                <span class="lc-wave"></span>
+                <span class="lc-wave"></span>
+                <span class="lc-wave"></span>
+                <span class="lc-orbit lc-orbit-1"><span class="lc-packet"></span></span>
+                <span class="lc-orbit lc-orbit-2"><span class="lc-packet"></span></span>
+                <span class="lc-ring"></span>
+                <img src="assets/ranjha-logo3.jpeg" alt="">
             </div>
-            <form (ngSubmit)="login()" class="login-form">
-                <div class="form-field">
-                    <label for="username-d"><i class="ri-user-line"></i> Username</label>
-                    <div class="input-wrap">
-                        <input id="username-d" type="text" [(ngModel)]="username" name="username"
-                            placeholder="Enter your username" autocomplete="username" required />
+
+            <span class="lg-eyebrow">{{ greeting }}</span>
+            <h1 class="lg-name">Ranjha<span>7star</span></h1>
+            <p class="lg-tagline" aria-live="off">
+                <span *ngFor="let t of [tagline]">{{ t }}</span>
+            </p>
+
+            <ul class="lg-features">
+                <li><i class="ri-group-line"></i>Customers</li>
+                <li><i class="ri-bill-line"></i>Billing</li>
+                <li><i class="ri-router-line"></i>MikroTik</li>
+                <li><i class="ri-bar-chart-2-line"></i>Analytics</li>
+            </ul>
+        </div>
+
+        <!-- ═══ Sign-in card ═══ -->
+        <div class="lg-card-wrap">
+            <div class="lg-card" [class.is-shaking]="shake" (animationend)="onCardAnimationEnd($event)">
+
+                <header class="lg-head">
+                    <div>
+                        <h2>Welcome back</h2>
+                        <p>Sign in to your network console</p>
                     </div>
-                </div>
-                <div class="form-field">
-                    <label for="password-d"><i class="ri-lock-line"></i> Password</label>
-                    <div class="input-wrap">
-                        <input id="password-d" [type]="showPassword ? 'text' : 'password'"
-                            [(ngModel)]="password" name="password"
-                            placeholder="Enter your password" autocomplete="current-password" required />
-                        <button type="button" class="toggle-password" (click)="togglePassword()" tabindex="-1">
+                    <!-- fills as the form is completed -->
+                    <span class="lg-signal" [attr.data-level]="signalLevel" [class.is-connected]="success">
+                        <span class="sg-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+                        {{ signalText }}
+                    </span>
+                </header>
+
+                <form (ngSubmit)="login()" class="lg-form">
+
+                    <div class="lg-field">
+                        <i class="ri-user-3-line lg-field-icon" aria-hidden="true"></i>
+                        <input id="lg-username" type="text" [(ngModel)]="username" name="username"
+                            placeholder=" " autocomplete="username" autocapitalize="none" spellcheck="false" required />
+                        <label for="lg-username">Username</label>
+                    </div>
+
+                    <div class="lg-field">
+                        <i class="ri-lock-2-line lg-field-icon" aria-hidden="true"></i>
+                        <input id="lg-password" [type]="showPassword ? 'text' : 'password'" [(ngModel)]="password"
+                            name="password" placeholder=" " autocomplete="current-password" required
+                            (keydown)="checkCapsLock($event)" (keyup)="checkCapsLock($event)" (blur)="capsLock = false" />
+                        <label for="lg-password">Password</label>
+                        <button type="button" class="lg-eye" (click)="togglePassword()" tabindex="-1"
+                            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
                             <i [class]="showPassword ? 'ri-eye-off-line' : 'ri-eye-line'"></i>
                         </button>
                     </div>
-                </div>
-                <button type="submit" class="login-btn" [disabled]="loading" [class.loading]="loading">
-                    <span *ngIf="!loading">Sign In <i class="ri-arrow-right-line"></i></span>
-                    <span *ngIf="loading" class="d-flex align-items-center justify-content-center gap-2">
-                        <span class="spinner-border spinner-border-sm"></span> Signing in...
-                    </span>
-                </button>
-            </form>
-            <div *ngIf="errorMessage" class="error-msg">
-                <i class="ri-error-warning-line"></i> {{ errorMessage }}
-            </div>
-            <div class="login-footer"><small>Powered by Ranjha7star Cable Network</small></div>
-        </div>
-    </div>
 
-    <!-- ═══ MOBILE: full-screen layout (<992px only) ═══ -->
-    <div class="mobile-login d-lg-none">
+                    <div class="lg-caps" *ngIf="capsLock">
+                        <i class="ri-arrow-up-circle-line"></i> Caps Lock is on
+                    </div>
 
-        <!-- Top: decorative brand area -->
-        <div class="mob-brand">
-            <div class="mob-glow mob-glow-1"></div>
-            <div class="mob-glow mob-glow-2"></div>
-            <div class="mob-logo-ring">
-                <img src="assets/ranjha-logo3.jpeg" alt="Ranjha7star" />
-            </div>
-            <h1 class="mob-name">Ranjha<span>7star</span></h1>
-            <p class="mob-sub">ISP Management System</p>
-        </div>
-
-        <!-- Bottom: form sheet -->
-        <div class="mob-sheet">
-            <div class="mob-handle"></div>
-            <p class="mob-greeting">Sign in to continue</p>
-
-            <form (ngSubmit)="login()" class="mob-form">
-
-                <div class="mob-field">
-                    <i class="ri-user-3-line mob-field-icon"></i>
-                    <input id="username-m" type="text" [(ngModel)]="username" name="username"
-                        placeholder="Username" autocomplete="username" required />
-                </div>
-
-                <div class="mob-field">
-                    <i class="ri-lock-2-line mob-field-icon"></i>
-                    <input id="password-m" [type]="showPassword ? 'text' : 'password'"
-                        [(ngModel)]="password" name="password"
-                        placeholder="Password" autocomplete="current-password" required />
-                    <button type="button" class="mob-eye" (click)="togglePassword()" tabindex="-1">
-                        <i [class]="showPassword ? 'ri-eye-off-line' : 'ri-eye-line'"></i>
+                    <button type="submit" class="lg-btn" [disabled]="loading || success" [class.is-success]="success">
+                        <span *ngIf="!loading && !success" class="lg-btn-label">
+                            Sign In <i class="ri-arrow-right-line"></i>
+                        </span>
+                        <span *ngIf="loading && !success" class="lg-btn-label">
+                            <span class="lg-btn-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+                            Connecting…
+                        </span>
+                        <span *ngIf="success" class="lg-btn-label">
+                            <i class="ri-check-line"></i> Connected
+                        </span>
                     </button>
+
+                </form>
+
+                <div *ngIf="errorMessage" class="lg-error" role="alert">
+                    <i class="ri-error-warning-line"></i> {{ errorMessage }}
                 </div>
 
-                <button type="submit" class="mob-btn" [disabled]="loading">
-                    <span *ngIf="!loading">Sign In <i class="ri-arrow-right-line"></i></span>
-                    <span *ngIf="loading" class="d-flex align-items-center justify-content-center gap-2">
-                        <span class="spinner-border spinner-border-sm"></span> Signing in...
+                <footer class="lg-foot">
+                    <span class="lg-status" [class.is-offline]="!isOnline">
+                        <span class="lg-dot"></span>{{ isOnline ? 'Online' : 'Offline' }}
                     </span>
-                </button>
+                    <small>Powered by Ranjha7star Cable Network</small>
+                </footer>
 
-            </form>
-
-            <div *ngIf="errorMessage" class="mob-error">
-                <i class="ri-error-warning-line"></i> {{ errorMessage }}
             </div>
-
-            <p class="mob-footer">Powered by Ranjha7star Cable Network</p>
         </div>
 
     </div>
-
 </div>

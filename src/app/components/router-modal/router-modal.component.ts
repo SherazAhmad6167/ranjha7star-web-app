@@ -11,7 +11,7 @@ import {
   Firestore, collection, doc, setDoc, updateDoc,
   getDocs, query, where
 } from '@angular/fire/firestore';
-import { ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
@@ -61,7 +61,7 @@ export class RouterModalComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private firestore: Firestore,
-    private toastr: ToastrService,
+    private toastr: ToastService,
     public activeModal: NgbActiveModal,
     private zone: NgZone
   ) {}

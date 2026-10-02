@@ -11,7 +11,7 @@ import {
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
 import { RecoveryOfficerModalComponent } from '../recovery-officer-modal/recovery-officer-modal.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -24,7 +24,7 @@ import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-material-details',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule, LoaderComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, LoaderComponent],
   templateUrl: './material-details.component.html',
   styleUrl: './material-details.component.scss',
 })
@@ -69,7 +69,7 @@ getFilteredItems() {
   constructor(
     private modalService: NgbModal,
     private firestore: Firestore,
-    private toastr: ToastrService,
+    private toastr: ToastService,
     private route: ActivatedRoute,
     private router: Router,
   ) {}

@@ -19,7 +19,7 @@ import {
   where,
 } from '@angular/fire/firestore';
 import { FormsModule } from '@angular/forms';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
 import {
   NgbActiveModal,
   NgbModal,
@@ -34,7 +34,7 @@ import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-user-details',
-  imports: [CommonModule, FormsModule, ToastrModule, SearchSelectComponent, LoaderComponent],
+  imports: [CommonModule, FormsModule, SearchSelectComponent, LoaderComponent],
   templateUrl: './user-details.component.html',
   styleUrl: './user-details.component.scss',
 })
@@ -77,7 +77,7 @@ export class UserDetailsComponent {
   constructor(
     private modalService: NgbModal,
     private firestore: Firestore,
-    private toastr: ToastrService,
+    private toastr: ToastService,
     private cdr: ChangeDetectorRef,
     private templateMapper: TemplateMapperService,
   ) {}

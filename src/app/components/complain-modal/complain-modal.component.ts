@@ -17,12 +17,12 @@ import {
   Validators,
 } from '@angular/forms';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
 import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-complain-modal',
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, ToastrModule, SearchSelectComponent, LoaderComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, SearchSelectComponent, LoaderComponent],
   templateUrl: './complain-modal.component.html',
   styleUrl: './complain-modal.component.scss',
 })
@@ -44,7 +44,7 @@ export class ComplainModalComponent {
   constructor(
     public activeModal: NgbActiveModal,
     private fb: FormBuilder,
-    private toastr: ToastrService,
+    private toastr: ToastService,
     private firestore: Firestore,
     private modalService: NgbModal,
   ) {

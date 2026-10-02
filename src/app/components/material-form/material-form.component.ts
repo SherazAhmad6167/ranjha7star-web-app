@@ -17,12 +17,12 @@ import {
   Validators,
 } from '@angular/forms';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
 import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-material-form',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule, LoaderComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, LoaderComponent],
   templateUrl: './material-form.component.html',
   styleUrl: './material-form.component.scss',
 })
@@ -38,7 +38,7 @@ export class MaterialFormComponent {
   constructor(
     public activeModal: NgbActiveModal,
     private fb: FormBuilder,
-    private toastr: ToastrService,
+    private toastr: ToastService,
     private firestore: Firestore,
     private modalService: NgbModal,
   ) {

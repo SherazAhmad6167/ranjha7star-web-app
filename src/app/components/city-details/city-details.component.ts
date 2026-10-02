@@ -12,13 +12,13 @@ import {
 } from '@angular/fire/firestore';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
 import { AreaModalComponent } from '../area-modal/area-modal.component';
 import { CityModalComponent } from '../city-modal/city-modal.component';
 import { LoaderComponent } from '../../shared/loader/loader.component';
 @Component({
   selector: 'app-city-details',
-  imports: [CommonModule, FormsModule, ToastrModule, LoaderComponent],
+  imports: [CommonModule, FormsModule, LoaderComponent],
   templateUrl: './city-details.component.html',
   styleUrl: './city-details.component.scss'
 })
@@ -36,7 +36,7 @@ export class CityDetailsComponent {
   constructor(
     private modalService: NgbModal,
     private firestore: Firestore,
-    private toastr: ToastrService,
+    private toastr: ToastService,
   ) {}
 
   ngOnInit(): void {

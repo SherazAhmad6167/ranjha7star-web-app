@@ -19,7 +19,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
 import html2canvas from 'html2canvas';
 import { UserCollectionModalComponent } from '../user-collection-modal/user-collection-modal.component';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -38,7 +38,7 @@ import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-users-collections',
-  imports: [CommonModule, FormsModule, ToastrModule, ReactiveFormsModule, SearchSelectComponent, LoaderComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, SearchSelectComponent, LoaderComponent],
   templateUrl: './users-collections.component.html',
   styleUrl: './users-collections.component.scss',
 })
@@ -133,7 +133,7 @@ export class UsersCollectionsComponent {
 
   constructor(
     private firestore: Firestore,
-    private toastr: ToastrService,
+    private toastr: ToastService,
     private modalService: NgbModal,
     private fb: FormBuilder,
     private templateMapper: TemplateMapperService,

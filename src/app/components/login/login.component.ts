@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import {
   collection,
   Firestore,
@@ -9,26 +9,62 @@ import {
 } from '@angular/fire/firestore';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
+import { WarpFieldDirective } from '../../shared/warp-field.directive';
+
+const TAGLINES = [
+  'Every subscriber, every rupee — in one place.',
+  'Billing, recovery & routers at a glance.',
+  'Built for the field — keeps working offline.',
+  'Keeping Ranjha7star connected.',
+];
+
+/** What the signal meter says at each level (0-4). */
+const SIGNAL_TEXT = [
+  'Waiting for you',
+  'Picking up a signal…',
+  'Signal found',
+  'Almost there',
+  'Ready to connect',
+];
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule, CommonModule, ToastrModule],
+  imports: [FormsModule, CommonModule, WarpFieldDirective],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
   username = '';
   password = '';
   loading = false;
   errorMessage = '';
   showPassword = false;
 
+  /* ── Look & feel ── */
+  readonly greeting =
+    new Date().getHours() < 12 ? 'Good morning'
+    : new Date().getHours() < 17 ? 'Good afternoon'
+    : 'Good evening';
+  isOnline = navigator.onLine;
+  capsLock = false;
+  shake = false;
+  success = false;
+  tagline = TAGLINES[0];
+  private taglineIndex = 0;
+  private taglineTimer?: ReturnType<typeof setInterval>;
+
   constructor(
     private firestore: Firestore,
     private router: Router,
-    private toastr: ToastrService,
+    private toastr: ToastService,
   ) {}
+
+  @HostListener('window:online')
+  onOnline() { this.isOnline = true; }
+
+  @HostListener('window:offline')
+  onOffline() { this.isOnline = false; }
 
   ngOnInit() {
     const username = localStorage.getItem('username');
@@ -40,19 +76,56 @@ export class LoginComponent implements OnInit {
         this.router.navigate(['/dashboard']);
       }
     }
+
+    this.taglineTimer = setInterval(() => {
+      this.taglineIndex = (this.taglineIndex + 1) % TAGLINES.length;
+      this.tagline = TAGLINES[this.taglineIndex];
+    }, 3500);
+  }
+
+  ngOnDestroy() {
+    clearInterval(this.taglineTimer);
+  }
+
+  /** How complete the form is, as signal bars (0-4). */
+  get signalLevel(): number {
+    if (this.success) return 4;
+    const name = this.username.trim();
+    const level = (name ? (name.length >= 3 ? 2 : 1) : 0) + (this.password ? 2 : 0);
+    return Math.min(level, 4);
+  }
+
+  get signalText(): string {
+    return this.success ? 'Connected' : SIGNAL_TEXT[this.signalLevel];
+  }
+
+  /** The stars cruise a little faster as the form fills in. */
+  get starSpeed(): number {
+    return 0.12 + this.signalLevel * 0.07;
   }
 
   togglePassword() {
     this.showPassword = !this.showPassword;
   }
 
+  checkCapsLock(event: KeyboardEvent) {
+    this.capsLock = event.getModifierState?.('CapsLock') ?? false;
+  }
+
+  /** Clears the shake once the card's own shake ends (not a child's animation). */
+  onCardAnimationEnd(event: AnimationEvent) {
+    if (event.target === event.currentTarget) this.shake = false;
+  }
+
   async login() {
     if (!this.username || !this.password) {
       this.toastr.error('Username aur password required hai');
+      this.shake = true;
       return;
     }
 
     this.loading = true;
+    this.errorMessage = '';
 
     try {
       const ref = collection(this.firestore, 'recoveryOfficer');
@@ -68,6 +141,7 @@ export class LoginComponent implements OnInit {
       if (snapshot.empty) {
         this.toastr.error('Invalid username or password');
         this.errorMessage = 'Invalid username or password';
+        this.shake = true;
         this.loading = false;
         return;
       }
@@ -77,6 +151,7 @@ export class LoginComponent implements OnInit {
       if (user['status'] !== 'activated') {
         this.toastr.error('Account is not activated, please contact admin');
         this.errorMessage = 'Account is not activated, please contact admin';
+        this.shake = true;
         this.loading = false;
         return;
       }
@@ -88,17 +163,21 @@ export class LoginComponent implements OnInit {
       localStorage.setItem('sublocality', JSON.stringify(user['sublocality'] || []));
 
       this.toastr.success('Login successful');
-      if (user['role'] === 'operator') {
-        this.router.navigate(['/user-details']);
-      } else {
-        this.router.navigate(['/dashboard']);
-      }
+      this.launch(user['role'] === 'operator' ? '/user-details' : '/dashboard');
     } catch (err) {
       console.error(err);
       this.toastr.error('Something went wrong');
       this.errorMessage = 'Something went wrong';
+      this.shake = true;
     } finally {
       this.loading = false;
     }
+  }
+
+  /** "Connected", a jump to light speed, then into the app. */
+  private launch(path: string) {
+    this.success = true;
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    setTimeout(() => this.router.navigate([path]), still ? 0 : 700);
   }
 }

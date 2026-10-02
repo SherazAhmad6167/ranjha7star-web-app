@@ -5,7 +5,7 @@ import {
   Firestore, collection, getDocs,
   doc, deleteDoc, getDoc, addDoc
 } from '@angular/fire/firestore';
-import { ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { RouterModalComponent } from '../router-modal/router-modal.component';
 import { LoaderComponent } from '../../shared/loader/loader.component';
@@ -55,7 +55,7 @@ export class RouterComponent implements OnInit {
 
   constructor(
     private firestore: Firestore,
-    private toastr: ToastrService,
+    private toastr: ToastService,
     private modalService: NgbModal
   ) {}
 

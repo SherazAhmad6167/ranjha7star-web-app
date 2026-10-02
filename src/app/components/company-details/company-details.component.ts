@@ -7,7 +7,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
 import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
@@ -26,7 +26,7 @@ export class CompanyDetailsComponent {
   constructor(
     private fb: FormBuilder,
     private firestore: Firestore,
-    private toastr: ToastrService,
+    private toastr: ToastService,
   ) {
     this.companyForm = this.fb.group({
       id: [{ value: '', disabled: true }],

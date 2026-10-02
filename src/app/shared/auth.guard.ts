@@ -6,13 +6,13 @@ import {
   RouterStateSnapshot,
   Router,
 } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
+import { ToastService } from './toast/toast.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthGuard implements CanActivate, CanActivateChild {
-  constructor(private router: Router, private toastr: ToastrService) {}
+  constructor(private router: Router, private toastr: ToastService) {}
 
   private checkRole(route: ActivatedRouteSnapshot): boolean {
     const username = localStorage.getItem('username');

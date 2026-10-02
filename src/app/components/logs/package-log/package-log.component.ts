@@ -13,7 +13,7 @@ import {
   where,
 } from '@angular/fire/firestore';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../../shared/toast/toast.service';
 import { FormsModule } from '@angular/forms';
 import { LoaderComponent } from '../../../shared/loader/loader.component';
 
@@ -37,7 +37,7 @@ export class PackageLogComponent {
   constructor(
     private modalService: NgbModal,
     private firestore: Firestore,
-    private toastr: ToastrService,
+    private toastr: ToastService,
   ) {}
 
   ngOnInit(): void {

@@ -18,7 +18,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
 import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
@@ -27,7 +27,6 @@ import { LoaderComponent } from '../../shared/loader/loader.component';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    ToastrModule,
     LoaderComponent,
   ],
   templateUrl: './operator-modal.component.html',
@@ -44,7 +43,7 @@ export class OperatorModalComponent {
     constructor(
       public activeModal: NgbActiveModal,
       private fb: FormBuilder,
-      private toastr: ToastrService,
+      private toastr: ToastService,
       private firestore: Firestore,
       private modalService: NgbModal,
     ) {

@@ -8,7 +8,7 @@ import {
   setDoc,
 } from '@angular/fire/firestore';
 import { FormsModule } from '@angular/forms';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
 import {
   DEFAULT_RECOVERY_RECEIVED_TEMPLATE,
   DEFAULT_REVIEW_APPROVED_TEMPLATE,
@@ -19,7 +19,7 @@ import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-settings',
-  imports: [CommonModule, FormsModule, ToastrModule, LoaderComponent],
+  imports: [CommonModule, FormsModule, LoaderComponent],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss',
 })
@@ -61,7 +61,7 @@ export class SettingsComponent {
 
   constructor(
     private firestore: Firestore,
-    private toastr: ToastrService,
+    private toastr: ToastService,
   ) {}
 
   // the loader covers the first load only - the quiet reload after a save stays quiet

@@ -16,12 +16,12 @@ import {
   Validators,
 } from '@angular/forms';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
 import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-recovery-officer-modal',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule, LoaderComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, LoaderComponent],
   templateUrl: './recovery-officer-modal.component.html',
   styleUrl: './recovery-officer-modal.component.scss',
 })
@@ -36,7 +36,7 @@ export class RecoveryOfficerModalComponent {
   constructor(
     public activeModal: NgbActiveModal,
     private fb: FormBuilder,
-    private toastr: ToastrService,
+    private toastr: ToastService,
     private firestore: Firestore,
     private modalService: NgbModal,
   ) {

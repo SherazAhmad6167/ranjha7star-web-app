@@ -17,12 +17,12 @@ import {
   Validators,
 } from '@angular/forms';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
 import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-customer-status-modal',
-  imports: [FormsModule, ReactiveFormsModule, CommonModule, ToastrModule, SearchSelectComponent, LoaderComponent],
+  imports: [FormsModule, ReactiveFormsModule, CommonModule, SearchSelectComponent, LoaderComponent],
   templateUrl: './customer-status-modal.component.html',
   styleUrl: './customer-status-modal.component.scss',
 })
@@ -43,7 +43,7 @@ export class CustomerStatusModalComponent {
   constructor(
     public activeModal: NgbActiveModal,
     private fb: FormBuilder,
-    private toastr: ToastrService,
+    private toastr: ToastService,
     private firestore: Firestore,
     private modalService: NgbModal,
   ) {

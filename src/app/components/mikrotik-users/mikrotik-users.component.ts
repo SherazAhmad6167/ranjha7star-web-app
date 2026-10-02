@@ -8,7 +8,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
 import { Firestore, doc, getDoc } from '@angular/fire/firestore';
 import { MikrotikService, MikrotikError, MikrotikServer } from '../../shared/mikrotik.service';
 import { SearchSelectComponent } from '../../shared/search-select/search-select.component';
@@ -22,7 +22,7 @@ export interface ServerTab {
 
 @Component({
   selector: 'app-mikrotik-users',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule, SearchSelectComponent, LoaderComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, SearchSelectComponent, LoaderComponent],
   templateUrl: './mikrotik-users.component.html',
   styleUrl: './mikrotik-users.component.scss',
 })
@@ -71,7 +71,7 @@ export class MikrotikUsersComponent implements OnInit {
     private fb: FormBuilder,
     private modalService: NgbModal,
     private mikrotikService: MikrotikService,
-    private toastr: ToastrService,
+    private toastr: ToastService,
     private firestore: Firestore,
   ) {}
 

@@ -11,14 +11,14 @@ import {
   updateDoc,
 } from '@angular/fire/firestore';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
 import { PackageModalComponent } from '../package-modal/package-modal.component';
 import { FormsModule } from '@angular/forms';
 import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-package-details',
-  imports: [CommonModule, ToastrModule, FormsModule, LoaderComponent],
+  imports: [CommonModule, FormsModule, LoaderComponent],
   templateUrl: './package-details.component.html',
   styleUrl: './package-details.component.scss',
 })
@@ -36,7 +36,7 @@ export class PackageDetailsComponent {
   constructor(
     private modalService: NgbModal,
     private firestore: Firestore,
-    private toastr: ToastrService,
+    private toastr: ToastService,
   ) {}
 
   ngOnInit(): void {

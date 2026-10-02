@@ -18,7 +18,6 @@ import {
 
 import { environment } from '../environment/environment';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { provideToastr } from 'ngx-toastr';
 import { provideHttpClient } from '@angular/common/http';
 
 export const appConfig: ApplicationConfig = {
@@ -44,10 +43,5 @@ export const appConfig: ApplicationConfig = {
     ),
 
     provideAnimations(),
-    provideToastr({
-      timeOut: 3000,
-      positionClass: 'toast-top-right',
-      preventDuplicates: true,
-    }),
   ],
 };

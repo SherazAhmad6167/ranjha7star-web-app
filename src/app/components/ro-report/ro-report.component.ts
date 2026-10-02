@@ -12,7 +12,7 @@ import {
 } from '@angular/fire/firestore';
 import { FormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
 import { isCarried } from '../../shared/bill-carry';
 import { LoaderComponent } from '../../shared/loader/loader.component';
 
@@ -51,7 +51,7 @@ interface User {
 
 @Component({
   selector: 'app-ro-report',
-  imports: [CommonModule, FormsModule, ToastrModule, SearchSelectComponent, LoaderComponent],
+  imports: [CommonModule, FormsModule, SearchSelectComponent, LoaderComponent],
   templateUrl: './ro-report.component.html',
   styleUrl: './ro-report.component.scss',
 })
@@ -72,7 +72,7 @@ export class RoReportComponent {
 
   constructor(
     private firestore: Firestore,
-    private toastr: ToastrService,
+    private toastr: ToastService,
     private modalService: NgbModal,
   ) {}
 

@@ -14,7 +14,7 @@ import {
 } from '@angular/fire/firestore';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../../shared/toast/toast.service';
 import { LoaderComponent } from '../../../shared/loader/loader.component';
 
 @Component({
@@ -37,7 +37,7 @@ export class AreaLogComponent {
   constructor(
     private modalService: NgbModal,
     private firestore: Firestore,
-    private toastr: ToastrService,
+    private toastr: ToastService,
   ) {}
 
   ngOnInit(): void {

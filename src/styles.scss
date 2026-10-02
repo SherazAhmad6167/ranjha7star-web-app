@@ -4,10 +4,27 @@
 :root { --topbar-h: 58px; }
 @media (max-width: 576px) { :root { --topbar-h: 52px; } }
 
+/* Page background behind every screen - change it here and it applies app-wide.
+   A soft "aurora" in the brand colours: a violet glow top-right and a sky glow
+   near the top, over a cool off-white - light enough for white cards to pop.
+   Any CSS background works here, e.g. a plain colour like #f0f2f5. */
+:root {
+  --app-bg:
+    radial-gradient(900px 480px at 100% 0%, rgba(139, 92, 246, 0.13), transparent 70%),
+    radial-gradient(760px 420px at 32% 0%, rgba(14, 165, 233, 0.09), transparent 70%),
+    linear-gradient(180deg, #f6f7fc 0%, #f1f3f9 100%);
+}
+body.dark-mode {
+  --app-bg:
+    radial-gradient(900px 480px at 100% 0%, rgba(124, 58, 237, 0.2), transparent 70%),
+    radial-gradient(760px 420px at 32% 0%, rgba(14, 165, 233, 0.1), transparent 70%),
+    linear-gradient(180deg, #11111f 0%, #0d0d18 100%);
+}
+
         /* Basic Reset & Smooth Scroll */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; font-family: sans-serif; }
-        body { color: #333; line-height: 1.6; background-color: #f8f9fa; }
+        body { color: #333; line-height: 1.6; background: var(--app-bg); }
 
         .content-body { display: flex; }
         /* Navigation */
@@ -427,13 +444,8 @@
    ===================================================== */
 
 body.dark-mode {
-  background-color: #0f0f1a !important;
+  background: var(--app-bg) !important;
   color: #e2e8f0 !important;
-}
-
-/* ── Page background ── */
-body.dark-mode .background-color {
-  background: linear-gradient(120deg, #0f0f1a 0%, #1a1a2e 100%) !important;
 }
 
 /* ── Sidebar ── */

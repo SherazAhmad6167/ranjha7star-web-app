@@ -17,7 +17,7 @@ import {
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TemplateMapperService } from '../../shared/template-mapper.service';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
 import { NewConnectionModalComponent } from '../new-connection-modal/new-connection-modal.component';
 import html2pdf from 'html2pdf.js';
 import html2canvas from 'html2canvas';
@@ -27,7 +27,7 @@ import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-new-connection',
-  imports: [FormsModule, CommonModule, ReactiveFormsModule, ToastrModule, SearchSelectComponent, LoaderComponent],
+  imports: [FormsModule, CommonModule, ReactiveFormsModule, SearchSelectComponent, LoaderComponent],
   templateUrl: './new-connection.component.html',
   styleUrl: './new-connection.component.scss',
 })
@@ -117,7 +117,7 @@ export class NewConnectionComponent {
   constructor(
     private modalService: NgbModal,
     private firestore: Firestore,
-    private toastr: ToastrService,
+    private toastr: ToastService,
     private templateMapper: TemplateMapperService,
   ) {}
 

@@ -3,7 +3,7 @@ import { Component, Input } from '@angular/core';
 import { addDoc, collection, doc, Firestore, updateDoc } from '@angular/fire/firestore';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
 import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
@@ -22,7 +22,7 @@ export class BorrowAmountModalComponent {
      constructor(
       public activeModal: NgbActiveModal,
       private fb: FormBuilder,
-      private toastr: ToastrService,
+      private toastr: ToastService,
       private firestore: Firestore,
       private modalService: NgbModal,
     ) {

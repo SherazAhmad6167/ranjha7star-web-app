@@ -14,7 +14,7 @@ import {
 } from '@angular/fire/firestore';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { Toast, ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
 import {
   isCarried,
   linkUntrackedCarries,
@@ -39,7 +39,7 @@ interface MissedUser {
 
 @Component({
   selector: 'app-bill-creator',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule, SearchSelectComponent, LoaderComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, SearchSelectComponent, LoaderComponent],
   templateUrl: './bill-creator.component.html',
   styleUrl: './bill-creator.component.scss',
 })
@@ -80,7 +80,7 @@ export class BillCreatorComponent {
   constructor(
     private modalService: NgbModal,
     private firestore: Firestore,
-    private toastr: ToastrService,
+    private toastr: ToastService,
   ) {}
 
   ngOnInit(): void {

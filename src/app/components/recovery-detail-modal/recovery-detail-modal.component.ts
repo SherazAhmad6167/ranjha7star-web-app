@@ -19,7 +19,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
 import { SmsService } from '../../shared/sms.service';
 import { TemplateMapperService } from '../../shared/template-mapper.service';
 import { DEFAULT_RECOVERY_RECEIVED_TEMPLATE } from '../../shared/message-templates';
@@ -27,7 +27,7 @@ import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-recovery-detail-modal',
-  imports: [CommonModule, ReactiveFormsModule, ToastrModule, SearchSelectComponent, LoaderComponent],
+  imports: [CommonModule, ReactiveFormsModule, SearchSelectComponent, LoaderComponent],
   templateUrl: './recovery-detail-modal.component.html',
   styleUrl: './recovery-detail-modal.component.scss',
 })
@@ -54,7 +54,7 @@ export class RecoveryDetailModalComponent {
   constructor(
     public activeModal: NgbActiveModal,
     private fb: FormBuilder,
-    private toastr: ToastrService,
+    private toastr: ToastService,
     private firestore: Firestore,
     private modalService: NgbModal,
     private sms: SmsService,

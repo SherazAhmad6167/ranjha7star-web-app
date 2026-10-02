@@ -2,7 +2,7 @@ import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
 import { ZalService, ZalError, ZalStats, ZAL_MAX_LIMIT } from '../../shared/zal.service';
 import { SearchSelectComponent } from '../../shared/search-select/search-select.component';
 import { LoaderComponent } from '../../shared/loader/loader.component';
@@ -11,7 +11,7 @@ type NetAction = 'enable' | 'disable';
 
 @Component({
   selector: 'app-zal-subscribers',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule, SearchSelectComponent, LoaderComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, SearchSelectComponent, LoaderComponent],
   templateUrl: './zal-subscribers.component.html',
   styleUrl: './zal-subscribers.component.scss',
 })
@@ -65,7 +65,7 @@ export class ZalSubscribersComponent implements OnInit {
   constructor(
     private zal: ZalService,
     private modalService: NgbModal,
-    private toastr: ToastrService,
+    private toastr: ToastService,
     private fb: FormBuilder,
   ) {}
 

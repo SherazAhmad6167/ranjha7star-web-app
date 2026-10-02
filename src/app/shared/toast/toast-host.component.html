@@ -1,0 +1,45 @@
+<div class="tst-stack" role="region" aria-live="polite" aria-label="Notifications">
+  @for (t of toast.toasts(); track t.id) {
+    <div class="tst-slot" [class.is-leaving]="t.leaving">
+      <div class="tst-slot-inner">
+        <div class="tst" [attr.data-type]="t.type" [class.is-paused]="t.paused"
+          [attr.role]="t.type === 'error' || t.type === 'warning' ? 'alert' : 'status'"
+          (mouseenter)="toast.pause(t.id)" (mouseleave)="toast.resume(t.id)"
+          (pointerdown)="onPointerDown($event, t)" (pointermove)="onPointerMove($event)"
+          (pointerup)="onPointerUp()" (pointercancel)="onPointerUp()">
+
+          <span class="tst-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path class="tst-mark" [attr.d]="marks[t.type]" pathLength="1" />
+            </svg>
+            @if (t.type === 'success') {
+              <span class="tst-sparks"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+            }
+          </span>
+
+          <div class="tst-text">
+            <strong class="tst-title">{{ t.title || titles[t.type] }}</strong>
+            @if (t.message) {
+              <p class="tst-msg">{{ t.message }}</p>
+            }
+          </div>
+
+          @if (t.count > 1) {
+            @for (c of [t.count]; track c) {
+              <span class="tst-count">&times;{{ c }}</span>
+            }
+          }
+
+          <button type="button" class="tst-close" (click)="toast.dismiss(t.id)" aria-label="Dismiss notification">
+            <i class="ri-close-line"></i>
+          </button>
+
+          <!-- countdown; restarts when the same toast fires again -->
+          @for (c of [t.cycle]; track c) {
+            <span class="tst-timer" [style.animation-duration.ms]="t.duration"></span>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

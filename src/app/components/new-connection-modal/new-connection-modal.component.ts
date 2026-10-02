@@ -29,7 +29,7 @@ import { DD_MM_YYYY_DATE_PROVIDERS } from '../../shared/date-picker.config';
 import { firstValueFrom } from 'rxjs';
 import { MikrotikService, MikrotikServer } from '../../shared/mikrotik.service';
 import { ZalService } from '../../shared/zal.service';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
 import { LoaderComponent } from '../../shared/loader/loader.component';
 
 /** Pre-filled MikroTik / ZalUltra password for a new connection. */
@@ -41,7 +41,6 @@ const DEFAULT_PASSWORD = '1234567';
     FormsModule,
     ReactiveFormsModule,
     CommonModule,
-    ToastrModule,
     SearchSelectComponent,
     NgbDatepickerModule,
     LoaderComponent,
@@ -136,7 +135,7 @@ export class NewConnectionModalComponent implements OnDestroy {
   constructor(
     public activeModal: NgbActiveModal,
     private fb: FormBuilder,
-    private toastr: ToastrService,
+    private toastr: ToastService,
     private firestore: Firestore,
     private modalService: NgbModal,
     private mikrotikService: MikrotikService,

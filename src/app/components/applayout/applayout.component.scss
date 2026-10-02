@@ -1,7 +1,7 @@
 .content-body {
   display: flex;
   min-height: 100vh;
-  background-color: #f0f2f5;
+  background: var(--app-bg); // set once in styles.scss
 }
 
 // ── Birthday Banner ───────────────────────────────────────────

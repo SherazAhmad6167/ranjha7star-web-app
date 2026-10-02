@@ -9,7 +9,7 @@ import {
   getDocs,
 } from '@angular/fire/firestore';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
 import { RecoveryOfficerModalComponent } from '../recovery-officer-modal/recovery-officer-modal.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -17,7 +17,7 @@ import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-recovery-officer',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule, LoaderComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, LoaderComponent],
   templateUrl: './recovery-officer.component.html',
   styleUrl: './recovery-officer.component.scss',
 })
@@ -35,7 +35,7 @@ export class RecoveryOfficerComponent {
   constructor(
     private modalService: NgbModal,
     private firestore: Firestore,
-    private toastr: ToastrService,
+    private toastr: ToastService,
   ) {}
 
   ngOnInit(): void {

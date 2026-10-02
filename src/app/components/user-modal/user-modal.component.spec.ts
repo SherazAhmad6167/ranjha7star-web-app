@@ -1,14 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Firestore } from '@angular/fire/firestore';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
 
 import { UserModalComponent } from './user-modal.component';
 
 describe('UserModalComponent subscriber validation', () => {
   let component: UserModalComponent;
   let fixture: ComponentFixture<UserModalComponent>;
-  let toastr: jasmine.SpyObj<ToastrService>;
+  let toastr: jasmine.SpyObj<ToastService>;
   let activeModal: jasmine.SpyObj<NgbActiveModal>;
 
   // Imports have no birth date, store an unknown phone as "0", and omit cable.
@@ -47,7 +47,7 @@ describe('UserModalComponent subscriber validation', () => {
   }
 
   beforeEach(async () => {
-    toastr = jasmine.createSpyObj<ToastrService>('ToastrService', ['error', 'success', 'info']);
+    toastr = jasmine.createSpyObj<ToastService>('ToastService', ['error', 'success', 'info']);
     activeModal = jasmine.createSpyObj<NgbActiveModal>('NgbActiveModal', ['close', 'dismiss']);
     spyOn(localStorage, 'getItem').and.returnValue(null);
 
@@ -55,7 +55,7 @@ describe('UserModalComponent subscriber validation', () => {
       imports: [UserModalComponent],
       providers: [
         { provide: Firestore, useValue: {} },
-        { provide: ToastrService, useValue: toastr },
+        { provide: ToastService, useValue: toastr },
         { provide: NgbActiveModal, useValue: activeModal },
         { provide: NgbModal, useValue: {} },
       ],

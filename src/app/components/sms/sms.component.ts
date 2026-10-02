@@ -15,7 +15,7 @@ import {
   writeBatch,
 } from '@angular/fire/firestore';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
 import { TemplateMapperService } from '../../shared/template-mapper.service';
 import { ActivatedRoute } from '@angular/router';
 import { isCarried } from '../../shared/bill-carry';
@@ -24,7 +24,7 @@ import { LoaderComponent } from '../../shared/loader/loader.component';
 @Component({
   selector: 'app-sms',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ToastrModule, SearchSelectComponent, LoaderComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, SearchSelectComponent, LoaderComponent],
   templateUrl: './sms.component.html',
   styleUrl: './sms.component.scss',
 })
@@ -67,7 +67,7 @@ export class SmsComponent {
   constructor(
     private fb: FormBuilder,
     private firestore: Firestore,
-    private toastr: ToastrService,
+    private toastr: ToastService,
     private modalService: NgbModal,
     private templateMapper: TemplateMapperService,
     private route: ActivatedRoute,

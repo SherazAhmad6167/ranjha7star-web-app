@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { addDoc, collection, Firestore, serverTimestamp } from '@angular/fire/firestore';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../../shared/toast/toast.service';
 import * as Papa from 'papaparse';
 import { LoaderComponent } from '../../../shared/loader/loader.component';
 @Component({
   selector: 'app-user-docs',
-  imports: [CommonModule, ToastrModule, LoaderComponent],
+  imports: [CommonModule, LoaderComponent],
   templateUrl: './user-docs.component.html',
   styleUrl: './user-docs.component.scss'
 })
@@ -17,7 +17,7 @@ export class UserDocsComponent {
   fileError: string = '';
   loading = false;
 
-  constructor(private firestore: Firestore, private toastr: ToastrService,) {}
+  constructor(private firestore: Firestore, private toastr: ToastService,) {}
 
   formatDate(dateStr: string): string {
     if (!dateStr) return '';

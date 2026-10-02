@@ -22,7 +22,7 @@ import {
   NgbModal,
 } from '@ng-bootstrap/ng-bootstrap';
 import { DD_MM_YYYY_DATE_PROVIDERS } from '../../shared/date-picker.config';
-import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ToastService } from '../../shared/toast/toast.service';
 import { whatsappConfig } from '../../../environment/environment';
 import { openWhatsApp } from '../../shared/whatsapp';
 import { toWhatsappNumber } from '../../shared/phone';
@@ -34,7 +34,6 @@ import { LoaderComponent } from '../../shared/loader/loader.component';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    ToastrModule,
     SearchSelectComponent,
     NgbDatepickerModule,
     LoaderComponent,
@@ -83,7 +82,7 @@ export class UserModalComponent {
   constructor(
     public activeModal: NgbActiveModal,
     private fb: FormBuilder,
-    private toastr: ToastrService,
+    private toastr: ToastService,
     private firestore: Firestore,
     private modalService: NgbModal,
   ) {
