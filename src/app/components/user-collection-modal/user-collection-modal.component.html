@@ -56,9 +56,11 @@
                 <td>{{ bill.month | titlecase }} {{ bill.year }}</td>
                 <td>Rs. {{ bill.amount }}</td>
                 <td>
-                  <span class="badge" [ngClass]="bill.status === 'paid' ? 'bg-success' : 'bg-warning text-dark'">
-                    {{ bill.status | titlecase }}
+                  <span class="badge"
+                    [ngClass]="bill.status === 'paid' ? 'bg-success' : isCarriedOpen(bill) ? 'bg-secondary' : 'bg-warning text-dark'">
+                    {{ isCarriedOpen(bill) ? 'Carried' : (bill.status | titlecase) }}
                   </span>
+                  <div class="small text-muted" *ngIf="carryNote(bill)">{{ carryNote(bill) }}</div>
                 </td>
                 <td>{{ bill.collected_amount || '-' }}</td>
                 <td class="text-danger fw-bold">{{ bill.remaining_amount || '-' }}</td>

@@ -257,6 +257,30 @@
   }
 }
 
+/* ── Carried Balances Card ── */
+.carry-card {
+  border-color: #fde68a;
+}
+
+.carry-header {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+}
+
+.btn-carry-fix {
+  background: linear-gradient(135deg, #d97706, #b45309);
+
+  &:hover:not(:disabled) {
+    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.4);
+  }
+}
+
+.carry-list {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
 .miss-note {
   display: flex;
   align-items: flex-start;

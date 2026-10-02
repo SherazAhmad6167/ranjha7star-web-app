@@ -325,6 +325,47 @@
         </div>
     </div>
 
+    <!-- ══ Carried Balances Card ══ -->
+    <div class="generator-card carry-card mb-4">
+
+        <div class="generator-header carry-header">
+            <div class="gh-icon">
+                <i class="ri-links-line"></i>
+            </div>
+            <div>
+                <div class="gh-title">Fix Carried Balances</div>
+                <div class="gh-sub">One-time fix for bills made before carry tracking: links an unpaid month to the next bill that already includes it, so it stops showing as unpaid</div>
+            </div>
+        </div>
+
+        <div class="generator-body">
+            <div class="gc-actions">
+                <div class="gc-summary">
+                    <i class="ri-information-line"></i>
+                    <span>Only links a bill when the next bill is exactly the package fee plus its balance</span>
+                </div>
+
+                <div class="gc-buttons">
+                    <button class="btn btn-gc-create btn-carry-fix" (click)="fixCarriedBills()"
+                            [disabled]="isFixingCarries || isLoading">
+                        <span *ngIf="!isFixingCarries"><i class="ri-links-line me-1"></i> Fix Carried Bills</span>
+                        <span *ngIf="isFixingCarries"><span class="spinner-border spinner-border-sm me-2"></span> Fixing...</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="miss-note mt-3" *ngIf="carryUnmatched.length">
+                <i class="ri-error-warning-line"></i>
+                <div>
+                    These unpaid bills were left as they are - the next bill's amount doesn't match, so check them by hand:
+                    <ul class="carry-list">
+                        <li *ngFor="let item of carryUnmatched">{{ item | titlecase }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ══ Bill History ══ -->
     <div class="history-card">
         <div class="history-header">
