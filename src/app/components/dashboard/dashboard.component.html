@@ -471,6 +471,15 @@
                                     [plotOptions]="charts['areaUsers'].chartOptions.plotOptions"
                                     [xaxis]="charts['areaUsers'].chartOptions.xaxis"
                                     [dataLabels]="charts['areaUsers'].chartOptions.dataLabels"
+                                    [colors]="charts['areaUsers'].chartOptions.colors"
+                                    [stroke]="charts['areaUsers'].chartOptions.stroke"
+                                    [fill]="charts['areaUsers'].chartOptions.fill"
+                                    [states]="charts['areaUsers'].chartOptions.states"
+                                    [yaxis]="charts['areaUsers'].chartOptions.yaxis"
+                                    [grid]="charts['areaUsers'].chartOptions.grid"
+                                    [legend]="charts['areaUsers'].chartOptions.legend"
+                                    [markers]="charts['areaUsers'].chartOptions.markers"
+                                    [tooltip]="charts['areaUsers'].chartOptions.tooltip"
                                     [title]="charts['areaUsers'].chartOptions.title">
                                 </apx-chart>
                                 <div class="analytic-pagination">
@@ -518,6 +527,15 @@
                                     [plotOptions]="charts['packageUsers'].chartOptions.plotOptions"
                                     [xaxis]="charts['packageUsers'].chartOptions.xaxis"
                                     [dataLabels]="charts['packageUsers'].chartOptions.dataLabels"
+                                    [colors]="charts['packageUsers'].chartOptions.colors"
+                                    [stroke]="charts['packageUsers'].chartOptions.stroke"
+                                    [fill]="charts['packageUsers'].chartOptions.fill"
+                                    [states]="charts['packageUsers'].chartOptions.states"
+                                    [yaxis]="charts['packageUsers'].chartOptions.yaxis"
+                                    [grid]="charts['packageUsers'].chartOptions.grid"
+                                    [legend]="charts['packageUsers'].chartOptions.legend"
+                                    [markers]="charts['packageUsers'].chartOptions.markers"
+                                    [tooltip]="charts['packageUsers'].chartOptions.tooltip"
                                     [title]="charts['packageUsers'].chartOptions.title">
                                 </apx-chart>
                                 <div class="analytic-pagination">
@@ -563,7 +581,13 @@
                                 [dataLabels]="charts['billCollection'].chartOptions.dataLabels"
                                 [title]="charts['billCollection'].chartOptions.title"
                                 [stroke]="charts['billCollection'].chartOptions.stroke"
-                                [tooltip]="charts['billCollection'].chartOptions.tooltip">
+                                [tooltip]="charts['billCollection'].chartOptions.tooltip"
+                                [colors]="charts['billCollection'].chartOptions.colors"
+                                [fill]="charts['billCollection'].chartOptions.fill"
+                                [markers]="charts['billCollection'].chartOptions.markers"
+                                [yaxis]="charts['billCollection'].chartOptions.yaxis"
+                                [grid]="charts['billCollection'].chartOptions.grid"
+                                [legend]="charts['billCollection'].chartOptions.legend">
                             </apx-chart>
                             <div *ngIf="!charts['billCollection']" class="analytic-skeleton d-flex gap-2 align-items-end" style="height:200px;">
                                 <div class="skeleton-bar" *ngFor="let b of [1,2,3,4,5,6,7,8]" [style.height.%]="b*10+20" style="flex:1"></div>
@@ -602,6 +626,8 @@
                                 [yaxis]="charts['billCreatorPie'].chartOptions.yaxis"
                                 [dataLabels]="charts['billCreatorPie'].chartOptions.dataLabels"
                                 [legend]="charts['billCreatorPie'].chartOptions.legend"
+                                [markers]="charts['billCreatorPie'].chartOptions.markers"
+                                [grid]="charts['billCreatorPie'].chartOptions.grid"
                                 [tooltip]="charts['billCreatorPie'].chartOptions.tooltip"
                                 [title]="charts['billCreatorPie'].chartOptions.title">
                             </apx-chart>

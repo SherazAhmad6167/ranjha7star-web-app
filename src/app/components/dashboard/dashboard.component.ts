@@ -64,6 +64,25 @@ const BOOT_QUIPS = [
   'Polishing the numbers…',
 ];
 
+/**
+ * Chart palette in the brand colours, checked with the dataviz validator on the
+ * white chart cards: slot 1 violet / slot 2 blue - colour-blind separation ΔE 9.2
+ * (target 8), normal vision ΔE 19.8 (floor 15), both at least 3:1 on white.
+ * One series = slot 1 only; a second series takes slot 2. Text never wears these.
+ */
+const CHART_COLORS = { series1: '#7c3aed', series2: '#0284c7' };
+const CHART_INK = { primary: '#0f172a', secondary: '#475569', muted: '#64748b', grid: '#eef0f5' };
+const CHART_FONT = 'Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
+const compact = new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 });
+
+/** Round an axis top up to a clean value (400, 600, 1.5M) so 4 steps read as round numbers. */
+const niceCeil = (value: number): number => {
+  if (!(value > 0)) return 4;
+  const magnitude = 10 ** Math.floor(Math.log10(value));
+  const step = [1, 1.2, 1.6, 2, 2.4, 3, 4, 5, 6, 8, 10].find((m) => m * magnitude >= value) ?? 10;
+  return step * magnitude;
+};
+
 interface ChartState {
   categories: string[];
   series: number[] | any[];
@@ -379,6 +398,43 @@ export class DashboardComponent implements OnDestroy {
     this.updateChart(chartId, title);
   }
 
+  /* ── Chart theme pieces ── */
+
+  private chartBase(type: string, height: number) {
+    return {
+      type,
+      height,
+      fontFamily: CHART_FONT,
+      foreColor: CHART_INK.muted,
+      toolbar: { show: false },
+      zoom: { enabled: false },
+    };
+  }
+
+  private chartTitle(text: string) {
+    return {
+      text,
+      style: { fontSize: '13px', fontWeight: '600', color: CHART_INK.primary, fontFamily: CHART_FONT },
+    };
+  }
+
+  /** hairline, solid, horizontal only - the data stays the loud part */
+  private readonly chartGrid = {
+    borderColor: CHART_INK.grid,
+    strokeDashArray: 0,
+    xaxis: { lines: { show: false } },
+    yaxis: { lines: { show: true } },
+  };
+
+  private chartXAxis(categories: string[], extraLabels: object = {}) {
+    return {
+      categories,
+      axisBorder: { color: CHART_INK.grid },
+      axisTicks: { show: false },
+      labels: { style: { colors: CHART_INK.secondary, fontSize: '11.5px' }, ...extraLabels },
+    };
+  }
+
   updateChart(chartId: string, title: string) {
     const chart = this.charts[chartId];
 
@@ -401,24 +457,42 @@ export class DashboardComponent implements OnDestroy {
           data: paginatedSeries,
         },
       ],
-      chart: {
-        type: 'bar',
-        height: 350,
-      },
+      chart: this.chartBase('bar', 350),
+      // one measure across named categories: every bar the same brand violet
+      colors: [CHART_COLORS.series1],
       plotOptions: {
         bar: {
-          distributed: true,
+          distributed: false,
+          columnWidth: '40%',
+          borderRadius: 4,
+          borderRadiusApplication: 'end',
+          dataLabels: { position: 'top' },
         },
       },
-      xaxis: {
-        categories: paginatedCategories,
+      stroke: { show: true, width: 2, colors: ['transparent'] },
+      fill: { opacity: 1 },
+      states: { hover: { filter: { type: 'darken', value: 0.88 } } },
+      xaxis: this.chartXAxis(paginatedCategories),
+      yaxis: {
+        min: 0,
+        max: (max: number) => niceCeil(max * 1.1), // clean top, with room for the value labels
+        tickAmount: 4,
+        labels: { style: { colors: CHART_INK.muted }, formatter: (v: number) => Math.round(v).toLocaleString('en-US') },
       },
+      // value on each cap, in text ink
       dataLabels: {
         enabled: true,
+        offsetY: -20,
+        style: { fontSize: '11px', fontWeight: 600, colors: [CHART_INK.secondary] },
       },
-      title: {
-        text: title,
+      grid: this.chartGrid,
+      legend: { show: false },
+      markers: { size: 0 },
+      tooltip: {
+        theme: 'light',
+        y: { formatter: (v: number) => `${(v || 0).toLocaleString('en-US')} users` },
       },
+      title: this.chartTitle(title),
     };
   }
 
@@ -546,25 +620,43 @@ export class DashboardComponent implements OnDestroy {
             data: series,
           },
         ],
-        chart: {
-          type: 'line',
-          height: 350,
+        chart: this.chartBase('area', 350),
+        colors: [CHART_COLORS.series1],
+        stroke: { curve: 'smooth', width: 2, lineCap: 'round' },
+        // the brand hue as a faint wash under the line
+        fill: {
+          type: 'gradient',
+          gradient: { shadeIntensity: 0, opacityFrom: 0.16, opacityTo: 0, stops: [0, 100] },
         },
-        stroke: {
-          curve: 'smooth',
+        markers: {
+          size: 4,
+          colors: [CHART_COLORS.series1],
+          strokeColors: '#fff',
+          strokeWidth: 2,
+          hover: { size: 6 },
         },
-        xaxis: {
-          categories: sortedKeys.map((k) => k.toUpperCase()),
+        xaxis: this.chartXAxis(sortedKeys.map((k) => k.toUpperCase())),
+        yaxis: {
+          min: 0,
+          max: (max: number) => niceCeil(max * 1.08), // room for the value above the top point
+          tickAmount: 4,
+          labels: { style: { colors: CHART_INK.muted }, formatter: (v: number) => 'Rs ' + compact.format(v) },
         },
+        // values stay on the points, short and in text ink rather than coloured badges
         dataLabels: {
           enabled: true,
+          offsetY: -6,
+          background: { enabled: false },
+          style: { fontSize: '10.5px', fontWeight: 600, colors: [CHART_INK.secondary] },
+          formatter: (v: number) => compact.format(v),
         },
-        title: {
-          text: 'Monthly Bill Collection',
-        },
+        grid: this.chartGrid,
+        legend: { show: false },
+        title: this.chartTitle('Monthly Bill Collection'),
         tooltip: {
+          theme: 'light',
           y: {
-            formatter: (val: number) => 'Rs. ' + val,
+            formatter: (val: number) => 'Rs. ' + (val || 0).toLocaleString('en-US'),
           },
         },
       },
@@ -623,40 +715,51 @@ export class DashboardComponent implements OnDestroy {
           { name: 'Bills Generated', type: 'column', data: generatedSeries },
           { name: 'Amount Collected', type: 'line',   data: collectedSeries },
         ],
-        chart: {
-          type: 'line',
-          height: 380,
-          toolbar: { show: false },
-        },
+        chart: this.chartBase('line', 380),
         stroke: {
-          width: [0, 3],
+          width: [0, 2],
           curve: 'smooth',
+          lineCap: 'round',
         },
         plotOptions: {
-          bar: { columnWidth: '55%', borderRadius: 4 },
+          bar: { columnWidth: '45%', borderRadius: 4, borderRadiusApplication: 'end' },
         },
         fill: {
-          opacity: [0.85, 1],
+          opacity: [0.9, 1],
         },
-        colors: ['#667eea', '#28c76f'],
-        xaxis: {
-          categories: labels,
-          labels: { rotate: -35 },
+        // two series: brand slot 1 (generated) and slot 2 (collected)
+        colors: [CHART_COLORS.series1, CHART_COLORS.series2],
+        markers: {
+          size: [0, 4],
+          strokeColors: '#fff',
+          strokeWidth: 2,
+          hover: { size: 6 },
         },
+        xaxis: this.chartXAxis(labels, { rotate: -35 }),
         yaxis: {
-          title: { text: 'Amount (Rs.)' },
-          labels: { formatter: (v: number) => 'Rs. ' + v.toLocaleString() },
+          min: 0,
+          max: (max: number) => niceCeil(max),
+          tickAmount: 4,
+          title: { text: 'Amount (Rs.)', style: { color: CHART_INK.muted, fontWeight: 500, fontFamily: CHART_FONT } },
+          labels: { style: { colors: CHART_INK.muted }, formatter: (v: number) => 'Rs ' + compact.format(v) },
         },
         dataLabels: { enabled: false },
-        legend: { position: 'top' },
+        grid: this.chartGrid,
+        legend: {
+          position: 'top',
+          horizontalAlign: 'left',
+          fontWeight: 600,
+          labels: { colors: CHART_INK.secondary },
+          markers: { width: 10, height: 10, radius: 3 },
+          itemMargin: { horizontal: 10 },
+        },
         tooltip: {
           shared: true,
-          y: { formatter: (val: number) => 'Rs. ' + (val || 0).toLocaleString() },
+          intersect: false,
+          theme: 'light',
+          y: { formatter: (val: number) => 'Rs. ' + (val || 0).toLocaleString('en-US') },
         },
-        title: {
-          text: 'Monthly Bill Generation vs Collection',
-          style: { fontSize: '13px', fontWeight: '600' },
-        },
+        title: this.chartTitle('Monthly Bill Generation vs Collection'),
       },
     };
   }
