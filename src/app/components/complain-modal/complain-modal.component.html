@@ -167,7 +167,7 @@
 
             <div class="col-12">
               <label class="cm-label">Complaint Description <span class="req">*</span></label>
-              <textarea class="cm-input cm-textarea"
+              <textarea dir="auto" class="cm-input cm-textarea"
                 [class.cm-invalid]="userForm.get('complain')?.invalid && userForm.get('complain')?.touched"
                 formControlName="complain" rows="4"
                 placeholder="Describe the complaint in detail..."></textarea>

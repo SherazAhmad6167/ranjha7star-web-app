@@ -1,7 +1,7 @@
 <div class="container-fluid uc-wrapper">
 
   <!-- Loading Overlay -->
-  <app-loader [show]="isLoading" message="Loading collections…"></app-loader>
+  <app-loader softRefresh [show]="isLoading" message="Loading collections…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="uc-page-header mb-4">
@@ -234,12 +234,11 @@
         </thead>
         <tbody>
           <!-- Empty state -->
-          <tr *ngIf="!pagedUsers.length">
-            <td [attr.colspan]="showCollectionColumns ? 13 : 9"
-              class="uc-empty">
-              <i class="ri-inbox-2-line"></i>
-              <div class="uc-empty-title">No records found</div>
-              <div class="uc-empty-sub">Try adjusting your filters or search term</div>
+          <tr *ngIf="!isLoading && !pagedUsers.length">
+            <td [attr.colspan]="showCollectionColumns ? 13 : 9" class="p-0">
+              <app-empty-state icon="ri-inbox-2-line" title="No records found"
+                message="Try adjusting your filters"
+                [searchTerm]="searchTerm" (clear)="searchTerm = ''; onFilterChange()"></app-empty-state>
             </td>
           </tr>
 

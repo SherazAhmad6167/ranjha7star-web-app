@@ -4,6 +4,7 @@ import { addDoc, collection, Firestore, serverTimestamp } from '@angular/fire/fi
 import { ToastService } from '../../../shared/toast/toast.service';
 import * as Papa from 'papaparse';
 import { LoaderComponent } from '../../../shared/loader/loader.component';
+import { writeInBackground } from '../../../shared/offline-write';
 @Component({
   selector: 'app-user-docs',
   imports: [CommonModule, LoaderComponent],
@@ -108,11 +109,11 @@ export class UserDocsComponent {
       const usersRef = collection(this.firestore, 'users');
 
       for (const row of this.csvData) {
-        await addDoc(usersRef, {
+        writeInBackground(addDoc(usersRef, {
           ...row,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp()
-        });
+        }));
       }
 
       this.toastr.success('Data uploaded successfully');

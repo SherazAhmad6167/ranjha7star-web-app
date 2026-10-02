@@ -20,6 +20,7 @@ import {
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastService } from '../../shared/toast/toast.service';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { writeInBackground } from '../../shared/offline-write';
 
 @Component({
   selector: 'app-sub-area-modal',
@@ -104,14 +105,14 @@ export class SubAreaModalComponent {
     if (this.editMode && this.userData?.id) {
       // 🔁 UPDATE
       const userDocRef = doc(this.firestore, 'subArea', this.userData.id);
-      await updateDoc(userDocRef, payload);
+      writeInBackground(updateDoc(userDocRef, payload));
       this.toastr.success('Area updated successfully');
     } else {
       // ➕ ADD
-      await addDoc(collection(this.firestore, 'subArea'), {
+      writeInBackground(addDoc(collection(this.firestore, 'subArea'), {
         ...payload,
         createdAt: new Date(),
-      });
+      }));
       this.toastr.success('Sub Area added successfully');
     }
 
@@ -170,9 +171,9 @@ export class SubAreaModalComponent {
   }
 
   if (snap.exists()) {
-    await updateDoc(internetDocRef, { internetSubAreas });
+    writeInBackground(updateDoc(internetDocRef, { internetSubAreas }));
   } else {
-    await setDoc(internetDocRef, { internetSubAreas });
+    writeInBackground(setDoc(internetDocRef, { internetSubAreas }));
   }
 }
 

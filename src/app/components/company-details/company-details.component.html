@@ -1,7 +1,7 @@
 <div class="container-fluid co-wrapper">
 
   <!-- Loading overlay -->
-  <app-loader [show]="isLoading" message="Loading company details…"></app-loader>
+  <app-loader softRefresh [show]="isLoading" message="Loading company details…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="co-page-header mb-4">
@@ -164,7 +164,7 @@
           <div class="co-field-body">
             <div class="co-field-group co-col-full">
               <label class="co-label">Description / Complaint Notes</label>
-              <textarea class="co-input co-textarea" rows="4" formControlName="description"
+              <textarea dir="auto" class="co-input co-textarea" rows="4" formControlName="description"
                 placeholder="Additional notes or complaint instructions..."></textarea>
             </div>
           </div>

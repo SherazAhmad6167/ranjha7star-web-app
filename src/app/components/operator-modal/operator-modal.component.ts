@@ -20,6 +20,7 @@ import {
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastService } from '../../shared/toast/toast.service';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { writeInBackground } from '../../shared/offline-write';
 
 @Component({
   selector: 'app-operator-modal',
@@ -98,14 +99,14 @@ export class OperatorModalComponent {
       if (this.editMode && this.userData?.id) {
         // 🔁 UPDATE
         const userDocRef = doc(this.firestore, 'operators', this.userData.id);
-        await updateDoc(userDocRef, payload);
+        writeInBackground(updateDoc(userDocRef, payload));
         this.toastr.success('Operator updated successfully');
       } else {
         // ➕ ADD
-        await addDoc(collection(this.firestore, 'operators'), {
+        writeInBackground(addDoc(collection(this.firestore, 'operators'), {
           ...payload,
           createdAt: new Date(),
-        });
+        }));
         this.toastr.success('Operator added successfully');
       }
   
@@ -148,9 +149,9 @@ export class OperatorModalComponent {
     }
 
     if (snap.exists()) {
-      await updateDoc(ref, { operatorNames });
+      writeInBackground(updateDoc(ref, { operatorNames }));
     } else {
-      await setDoc(ref, { operatorNames });
+      writeInBackground(setDoc(ref, { operatorNames }));
     }
   }
 

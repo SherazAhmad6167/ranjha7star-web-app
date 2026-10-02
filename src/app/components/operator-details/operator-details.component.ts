@@ -17,10 +17,12 @@ import { AreaModalComponent } from '../area-modal/area-modal.component';
 import { SubAreaModalComponent } from '../sub-area-modal/sub-area-modal.component';
 import { OperatorModalComponent } from '../operator-modal/operator-modal.component';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
+import { archiveAndDelete, writeInBackground } from '../../shared/offline-write';
 
 @Component({
   selector: 'app-operator-details',
-  imports: [CommonModule, FormsModule, LoaderComponent],
+  imports: [CommonModule, FormsModule, LoaderComponent, EmptyStateComponent],
   templateUrl: './operator-details.component.html',
   styleUrl: './operator-details.component.scss',
 })
@@ -151,10 +153,8 @@ export class OperatorDetailsComponent {
       originalId: this.selectedDeleteId,
       deletedAt: new Date(),
     };
-    await addDoc(collection(this.firestore, 'logs'), logData);
-
-    // 🗑 Delete operator
-    await deleteDoc(docRef);
+    archiveAndDelete(this.firestore, docRef,
+      logData);
 
     // 🧹 Remove from operatorNames array
     if (oldName) {
@@ -185,7 +185,7 @@ export class OperatorDetailsComponent {
     (item: any) => item.operator_name !== name
   );
 
-  await updateDoc(ref, { operatorNames: updated }); // ✅ FIXED
+  writeInBackground(updateDoc(ref, { operatorNames: updated })); // ✅ FIXED
 }
 
   updateTotalPages() {

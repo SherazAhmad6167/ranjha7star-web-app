@@ -16,10 +16,12 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastService } from '../../shared/toast/toast.service';
 import { PayableModalComponent } from '../payable-modal/payable-modal.component';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
+import { archiveAndDelete } from '../../shared/offline-write';
 
 @Component({
   selector: 'app-payable-details',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, LoaderComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, LoaderComponent, EmptyStateComponent],
   templateUrl: './payable-details.component.html',
   styleUrl: './payable-details.component.scss',
 })
@@ -193,14 +195,14 @@ export class PayableDetailsComponent {
         deletedAt: new Date(),
       };
 
-      await addDoc(collection(this.firestore, 'logs'), logData);
-      await addDoc(collection(this.firestore, 'logs'), {
+      archiveAndDelete(this.firestore, doc(this.firestore, 'payable', this.selectedDeleteId),
+        logData,
+        {
         type: 'users',
         action: 'delete',
         targetId: this.selectedDeleteId,
         deletedAt: new Date(),
       });
-      await deleteDoc(doc(this.firestore, 'payable', this.selectedDeleteId));
       this.toastr.success('payable deleted');
       this.loadExpenses();
       modal.close();

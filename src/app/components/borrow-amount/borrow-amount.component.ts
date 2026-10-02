@@ -17,10 +17,12 @@ import { ToastService } from '../../shared/toast/toast.service';
 import { ExpenseModalComponent } from '../expense-modal/expense-modal.component';
 import { BorrowAmountModalComponent } from '../borrow-amount-modal/borrow-amount-modal.component';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
+import { archiveAndDelete } from '../../shared/offline-write';
 
 @Component({
   selector: 'app-borrow-amount',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, LoaderComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, LoaderComponent, EmptyStateComponent],
   templateUrl: './borrow-amount.component.html',
   styleUrl: './borrow-amount.component.scss'
 })
@@ -195,14 +197,14 @@ export class BorrowAmountComponent {
           deletedAt: new Date(),
         };
   
-        await addDoc(collection(this.firestore, 'logs'), logData);
-        await addDoc(collection(this.firestore, 'logs'), {
+        archiveAndDelete(this.firestore, doc(this.firestore, 'borrow', this.selectedDeleteId),
+          logData,
+          {
           type: 'users',
           action: 'delete',
           targetId: this.selectedDeleteId,
           deletedAt: new Date(),
         });
-        await deleteDoc(doc(this.firestore, 'borrow', this.selectedDeleteId));
         this.toastr.success('Borrow deleted');
         this.loadExpenses();
         modal.close();

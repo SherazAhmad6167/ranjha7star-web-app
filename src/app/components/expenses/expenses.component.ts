@@ -16,10 +16,12 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastService } from '../../shared/toast/toast.service';
 import { ExpenseModalComponent } from '../expense-modal/expense-modal.component';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
+import { archiveAndDelete } from '../../shared/offline-write';
 
 @Component({
   selector: 'app-expenses',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, LoaderComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, LoaderComponent, EmptyStateComponent],
   templateUrl: './expenses.component.html',
   styleUrl: './expenses.component.scss',
 })
@@ -256,14 +258,14 @@ totalProfit: number = 0;
         deletedAt: new Date(),
       };
 
-      await addDoc(collection(this.firestore, 'logs'), logData);
-      await addDoc(collection(this.firestore, 'logs'), {
+      archiveAndDelete(this.firestore, doc(this.firestore, 'expenses', this.selectedDeleteId),
+        logData,
+        {
         type: 'users',
         action: 'delete',
         targetId: this.selectedDeleteId,
         deletedAt: new Date(),
       });
-      await deleteDoc(doc(this.firestore, 'expenses', this.selectedDeleteId));
       this.toastr.success('Expense deleted');
       this.loadExpenses();
       modal.close();

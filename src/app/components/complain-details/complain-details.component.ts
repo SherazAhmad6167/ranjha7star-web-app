@@ -21,10 +21,12 @@ import { TemplateMapperService } from '../../shared/template-mapper.service';
 import { openWhatsApp } from '../../shared/whatsapp';
 import { toWhatsappNumber } from '../../shared/phone';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
+import { archiveAndDelete, writeInBackground } from '../../shared/offline-write';
 
 @Component({
   selector: 'app-complain-details',
-  imports: [CommonModule, FormsModule, SearchSelectComponent, LoaderComponent],
+  imports: [CommonModule, FormsModule, SearchSelectComponent, LoaderComponent, EmptyStateComponent],
   templateUrl: './complain-details.component.html',
   styleUrl: './complain-details.component.scss',
 })
@@ -245,16 +247,14 @@ export class ComplainDetailsComponent {
         deletedAt: new Date(),
       };
 
-      await addDoc(collection(this.firestore, 'logs'), logData);
-      await addDoc(collection(this.firestore, 'logs'), {
+      archiveAndDelete(this.firestore, doc(this.firestore, 'complainDetails', this.selectedDeleteId),
+        logData,
+        {
         type: 'complainDetails',
         action: 'delete',
         targetId: this.selectedDeleteId,
         deletedAt: new Date(),
       });
-      await deleteDoc(
-        doc(this.firestore, 'complainDetails', this.selectedDeleteId),
-      );
       this.toastr.success('Customer Status deleted');
       this.loadExpenses();
       modal.close();
@@ -285,7 +285,7 @@ export class ComplainDetailsComponent {
     const message = this.mapTemplate(this.complainTemplate, user);
     if (!message) { this.toastr.error('Message template not loaded'); return; }
     try {
-      await addDoc(collection(this.firestore, 'sms'), { phone, message, status: 'pending', createdAt: new Date().toISOString() });
+      writeInBackground(addDoc(collection(this.firestore, 'sms'), { phone, message, status: 'pending', createdAt: new Date().toISOString() }));
       this.toastr.success('SMS queued successfully');
     } catch { this.toastr.error('Failed to queue SMS'); }
   }
@@ -294,7 +294,7 @@ export class ComplainDetailsComponent {
     try {
       const ref = doc(this.firestore, 'complainDetails', user.id);
       const closeDate = new Date().toLocaleDateString('en-PK');
-      await updateDoc(ref, { status: 'close', complain_close_date: closeDate, updatedAt: new Date() });
+      writeInBackground(updateDoc(ref, { status: 'close', complain_close_date: closeDate, updatedAt: new Date() }));
 
       const phone = this.formatPhoneForSms(user.phone_number);
       if (phone && this.resolveTemplate) {
@@ -304,7 +304,7 @@ export class ComplainDetailsComponent {
           resolvedDate: closeDate,
         });
         if (message) {
-          await addDoc(collection(this.firestore, 'sms'), { phone, message, status: 'pending', createdAt: new Date().toISOString() });
+          writeInBackground(addDoc(collection(this.firestore, 'sms'), { phone, message, status: 'pending', createdAt: new Date().toISOString() }));
         }
       }
 

@@ -9,6 +9,7 @@ import {
 } from '@angular/forms';
 import { ToastService } from '../../shared/toast/toast.service';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { writeInBackground } from '../../shared/offline-write';
 
 @Component({
   selector: 'app-company-details',
@@ -170,7 +171,7 @@ export class CompanyDetailsComponent {
         logo: this.logoPreview || '',
       };
 
-      await setDoc(doc(this.firestore, 'companyDetail', this.docId), data);
+      writeInBackground(setDoc(doc(this.firestore, 'companyDetail', this.docId), data));
       this.toastr.success('Company details saved successfully!');
     } catch (err) {
       console.error(err);

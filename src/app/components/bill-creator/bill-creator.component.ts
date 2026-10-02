@@ -23,6 +23,8 @@ import {
   settleCarried,
 } from '../../shared/bill-carry';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
+import { archiveAndDelete, writeInBackground } from '../../shared/offline-write';
 
 /** A user with no bill for the chosen month (see findMissingUsers). */
 interface MissedUser {
@@ -39,7 +41,7 @@ interface MissedUser {
 
 @Component({
   selector: 'app-bill-creator',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, SearchSelectComponent, LoaderComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, SearchSelectComponent, LoaderComponent, EmptyStateComponent],
   templateUrl: './bill-creator.component.html',
   styleUrl: './bill-creator.component.scss',
 })
@@ -475,7 +477,7 @@ export class BillCreatorComponent {
       updatePayload.extra_advance = deleteField();
     }
 
-    await updateDoc(ref, updatePayload);
+    writeInBackground(updateDoc(ref, updatePayload));
 
     return added;
   }
@@ -508,7 +510,7 @@ export class BillCreatorComponent {
   }
 
   async createBillCreatorDoc(totalUsers: number, totalAmount: number) {
-    await addDoc(collection(this.firestore, 'billCreator'), {
+    writeInBackground(addDoc(collection(this.firestore, 'billCreator'), {
       month: this.selectedMonth,
       year: this.selectedYear,
       connection_type: this.connection_type,
@@ -519,7 +521,7 @@ export class BillCreatorComponent {
       status: 'unpaid',
       createdAt: new Date(),
       created_by: this.userName || 'Unknown',
-    });
+    }));
   }
 
   getPreviousMonthRemaining(
@@ -593,9 +595,8 @@ export class BillCreatorComponent {
         deletedAt: new Date(),
       };
 
-      await addDoc(collection(this.firestore, 'logs'), logData);
-
-      await deleteDoc(billRef);
+      archiveAndDelete(this.firestore, billRef,
+        logData);
       await this.removeBillFromUsers(bill);
 
       this.toastr.success('Bill deleted');
@@ -634,7 +635,7 @@ export class BillCreatorComponent {
 
       if (updatedBills.length !== bills.length) {
         this.releaseRemovedCarries(bills, updatedBills);
-        await updateDoc(ref, { bills: updatedBills });
+        writeInBackground(updateDoc(ref, { bills: updatedBills }));
       }
     }
   }
@@ -659,7 +660,7 @@ export class BillCreatorComponent {
       const kept = bills.filter((b: any) => !billIds.has(b.bill_id));
       if (kept.length !== bills.length) {
         releaseCarried(kept, billIds);
-        await updateDoc(ref, { bills: kept });
+        writeInBackground(updateDoc(ref, { bills: kept }));
       }
     }
   }
@@ -696,7 +697,7 @@ export class BillCreatorComponent {
         if (result.linked) {
           linked += result.linked;
           usersFixed++;
-          await updateDoc(doc(this.firestore, 'users', docSnap.id), { bills });
+          writeInBackground(updateDoc(doc(this.firestore, 'users', docSnap.id), { bills }));
         }
       }
 
@@ -924,7 +925,7 @@ export class BillCreatorComponent {
     const areas = new Set(users.map((u) => u.sublocality));
     const types = new Set(users.map((u) => u.connection_type));
 
-    await addDoc(collection(this.firestore, 'billCreator'), {
+    writeInBackground(addDoc(collection(this.firestore, 'billCreator'), {
       kind: 'missing',
       month: this.missMonth,
       year: this.missYear,
@@ -938,7 +939,7 @@ export class BillCreatorComponent {
       status: 'unpaid',
       createdAt: new Date(),
       created_by: this.userName || 'Unknown',
-    });
+    }));
   }
 
   typeLabel(type: 'cable' | 'internet'): string {

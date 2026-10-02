@@ -3,7 +3,7 @@ import {
   provideZoneChangeDetection,
   isDevMode,
 } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withViewTransitions } from '@angular/router';
 import { routes } from './app.routes';
 import { provideServiceWorker } from '@angular/service-worker';
 
@@ -24,7 +24,8 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideHttpClient(),
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
+    // pages cross-fade as you move between them (instant where the browser lacks View Transitions)
+    provideRouter(routes, withViewTransitions({ skipInitialTransition: true })),
 
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),

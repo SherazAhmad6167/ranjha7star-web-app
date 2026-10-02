@@ -1,6 +1,6 @@
 <div class="container-fluid pd-wrapper">
 
-  <app-loader [show]="isLoading" message="Loading payable records…"></app-loader>
+  <app-loader softRefresh [show]="isLoading" message="Loading payable records…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="pd-page-header mb-4">
@@ -83,11 +83,11 @@
               </div>
             </td>
           </tr>
-          <tr *ngIf="pagedUsers.length === 0">
-            <td colspan="9" class="pd-empty">
-              <i class="ri-bill-line"></i>
-              <div class="pd-empty-title">No payable records found</div>
-              <div class="pd-empty-sub">Add your first payable record to get started</div>
+          <tr *ngIf="!isLoading && pagedUsers.length === 0">
+            <td colspan="9" class="p-0">
+              <app-empty-state icon="ri-bill-line" title="No payable records found"
+                message="Add your first payable record to get started"
+                [searchTerm]="searchTerm" (clear)="searchTerm = ''; onFilterChange()"></app-empty-state>
             </td>
           </tr>
         </tbody>

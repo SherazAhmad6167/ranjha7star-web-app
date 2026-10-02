@@ -1,6 +1,6 @@
 <div class="container-fluid rof-wrapper">
 
-  <app-loader [show]="isLoading" message="Loading officers…"></app-loader>
+  <app-loader softRefresh [show]="isLoading" message="Loading officers…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="rof-page-header mb-4">
@@ -102,11 +102,11 @@
               </div>
             </td>
           </tr>
-          <tr *ngIf="pagedUsers.length === 0">
-            <td colspan="14" class="rof-empty">
-              <i class="ri-user-star-line"></i>
-              <div class="rof-empty-title">No officers found</div>
-              <div class="rof-empty-sub">Add your first recovery officer to get started</div>
+          <tr *ngIf="!isLoading && pagedUsers.length === 0">
+            <td colspan="14" class="p-0">
+              <app-empty-state icon="ri-user-star-line" title="No officers found"
+                message="Add your first recovery officer to get started"
+                [searchTerm]="searchTerm" (clear)="searchTerm = ''; onSearch()"></app-empty-state>
             </td>
           </tr>
         </tbody>

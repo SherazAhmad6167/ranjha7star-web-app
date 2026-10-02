@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   doc,
@@ -15,7 +15,9 @@ import {
   DEFAULT_REVIEW_DECLINED_TEMPLATE,
 } from '../../shared/message-templates';
 import { getWhatsappApp, setWhatsappApp, WhatsappApp } from '../../shared/whatsapp';
-import { LoaderComponent } from '../../shared/loader/loader.component';
+import { LoaderComponent } from '../../shared/loader/loader.component';
+import { writeInBackground } from '../../shared/offline-write';
+import { ConfirmService } from '../../shared/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-settings',
@@ -24,6 +26,7 @@ import { LoaderComponent } from '../../shared/loader/loader.component';
   styleUrl: './settings.component.scss',
 })
 export class SettingsComponent {
+  private readonly confirmDialog = inject(ConfirmService);
   templates: any[] = [
     { id: 'welcome', title: 'Welcome Message', message: '' },
     { id: 'complaint', title: 'Complaint Acknowledgment', message: '' },
@@ -94,11 +97,11 @@ export class SettingsComponent {
   async saveTemplate(item: any) {
     const ref = doc(this.firestore, `messageTemplates/${item.id}`);
 
-    await setDoc(ref, {
+    writeInBackground(setDoc(ref, {
       title: item.title,
       message: item.message,
       updatedAt: new Date(),
-    });
+    }));
     this.loadTemplates();
     this.toastr.success('Saved successfully');
   }
@@ -136,12 +139,16 @@ export class SettingsComponent {
   }
 
   async deleteTemplate(id: string) {
-    const confirmDelete = confirm('Are you sure?');
+    const confirmDelete = await this.confirmDialog.ask({
+      title: 'Delete this template?',
+      message: 'This cannot be undone.',
+      confirmText: 'Delete',
+    });
 
     if (!confirmDelete) return;
 
     const ref = doc(this.firestore, `messageTemplates/${id}`);
-    await deleteDoc(ref);
+    writeInBackground(deleteDoc(ref));
 
     this.toastr.success('Deleted successfully');
   }

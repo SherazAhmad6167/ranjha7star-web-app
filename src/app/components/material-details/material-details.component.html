@@ -1,7 +1,7 @@
 <div class="container-fluid md-wrapper">
 
   <!-- Loading overlay -->
-  <app-loader [show]="isLoading" message="Loading materials…"></app-loader>
+  <app-loader softRefresh [show]="isLoading" message="Loading materials…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="md-page-header mb-4">
@@ -88,11 +88,11 @@
               </div>
             </td>
           </tr>
-          <tr *ngIf="pagedUsers.length === 0">
-            <td colspan="7" class="md-empty">
-              <i class="ri-inbox-line"></i>
-              <div class="md-empty-title">No records found</div>
-              <div class="md-empty-sub">Try adjusting your search or add a new material</div>
+          <tr *ngIf="!isLoading && pagedUsers.length === 0">
+            <td colspan="7" class="p-0">
+              <app-empty-state icon="ri-inbox-line" title="No records found"
+                message="Try adjusting your filters or add a new material"
+                [searchTerm]="searchTerm" (clear)="searchTerm = ''; onSearch()"></app-empty-state>
             </td>
           </tr>
         </tbody>

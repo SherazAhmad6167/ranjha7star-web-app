@@ -22,6 +22,7 @@ import {
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastService } from '../../shared/toast/toast.service';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { writeInBackground } from '../../shared/offline-write';
 
 @Component({
   selector: 'app-package-modal',
@@ -110,14 +111,14 @@ export class PackageModalComponent {
       if (this.editMode && this.userData?.id) {
         // 🔁 UPDATE EXISTING USER
         const userDocRef = doc(this.firestore, 'packages', this.userData.id);
-        await updateDoc(userDocRef, payload);
+        writeInBackground(updateDoc(userDocRef, payload));
         this.toastr.success('Package updated successfully');
       } else {
         // ➕ ADD NEW USER
-        await addDoc(collection(this.firestore, 'packages'), {
+        writeInBackground(addDoc(collection(this.firestore, 'packages'), {
           ...payload,
           createdAt: new Date(),
-        });
+        }));
         this.toastr.success('Package added successfully');
       }
 
@@ -195,9 +196,9 @@ export class PackageModalComponent {
     }
 
     if (snap.exists()) {
-      await updateDoc(companyDocRef, { companies });
+      writeInBackground(updateDoc(companyDocRef, { companies }));
     } else {
-      await setDoc(companyDocRef, { companies });
+      writeInBackground(setDoc(companyDocRef, { companies }));
     }
   }
 
@@ -251,9 +252,9 @@ export class PackageModalComponent {
     }
 
     if (snap.exists()) {
-      await updateDoc(internetDocRef, { internetPackage });
+      writeInBackground(updateDoc(internetDocRef, { internetPackage }));
     } else {
-      await setDoc(internetDocRef, { internetPackage });
+      writeInBackground(setDoc(internetDocRef, { internetPackage }));
     }
   }
 
@@ -307,9 +308,9 @@ export class PackageModalComponent {
     }
 
     if (snap.exists()) {
-      await updateDoc(internetDocRef, { cablePackage });
+      writeInBackground(updateDoc(internetDocRef, { cablePackage }));
     } else {
-      await setDoc(internetDocRef, { cablePackage });
+      writeInBackground(setDoc(internetDocRef, { cablePackage }));
     }
   }
 

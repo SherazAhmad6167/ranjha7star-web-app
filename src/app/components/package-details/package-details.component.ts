@@ -15,10 +15,12 @@ import { ToastService } from '../../shared/toast/toast.service';
 import { PackageModalComponent } from '../package-modal/package-modal.component';
 import { FormsModule } from '@angular/forms';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
+import { archiveAndDelete, writeInBackground } from '../../shared/offline-write';
 
 @Component({
   selector: 'app-package-details',
-  imports: [CommonModule, FormsModule, LoaderComponent],
+  imports: [CommonModule, FormsModule, LoaderComponent, EmptyStateComponent],
   templateUrl: './package-details.component.html',
   styleUrl: './package-details.component.scss',
 })
@@ -157,9 +159,8 @@ export class PackageDetailsComponent {
         deletedAt: new Date(),
       };
 
-      await addDoc(collection(this.firestore, 'logs'), logData);
-
-      await deleteDoc(areaDocRef);
+      archiveAndDelete(this.firestore, areaDocRef,
+        logData);
 
       this.toastr.success('Package deleted');
       this.loadUsers();
@@ -188,9 +189,9 @@ export class PackageDetailsComponent {
       (item: any) => item.package_name !== package_name,
     );
 
-    await updateDoc(internetDocRef, {
+    writeInBackground(updateDoc(internetDocRef, {
       internetPackage: updatedAreas,
-    });
+    }));
   }
 
   async deleteCableArea(package_name: string) {
@@ -205,9 +206,9 @@ export class PackageDetailsComponent {
       (item: any) => item.package_name !== package_name,
     );
 
-    await updateDoc(CableDocRef, {
+    writeInBackground(updateDoc(CableDocRef, {
       cablePackage: updatedAreas,
-    });
+    }));
   }
 
   updateTotalPages() {

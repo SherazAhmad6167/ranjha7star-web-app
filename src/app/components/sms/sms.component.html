@@ -148,7 +148,7 @@
             <i class="ri-chat-3-line"></i> Message
             <span class="bc-var-note">Variables are replaced per user on send</span>
           </label>
-          <textarea class="bc-textarea" rows="4"
+          <textarea dir="auto" class="bc-textarea" rows="4"
                     [(ngModel)]="broadcastMessage"
                     [disabled]="isBroadcasting"
                     placeholder="Select a template above, or type your message. Use variables for personalization.">
@@ -250,7 +250,7 @@
                 <span><i class="ri-chat-3-line"></i> Message</span>
                 <span class="mc-char-count" [class.warn]="charCount > 140">{{ charCount }} / 160</span>
               </label>
-              <textarea class="mc-textarea" formControlName="message"
+              <textarea dir="auto" class="mc-textarea" formControlName="message"
                         rows="8" maxlength="160"
                         placeholder="Type your message here..."
                         [class.is-invalid]="smsForm.get('message')?.invalid && smsForm.get('message')?.touched">
@@ -278,7 +278,7 @@
                     </div>
                   </div>
                   <div class="mc-screen-body">
-                    <div class="mc-sms-bubble" [class.placeholder]="!smsForm.get('message')?.value">
+                    <div class="mc-sms-bubble" dir="auto" [class.placeholder]="!smsForm.get('message')?.value">
                       {{ smsForm.get('message')?.value || 'Your message will appear here...' }}
                     </div>
                     <div class="mc-bubble-meta">
@@ -325,7 +325,7 @@
   <!-- ── INBOX TAB ───────────────────────────────── -->
   <div *ngIf="activeTab === 'inbox'">
 
-    <app-loader [show]="isLoading" message="Loading SMS logs…"></app-loader>
+    <app-loader softRefresh [show]="isLoading" message="Loading SMS logs…"></app-loader>
 
     <div class="card">
       <div class="card-body">
@@ -376,7 +376,7 @@
               <tr *ngFor="let sms of pagedList; let i = index">
                 <td>{{ (currentPage - 1) * pageSize + i + 1 }}</td>
                 <td><span class="phone-cell">{{ sms.phone }}</span></td>
-                <td class="msg-cell">{{ sms.message }}</td>
+                <td class="msg-cell" dir="auto">{{ sms.message }}</td>
                 <td>
                   <span class="sms-status-badge" [ngClass]="statusClass(sms.status)">
                     {{ sms.status | titlecase }}
@@ -395,9 +395,10 @@
                 </td>
               </tr>
               <tr *ngIf="!isLoading && pagedList.length === 0">
-                <td colspan="6" class="text-center py-5 text-muted">
-                  <i class="ri-message-3-line" style="font-size:2.5rem;opacity:.3;display:block;margin-bottom:8px"></i>
-                  No SMS records found
+                <td colspan="6" class="p-0">
+                  <app-empty-state icon="ri-message-3-line" title="No SMS records found"
+                    message="Messages you send will show up here"
+                    [searchTerm]="searchTerm" (clear)="searchTerm = ''; onSearch()"></app-empty-state>
                 </td>
               </tr>
             </tbody>
@@ -466,7 +467,7 @@
     </div>
     <div class="view-field msg">
       <div class="view-label"><i class="ri-chat-3-line me-1"></i> Message</div>
-      <div class="view-msg-body">{{ selectedSms.message }}</div>
+      <div class="view-msg-body" dir="auto">{{ selectedSms.message }}</div>
     </div>
   </div>
 </ng-template>

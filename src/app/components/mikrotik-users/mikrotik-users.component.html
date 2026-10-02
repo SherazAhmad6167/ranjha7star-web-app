@@ -172,7 +172,7 @@
                 {{ user.disabled === 'true' ? 'Disabled' : 'Active' }}
               </span>
             </td>
-            <td class="text-muted small">{{ user.comment || '—' }}</td>
+            <td class="text-muted small" dir="auto">{{ user.comment || '—' }}</td>
             <td>
               <div class="d-flex gap-1">
                 <button
@@ -194,12 +194,10 @@
           </tr>
 
           <!-- Empty state -->
-          <tr *ngIf="filteredUsers.length === 0">
-            <td colspan="7" class="text-center py-5">
-              <i class="ri-user-search-line fs-1 text-muted d-block mb-2"></i>
-              <span class="text-muted">
-                {{ searchTerm ? 'No secrets match your search' : 'No PPP secrets found on this router' }}
-              </span>
+          <tr *ngIf="!isLoading && filteredUsers.length === 0">
+            <td colspan="7" class="p-0">
+              <app-empty-state icon="ri-user-search-line" title="No PPP secrets found on this router"
+                [searchTerm]="searchTerm" (clear)="searchTerm = ''; applyFilter()"></app-empty-state>
             </td>
           </tr>
         </tbody>

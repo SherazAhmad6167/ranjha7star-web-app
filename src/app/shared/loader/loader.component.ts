@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
+import { booleanAttribute, Component, Input, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
 
 export type LoaderMode = 'fullscreen' | 'contained' | 'inline';
 
@@ -24,6 +24,12 @@ const LOADER_QUIPS = [
  *
  * It fades in after a beat so quick loads don't flash, and fades out without
  * blocking clicks.
+ *
+ * `softRefresh`: only the first load gets the full loader. Later reloads (after a
+ * save or delete) show a slim bar along the top and shimmer the table rows instead,
+ * leaving the page usable:
+ *
+ *   <app-loader softRefresh [show]="isLoading" message="Loading expenses…"></app-loader>
  */
 @Component({
   selector: 'app-loader',
@@ -35,24 +41,58 @@ export class LoaderComponent implements OnChanges, OnDestroy {
   @Input() show = false;
   @Input() message = 'Loading…';
   @Input() mode: LoaderMode = 'fullscreen';
+  @Input({ transform: booleanAttribute }) softRefresh = false;
 
   visible = false;
   leaving = false;
+  refreshing = false;
   quip = '';
 
+  private loadedOnce = false;
   private quipIndex = Math.floor(Math.random() * LOADER_QUIPS.length);
   private quipTimer?: ReturnType<typeof setInterval>;
   private leaveTimer?: ReturnType<typeof setTimeout>;
+  private refreshTimer?: ReturnType<typeof setTimeout>;
+
+  /** How many loaders are soft-refreshing right now (they share one body class). */
+  private static activeRefreshes = 0;
 
   ngOnChanges(changes: SimpleChanges) {
-    if (!changes['show']) return;
-    if (this.show) this.enter();
-    else if (this.visible) this.leave();
+    const change = changes['show'];
+    if (!change) return;
+    if (this.show) {
+      if (this.softRefresh && this.loadedOnce) this.startRefresh();
+      else this.enter();
+    } else if (change.previousValue) {
+      // a load just finished
+      this.endRefresh();
+      if (this.visible) this.leave();
+      this.loadedOnce = true;
+    }
   }
 
   ngOnDestroy() {
     clearInterval(this.quipTimer);
     clearTimeout(this.leaveTimer);
+    this.endRefresh();
+  }
+
+  private startRefresh() {
+    clearTimeout(this.refreshTimer);
+    // the same short grace as the full loader, so a quick reload doesn't flicker
+    this.refreshTimer = setTimeout(() => {
+      this.refreshTimer = undefined;
+      this.refreshing = true;
+      if (LoaderComponent.activeRefreshes++ === 0) document.body.classList.add('app-refreshing');
+    }, 150);
+  }
+
+  private endRefresh() {
+    clearTimeout(this.refreshTimer);
+    this.refreshTimer = undefined;
+    if (!this.refreshing) return;
+    this.refreshing = false;
+    if (--LoaderComponent.activeRefreshes === 0) document.body.classList.remove('app-refreshing');
   }
 
   private enter() {

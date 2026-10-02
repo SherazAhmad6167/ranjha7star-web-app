@@ -21,6 +21,7 @@ import {
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastService } from '../../shared/toast/toast.service';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { writeInBackground } from '../../shared/offline-write';
 
 @Component({
   selector: 'app-area-modal',
@@ -132,14 +133,14 @@ export class AreaModalComponent {
       if (this.editMode && this.userData?.id) {
         // 🔁 UPDATE EXISTING USER
         const userDocRef = doc(this.firestore, 'area', this.userData.id);
-        await updateDoc(userDocRef, payload);
+        writeInBackground(updateDoc(userDocRef, payload));
         this.toastr.success('Area updated successfully');
       } else {
         // ➕ ADD NEW USER
-        await addDoc(collection(this.firestore, 'area'), {
+        writeInBackground(addDoc(collection(this.firestore, 'area'), {
           ...payload,
           createdAt: new Date(),
-        });
+        }));
         this.toastr.success('Area added successfully');
       }
 
@@ -196,9 +197,9 @@ export class AreaModalComponent {
   //   }
 
   //   if (snap.exists()) {
-  //     await updateDoc(internetDocRef, { internetAreas });
+  //     writeInBackground(updateDoc(internetDocRef, { internetAreas }));
   //   } else {
-  //     await setDoc(internetDocRef, { internetAreas });
+  //     writeInBackground(setDoc(internetDocRef, { internetAreas }));
   //   }
   // }
 
@@ -257,9 +258,9 @@ export class AreaModalComponent {
 
   // 🔥 SAVE
   if (snap.exists()) {
-    await updateDoc(internetDocRef, { internetAreas });
+    writeInBackground(updateDoc(internetDocRef, { internetAreas }));
   } else {
-    await setDoc(internetDocRef, { internetAreas });
+    writeInBackground(setDoc(internetDocRef, { internetAreas }));
   }
 }
 }

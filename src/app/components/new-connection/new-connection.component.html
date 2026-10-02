@@ -1,7 +1,7 @@
 <div class="container-fluid nc-wrapper">
 
   <!-- Loading Overlay -->
-  <app-loader [show]="isLoading" message="Loading connections…"></app-loader>
+  <app-loader softRefresh [show]="isLoading" message="Loading connections…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="nc-page-header mb-4">
@@ -159,11 +159,11 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngIf="!pagedUsers.length">
-            <td colspan="16" class="nc-empty">
-              <i class="ri-inbox-2-line"></i>
-              <div class="nc-empty-title">No connections found</div>
-              <div class="nc-empty-sub">Try adjusting your filters</div>
+          <tr *ngIf="!isLoading && !pagedUsers.length">
+            <td colspan="16" class="p-0">
+              <app-empty-state icon="ri-inbox-2-line" title="No connections found"
+                message="Try adjusting your filters"
+                [searchTerm]="searchTerm" (clear)="searchTerm = ''; onFilterChange()"></app-empty-state>
             </td>
           </tr>
           <tr *ngFor="let user of pagedUsers; let i = index" [class.nc-row-inactive]="isInactive(user)">
@@ -394,7 +394,7 @@
                                     <label class="form-label">Alternate Number</label>
                                     <input class="form-control mb-2" placeholder="Alternate Number" [value]="selectedUser?.alter_mobile_no">
                                     <label class="form-label">Complete Address</label>
-                                    <textarea class="form-control" rows="3" placeholder="Complete Address">{{ selectedUser?.address }}</textarea>
+                                    <textarea dir="auto" class="form-control" rows="3" placeholder="Complete Address">{{ selectedUser?.address }}</textarea>
                                 </div>
                                 <div class="border p-3 mb-3 rounded">
                                     <h6 class="bg-primary text-white p-2 rounded">2. Connection & Payment Details</h6>

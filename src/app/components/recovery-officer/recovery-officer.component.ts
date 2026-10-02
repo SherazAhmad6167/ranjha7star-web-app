@@ -14,10 +14,12 @@ import { RecoveryOfficerModalComponent } from '../recovery-officer-modal/recover
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
+import { archiveAndDelete } from '../../shared/offline-write';
 
 @Component({
   selector: 'app-recovery-officer',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, LoaderComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, LoaderComponent, EmptyStateComponent],
   templateUrl: './recovery-officer.component.html',
   styleUrl: './recovery-officer.component.scss',
 })
@@ -150,11 +152,8 @@ export class RecoveryOfficerComponent {
         deletedAt: new Date(),
       };
 
-      await addDoc(collection(this.firestore, 'logs'), logData);
-
-      await deleteDoc(
-        doc(this.firestore, 'recoveryOfficer', this.selectedDeleteId),
-      );
+      archiveAndDelete(this.firestore, doc(this.firestore, 'recoveryOfficer', this.selectedDeleteId),
+        logData);
       this.toastr.success('Recovery Officer deleted');
       this.loadUsers();
       modal.close();

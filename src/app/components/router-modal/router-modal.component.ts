@@ -13,6 +13,7 @@ import {
 } from '@angular/fire/firestore';
 import { ToastService } from '../../shared/toast/toast.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { writeInBackground } from '../../shared/offline-write';
 
 @Component({
   selector: 'app-router-modal',
@@ -343,11 +344,11 @@ export class RouterModalComponent implements OnInit, OnDestroy {
     const payload = { ...this.routerForm.getRawValue(), updatedAt: new Date() };
     try {
       if (this.editMode && this.routerData?.id) {
-        await updateDoc(doc(this.firestore, 'router', this.routerData.id), payload);
+        writeInBackground(updateDoc(doc(this.firestore, 'router', this.routerData.id), payload));
         this.toastr.success('Router record updated');
       } else {
         const ref = doc(collection(this.firestore, 'router'));
-        await setDoc(ref, { ...payload, id: ref.id, createdAt: new Date() });
+        writeInBackground(setDoc(ref, { ...payload, id: ref.id, createdAt: new Date() }));
         this.toastr.success('Router record saved');
       }
       this.activeModal.close(true);

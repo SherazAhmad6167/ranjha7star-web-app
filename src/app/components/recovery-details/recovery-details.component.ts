@@ -21,10 +21,12 @@ import { TemplateMapperService } from '../../shared/template-mapper.service';
 import { openWhatsApp } from '../../shared/whatsapp';
 import { toWhatsappNumber } from '../../shared/phone';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
+import { archiveAndDelete, writeInBackground } from '../../shared/offline-write';
 
 @Component({
   selector: 'app-recovery-details',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, LoaderComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, LoaderComponent, EmptyStateComponent],
   templateUrl: './recovery-details.component.html',
   styleUrl: './recovery-details.component.scss',
 })
@@ -166,7 +168,7 @@ export class RecoveryDetailsComponent {
     if (!this.recoveryTemplate) { this.toastr.error('Recovery template not configured in Settings'); return; }
     const message = this.templateMapper.map(this.recoveryTemplate, user);
     try {
-      await addDoc(collection(this.firestore, 'sms'), { phone, message, status: 'pending', createdAt: new Date().toISOString() });
+      writeInBackground(addDoc(collection(this.firestore, 'sms'), { phone, message, status: 'pending', createdAt: new Date().toISOString() }));
       this.toastr.success('SMS queued successfully');
     } catch { this.toastr.error('Failed to queue SMS'); }
   }
@@ -367,16 +369,14 @@ export class RecoveryDetailsComponent {
         deletedAt: new Date(),
       };
 
-      await addDoc(collection(this.firestore, 'logs'), logData);
-      await addDoc(collection(this.firestore, 'logs'), {
+      archiveAndDelete(this.firestore, doc(this.firestore, 'recoveryDetails', this.selectedDeleteId),
+        logData,
+        {
         type: 'users',
         action: 'delete',
         targetId: this.selectedDeleteId,
         deletedAt: new Date(),
       });
-      await deleteDoc(
-        doc(this.firestore, 'recoveryDetails', this.selectedDeleteId),
-      );
       this.toastr.success('Recovery detail deleted');
       this.loadExpenses();
       modal.close();

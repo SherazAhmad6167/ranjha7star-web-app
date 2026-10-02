@@ -132,10 +132,10 @@
           </tr>
 
           <tr *ngIf="!isLoading && subscribers.length === 0">
-            <td colspan="10" class="zl-empty">
-              <i class="ri-user-search-line"></i>
-              <div class="zl-empty-title">No subscribers found</div>
-              <div class="zl-empty-sub">Try a different search or clear the filters</div>
+            <td colspan="10" class="p-0">
+              <app-empty-state icon="ri-user-search-line" title="No subscribers found"
+                message="Try a different search or clear the filters"
+                [searchTerm]="searchTerm" (clear)="searchTerm = ''; onSearchInput()"></app-empty-state>
             </td>
           </tr>
 

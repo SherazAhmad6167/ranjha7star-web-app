@@ -1,6 +1,6 @@
 <div class="container-fluid cy-wrapper">
 
-  <app-loader [show]="isLoading" message="Loading cities…"></app-loader>
+  <app-loader softRefresh [show]="isLoading" message="Loading cities…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="cy-page-header mb-4">
@@ -80,11 +80,11 @@
               </div>
             </td>
           </tr>
-          <tr *ngIf="pagedUsers.length === 0">
-            <td colspan="4" class="cy-empty">
-              <i class="ri-building-line"></i>
-              <div class="cy-empty-title">No cities found</div>
-              <div class="cy-empty-sub">Add your first city to get started</div>
+          <tr *ngIf="!isLoading && pagedUsers.length === 0">
+            <td colspan="4" class="p-0">
+              <app-empty-state icon="ri-building-line" title="No cities found"
+                message="Add your first city to get started"
+                [searchTerm]="searchTerm" (clear)="searchTerm = ''; onSearch()"></app-empty-state>
             </td>
           </tr>
         </tbody>

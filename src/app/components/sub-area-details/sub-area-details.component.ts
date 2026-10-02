@@ -16,10 +16,12 @@ import { ToastService } from '../../shared/toast/toast.service';
 import { AreaModalComponent } from '../area-modal/area-modal.component';
 import { SubAreaModalComponent } from '../sub-area-modal/sub-area-modal.component';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
+import { archiveAndDelete, writeInBackground } from '../../shared/offline-write';
 
 @Component({
   selector: 'app-sub-area-details',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, LoaderComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, LoaderComponent, EmptyStateComponent],
   templateUrl: './sub-area-details.component.html',
   styleUrl: './sub-area-details.component.scss'
 })
@@ -150,10 +152,8 @@ export class SubAreaDetailsComponent {
       originalId: this.selectedDeleteId,
       deletedAt: new Date(),
     };
-    await addDoc(collection(this.firestore, 'logs'), logData);
-
-    // Delete from subArea collection
-    await deleteDoc(subAreaDocRef);
+    archiveAndDelete(this.firestore, subAreaDocRef,
+      logData);
 
     // Delete from internetSubArea collection
     if (oldSubArea) {
@@ -188,7 +188,7 @@ async deleteInternetSubArea(subArea: string) {
     (item: any) => item.sub_area !== subArea
   );
 
-  await updateDoc(internetDocRef, { internetSubAreas: updatedSubAreas });
+  writeInBackground(updateDoc(internetDocRef, { internetSubAreas: updatedSubAreas }));
 }
   
     updateTotalPages() {

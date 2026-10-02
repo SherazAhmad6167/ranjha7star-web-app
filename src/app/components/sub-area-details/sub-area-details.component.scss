@@ -5,7 +5,6 @@ $accent-border: #e879f9;
 
 .sa-wrapper { padding-top: 16px; padding-bottom: 40px; }
 
-
 .sa-page-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
 .sa-header-left { display: flex; align-items: center; gap: 14px; }
 .sa-header-icon {
@@ -50,10 +49,6 @@ $accent-border: #e879f9;
 .sa-name-cell { display: flex; align-items: center; gap: 10px; }
 .sa-avatar { width: 30px; height: 30px; border-radius: 8px; background: $accent-light; color: $accent-dark; font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .sa-name { font-size: 13px; font-weight: 600; color: #1e293b; }
-
-.sa-empty { text-align: center; padding: 56px 20px !important; color: #94a3b8; > i { font-size: 44px; opacity: 0.28; display: block; margin-bottom: 10px; } }
-.sa-empty-title { font-size: 14px; font-weight: 700; color: #64748b; }
-.sa-empty-sub   { font-size: 12.5px; color: #94a3b8; margin-top: 3px; }
 
 .sa-actions { display: flex; gap: 4px; }
 .sa-action-btn {

@@ -1,6 +1,6 @@
 <div class="container-fluid bd-wrapper">
 
-  <app-loader [show]="isLoading" message="Loading borrow records…"></app-loader>
+  <app-loader softRefresh [show]="isLoading" message="Loading borrow records…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="bd-page-header mb-4">
@@ -83,11 +83,11 @@
               </div>
             </td>
           </tr>
-          <tr *ngIf="pagedUsers.length === 0">
-            <td colspan="9" class="bd-empty">
-              <i class="ri-hand-coin-line"></i>
-              <div class="bd-empty-title">No borrow records found</div>
-              <div class="bd-empty-sub">Add your first borrow record to get started</div>
+          <tr *ngIf="!isLoading && pagedUsers.length === 0">
+            <td colspan="9" class="p-0">
+              <app-empty-state icon="ri-hand-coin-line" title="No borrow records found"
+                message="Add your first borrow record to get started"
+                [searchTerm]="searchTerm" (clear)="searchTerm = ''; onFilterChange()"></app-empty-state>
             </td>
           </tr>
         </tbody>

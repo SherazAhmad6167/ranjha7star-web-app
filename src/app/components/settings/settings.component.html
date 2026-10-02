@@ -1,6 +1,6 @@
 <div class="container-fluid st-wrapper">
 
-  <app-loader [show]="isLoading" message="Loading templates…"></app-loader>
+  <app-loader softRefresh [show]="isLoading" message="Loading templates…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="st-page-header mb-4">
@@ -63,7 +63,7 @@
 
       <!-- Textarea -->
       <div class="st-card-body">
-        <textarea class="st-textarea" rows="6" [(ngModel)]="item.message"
+        <textarea dir="auto" class="st-textarea" rows="6" [(ngModel)]="item.message"
           [placeholder]="'Enter ' + item.title + ' message...'"></textarea>
         <div class="st-char-count">{{ item.message?.length || 0 }} characters</div>
       </div>

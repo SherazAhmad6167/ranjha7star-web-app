@@ -16,9 +16,11 @@ import { ToastService } from '../../shared/toast/toast.service';
 import { AreaModalComponent } from '../area-modal/area-modal.component';
 import { CityModalComponent } from '../city-modal/city-modal.component';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
+import { archiveAndDelete } from '../../shared/offline-write';
 @Component({
   selector: 'app-city-details',
-  imports: [CommonModule, FormsModule, LoaderComponent],
+  imports: [CommonModule, FormsModule, LoaderComponent, EmptyStateComponent],
   templateUrl: './city-details.component.html',
   styleUrl: './city-details.component.scss'
 })
@@ -147,9 +149,8 @@ export class CityDetailsComponent {
         deletedAt: new Date(),
       };
 
-      await addDoc(collection(this.firestore, 'logs'), logData);
-
-      await deleteDoc(areaDocRef);
+      archiveAndDelete(this.firestore, areaDocRef,
+        logData);
 
 
       this.toastr.success('City deleted');

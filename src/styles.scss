@@ -4,6 +4,13 @@
 :root { --topbar-h: 58px; }
 @media (max-width: 576px) { :root { --topbar-h: 52px; } }
 
+/* App font - Inter everywhere, falling back to the device font (which also covers Urdu script). */
+:root {
+  --app-font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Helvetica Neue', Arial, sans-serif;
+  --bs-font-sans-serif: var(--app-font);
+  --bs-body-font-family: var(--app-font);
+}
+
 /* Page background behind every screen - change it here and it applies app-wide.
    A soft "aurora" in the brand colours: a violet glow top-right and a sky glow
    near the top, over a cool off-white - light enough for white cards to pop.
@@ -14,17 +21,13 @@
     radial-gradient(760px 420px at 32% 0%, rgba(14, 165, 233, 0.09), transparent 70%),
     linear-gradient(180deg, #f6f7fc 0%, #f1f3f9 100%);
 }
-body.dark-mode {
-  --app-bg:
-    radial-gradient(900px 480px at 100% 0%, rgba(124, 58, 237, 0.2), transparent 70%),
-    radial-gradient(760px 420px at 32% 0%, rgba(14, 165, 233, 0.1), transparent 70%),
-    linear-gradient(180deg, #11111f 0%, #0d0d18 100%);
-}
 
         /* Basic Reset & Smooth Scroll */
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; font-family: sans-serif; }
-        body { color: #333; line-height: 1.6; background: var(--app-bg); }
+        html { scroll-behavior: smooth; font-family: var(--app-font); }
+        body { color: #333; line-height: 1.6; background: var(--app-bg); font-family: var(--app-font); -webkit-font-smoothing: antialiased; }
+        /* form controls don't inherit the font by default */
+        button, input, select, textarea, optgroup { font-family: inherit; }
 
         .content-body { display: flex; }
         /* Navigation */
@@ -257,99 +260,6 @@ body.dark-mode {
         .sop-editor-preview .preview-step h5 { font-size: 1em; margin-bottom: 5px; }
         .sop-editor-preview .critical-step { color: #dc3545; font-weight: bold; }
 
-        /* --- Dark Mode Styles --- */
-        /* ... All dark mode styles from v12 ... */
-        body.dark-mode { background-color: #212529; color: #dee2e6; }
-        body.dark-mode nav { background-color: #343a40; border-right-color: #495057; }
-        body.dark-mode nav ul li a { color: #dee2e6; }
-        body.dark-mode nav ul li a:hover { background-color: #495057; color: #fff; }
-        body.dark-mode nav ul li a.active { background-color: #0d6efd; color: white; }
-        body.dark-mode section { background-color: #2b3035; border-bottom-color: #495057; box-shadow: none; }
-        body.dark-mode section h1.section-title { color: #6cb2eb; } /* Target specific class */
-        body.dark-mode #firebase-status { background-color: #495057; border-color: #6c757d; color: #dee2e6; }
-        body.dark-mode table { box-shadow: none; background-color: #2b3035; }
-        body.dark-mode th, body.dark-mode td { border-color: #4a5056; }
-        body.dark-mode th { background-color: #495057; color: #e9ecef; }
-        body.dark-mode tbody tr:nth-child(even) { background-color: #343a40; }
-        body.dark-mode tbody tr:hover { background-color: #495057; }
-        body.dark-mode input, body.dark-mode select, body.dark-mode textarea { background-color: #495057; border-color: #6c757d; color: #dee2e6; }
-        body.dark-mode input::placeholder, body.dark-mode textarea::placeholder { color: #adb5bd; }
-        body.dark-mode input:focus, body.dark-mode select:focus, body.dark-mode textarea:focus { border-color: #86b7fe; box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25); }
-        body.dark-mode .search-bar input[type="text"], body.dark-mode .search-bar input[type="search"] { background-color: #495057; }
-        body.dark-mode .list-item { background-color: #343a40; border-color: #495057; box-shadow: none; }
-        body.dark-mode .list-item h4 { color: #6cb2eb; } body.dark-mode .list-item p { color: #adb5bd; } body.dark-mode .list-item a { color: #80bdff; }
-        body.dark-mode .list-item .actions button { background-color: #5a6268; } body.dark-mode .list-item .actions button:hover { background-color: #6c757d; }
-        body.dark-mode .settings-group { background-color: #343a40; border-color: #495057; }
-        body.dark-mode .settings-group h3 { color: #e9ecef; border-bottom-color: #495057; }
-        body.dark-mode .form-field-custom label { color: #adb5bd; }
-        body.dark-mode .settings-group code { background-color: #495057; color: #dee2e6; }
-        body.dark-mode .settings-group pre { background: #212529; color: #dee2e6; border-color: #495057; }
-        body.dark-mode .oee-card { background-color: #343a40; border-color: #495057; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-        body.dark-mode .oee-card h3 { color: #e9ecef; }
-        body.dark-mode .historical-data { border-top-color: #495057; } body.dark-mode .historical-data h2 { color: #adb5bd; }
-        body.dark-mode .timeframe-selector select { background-color: #495057; border-color: #6c757d; color: #dee2e6; }
-        body.dark-mode .chart-container { background-color: #343a40; border-color: #495057; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
-        body.dark-mode .chart-container h3 { color: #adb5bd; } body.dark-mode .apq-item h4 { color: #adb5bd; }
-        body.dark-mode .apq-item img { border-color: #6c757d; opacity: 0.8; } body.dark-mode .chart-container { color: #dee2e6; }
-        body.dark-mode .production-form-container, body.dark-mode .production-log-container { background-color: #343a40; box-shadow: 0 4px 12px rgba(0,0,0,0.4); border-color: #495057; }
-        body.dark-mode .production-form-container h2, body.dark-mode .production-log-container h2 { color: #e9ecef; }
-        body.dark-mode .toggle-view-btn { background-color: #5a6268; } body.dark-mode .toggle-view-btn:hover { background-color: #6c757d; }
-        body.dark-mode .form-field label { color: #adb5bd; } body.dark-mode .form-field input:read-only { background-color: #495057; border-color: #6c757d; }
-        body.dark-mode .form-buttons { border-top-color: #495057; } body.dark-mode .label-preview-container { border-top-color: #495057; }
-        body.dark-mode .label-preview-container h3 { color: #adb5bd; } body.dark-mode .label-preview { background-color: #495057; border-color: #6c757d; color: #dee2e6; box-shadow: inset 0 0 5px rgba(0,0,0,0.2); }
-        body.dark-mode td.status-message { color: #adb5bd; }
-        body.dark-mode #labeling .label-toolbar { background-color: #343a40; border: 1px solid #495057; }
-        body.dark-mode .component-button { background-color: #1e7e34; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        body.dark-mode .component-button.selected { background-color: #155724; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
-        body.dark-mode .modal-overlay { background-color: rgba(0, 0, 0, 0.75); }
-        body.dark-mode .modal-overlay .modal-content { background-color: #2b3035; color: #dee2e6; }
-        body.dark-mode .modal-overlay .modal-header { border-bottom-color: #495057; }
-        body.dark-mode .modal-overlay .modal-header h3 { color: #e9ecef; }
-        body.dark-mode .modal-overlay .modal-close-btn { color: #adb5bd; } body.dark-mode .modal-overlay .modal-close-btn:hover { color: #f8f9fa; }
-        body.dark-mode .modal-overlay .modal-footer { border-top-color: #495057; background-color: #343a40; }
-        body.dark-mode .label-settings-col h4, body.dark-mode .label-info-col h4 { color: #e9ecef; border-bottom-color: #495057; }
-        body.dark-mode .label-info-col strong { color: #adb5bd; }
-        body.dark-mode .label-actual-preview { border-color: #6c757d; background-color: #fff; color: #000; /* Keep label preview light */ }
-        body.dark-mode .label-actual-preview img.qr-code { filter: none; /* Don't invert QR */ }
-        body.dark-mode .scan-results-area { background-color: #343a40; border-color: #6c757d; }
-        body.dark-mode .history-filters { background-color: #343a40; }
-        body.dark-mode #label-history-table th { background-color: #495057; }
-        body.dark-mode #troubleshooting .troubleshooting-container { background-color: #343a40; border-color: #495057; }
-        body.dark-mode #troubleshooting .back-link { color: #80bdff; }
-        body.dark-mode #troubleshooting h2 { color: #e9ecef; }
-        body.dark-mode #troubleshooting h3 { color: #adb5bd; }
-        body.dark-mode #troubleshooting select { background-color: #495057; border-color: #6c757d; color: #dee2e6; }
-        body.dark-mode #troubleshooting .troubleshooting-steps { border-color: #495057; background-color: #2b3035; }
-        body.dark-mode #troubleshooting .troubleshooting-steps label { color: #dee2e6; }
-        body.dark-mode .sop-manager-layout { background-color: #2b3035; }
-        body.dark-mode .sop-sidebar { background-color: #343a40; border-right-color: #495057; }
-        body.dark-mode .sop-sidebar h3 { color: #e9ecef; }
-        body.dark-mode .sop-list { border-color: #495057; background-color: #2b3035; }
-        body.dark-mode .sop-list li { border-bottom-color: #495057; color: #dee2e6; }
-        body.dark-mode .sop-list li:hover { background-color: #495057; }
-        body.dark-mode .sop-list li.active { background-color: #0d6efd; color: white; }
-        body.dark-mode .sop-viewer { background-color: #2b3035; color: #dee2e6; }
-        body.dark-mode .sop-viewer-welcome { color: #adb5bd; }
-        body.dark-mode .sop-header { border-bottom-color: #495057; }
-        body.dark-mode .sop-header-title h2 { color: #80bdff; }
-        body.dark-mode .sop-header-title p { color: #adb5bd; }
-        body.dark-mode .sop-step-content { border-color: #495057; background-color: #343a40; }
-        body.dark-mode .sop-step-media img, body.dark-mode .pdf-placeholder { border-color: #6c757d; background-color: #495057; }
-        body.dark-mode .pdf-placeholder { color: #adb5bd; }
-        body.dark-mode .sop-feedback { border-top-color: #495057; }
-        body.dark-mode .sop-feedback button { background-color: #495057; color: #dee2e6; }
-        body.dark-mode .sop-feedback button:hover { background-color: #5a6268; }
-        body.dark-mode #sop-editor-modal .modal-content { background-color: #2b3035; }
-        body.dark-mode .sop-editor-form h4, body.dark-mode .sop-editor-preview h4 { color: #e9ecef; border-bottom-color: #495057; }
-        body.dark-mode .sop-editor-steps-list { border-color: #495057; }
-        body.dark-mode .sop-editor-steps-list .step-item { border-bottom-color: #495057; }
-        body.dark-mode .sop-editor-steps-list .step-item:hover { background-color: #3a4045; }
-        body.dark-mode .sop-editor-steps-list .step-item.selected { background-color: #0b5ed7; color:white; }
-        body.dark-mode .sop-editor-step-editor { border-color: #495057; background-color: #343a40; }
-        body.dark-mode .sop-editor-preview { border-color: #495057; background-color: #343a40; }
-        body.dark-mode .sop-editor-preview .preview-step { border-color: #6c757d; background-color: #2b3035; }
-
-
         /* --- Responsive Styles --- */
         /* ... All responsive styles from v12 ... */
         @media (max-width: 768px) {
@@ -372,10 +282,7 @@ body.dark-mode {
             td { border: none; border-bottom: 1px solid #eee; position: relative; padding-left: 50% !important; text-align: right !important; min-height: 40px; display: block; }
             td:before { position: absolute; top: 12px; left: 15px; width: 45%; padding-right: 10px; white-space: nowrap; content: attr(data-label); font-weight: bold; text-align: left; color: #495057; font-size: 0.9em; }
             td.status-message { padding-left: 15px !important; text-align: center !important; }
-            td.status-message:before { display: none; }
-            body.dark-mode tr { border-color: #495057; background-color: #2b3035; }
-            body.dark-mode td { border-bottom-color: #495057; }
-            body.dark-mode td:before { color: #adb5bd; } */
+            td.status-message:before { display: none; } */
             /* .component-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
             .component-button { font-size: 1em; padding: 15px; }
             #labeling .label-toolbar { flex-direction: column; align-items: stretch; }
@@ -392,7 +299,6 @@ body.dark-mode {
             #troubleshooting .troubleshooting-actions { flex-direction: column; }
             .sop-manager-layout { flex-direction: column; height: auto; }
             .sop-sidebar { width: 100%; height: auto; max-height: 40vh; border-right: none; border-bottom: 1px solid #dee2e6; }
-            body.dark-mode .sop-sidebar { border-bottom-color: #495057; }
             .sop-viewer { padding: 20px; height: auto; }
             .sop-header { flex-direction: column; align-items: stretch; }
             .sop-header-actions { margin-top: 10px; }
@@ -436,269 +342,6 @@ body.dark-mode {
    which just falls back to the stock Bootstrap behaviour. */
 .modal {
   scrollbar-gutter: stable both-edges;
-}
-
-/* =====================================================
-   RANJHA7STAR — DARK MODE
-   Applied via body.dark-mode (ThemeService)
-   ===================================================== */
-
-body.dark-mode {
-  background: var(--app-bg) !important;
-  color: #e2e8f0 !important;
-}
-
-/* ── Sidebar ── */
-body.dark-mode .sidebar {
-  background: #131320 !important;
-  border-right: 1px solid #2a2a40 !important;
-}
-body.dark-mode .sidebar-brand {
-  border-bottom-color: #2a2a40 !important;
-}
-body.dark-mode .brand-text,
-body.dark-mode .brand-highlight {
-  color: #e2e8f0 !important;
-}
-body.dark-mode .nav-link-item {
-  color: #94a3b8 !important;
-}
-body.dark-mode .nav-link-item:hover {
-  background: rgba(108, 99, 255, 0.12) !important;
-  color: #c4b5fd !important;
-}
-body.dark-mode .nav-link-item.active {
-  background: rgba(108, 99, 255, 0.2) !important;
-  color: #a78bfa !important;
-}
-body.dark-mode .section-header {
-  color: #64748b !important;
-}
-body.dark-mode .section-header:hover {
-  background: rgba(255,255,255,0.04) !important;
-  color: #94a3b8 !important;
-}
-body.dark-mode .sidebar-footer {
-  border-top-color: #2a2a40 !important;
-}
-body.dark-mode .logout-btn {
-  background: rgba(239,68,68,0.1) !important;
-  color: #f87171 !important;
-  border-color: rgba(239,68,68,0.2) !important;
-  &:hover { background: rgba(239,68,68,0.2) !important; }
-}
-
-/* ── Main content ── */
-body.dark-mode main {
-  background: #0f0f1a !important;
-}
-
-/* ── Bootstrap cards ── */
-body.dark-mode .card {
-  background-color: #1a1a2e !important;
-  border-color: #2a2a40 !important;
-  color: #e2e8f0 !important;
-}
-body.dark-mode .card-header {
-  background-color: #1e1e32 !important;
-  border-bottom-color: #2a2a40 !important;
-  color: #e2e8f0 !important;
-}
-body.dark-mode .card-footer {
-  background-color: #1e1e32 !important;
-  border-top-color: #2a2a40 !important;
-}
-
-/* ── Tables ── */
-body.dark-mode .table {
-  --bs-table-bg: #1a1a2e;
-  --bs-table-striped-bg: #1e1e32;
-  --bs-table-hover-bg: #252540;
-  --bs-table-border-color: #2a2a40;
-  color: #e2e8f0 !important;
-}
-body.dark-mode .table-light,
-body.dark-mode thead.table-light {
-  --bs-table-bg: #1e1e32 !important;
-  color: #cbd5e1 !important;
-  border-color: #2a2a40 !important;
-}
-body.dark-mode th { color: #94a3b8 !important; }
-
-/* ── Forms ── */
-body.dark-mode .form-control,
-body.dark-mode .form-select {
-  background-color: #1e1e32 !important;
-  border-color: #3a3a55 !important;
-  color: #e2e8f0 !important;
-}
-body.dark-mode .form-control::placeholder { color: #475569 !important; }
-body.dark-mode .form-control:focus,
-body.dark-mode .form-select:focus {
-  background-color: #252540 !important;
-  border-color: #6c63ff !important;
-  box-shadow: 0 0 0 0.2rem rgba(108,99,255,0.2) !important;
-}
-body.dark-mode .input-group-text {
-  background-color: #1e1e32 !important;
-  border-color: #3a3a55 !important;
-  color: #94a3b8 !important;
-}
-body.dark-mode .form-check-input {
-  background-color: #1e1e32 !important;
-  border-color: #3a3a55 !important;
-}
-
-/* ── Text utilities ── */
-body.dark-mode .text-muted   { color: #64748b !important; }
-body.dark-mode .text-dark    { color: #e2e8f0 !important; }
-body.dark-mode .text-black-50 { color: rgba(203,213,225,0.5) !important; }
-body.dark-mode .fw-bold      { color: inherit; }
-
-/* ── Bootstrap badge subtle variants ── */
-body.dark-mode .bg-success-subtle  { background: rgba(16,185,129,0.15) !important; }
-body.dark-mode .text-success-emphasis { color: #34d399 !important; }
-body.dark-mode .bg-danger-subtle   { background: rgba(239,68,68,0.15) !important; }
-body.dark-mode .text-danger-emphasis  { color: #f87171 !important; }
-body.dark-mode .bg-info-subtle     { background: rgba(14,165,233,0.15) !important; }
-body.dark-mode .text-info-emphasis    { color: #38bdf8 !important; }
-body.dark-mode .bg-secondary-subtle   { background: rgba(148,163,184,0.12) !important; }
-body.dark-mode .text-secondary-emphasis { color: #94a3b8 !important; }
-
-/* ── Soft icon backgrounds (MikroTik stat cards) ── */
-body.dark-mode .bg-primary-soft { background: rgba(108,99,255,0.15) !important; }
-body.dark-mode .bg-success-soft { background: rgba(16,185,129,0.15) !important; }
-body.dark-mode .bg-danger-soft  { background: rgba(239,68,68,0.15) !important; }
-
-/* ── Progress bar ── */
-body.dark-mode .progress {
-  background-color: #2a2a40 !important;
-}
-
-/* ── Alert ── */
-body.dark-mode .alert-warning {
-  background: rgba(217,119,6,0.12) !important;
-  border-color: rgba(217,119,6,0.25) !important;
-  color: #fcd34d !important;
-}
-
-/* ── Nav tabs ── */
-body.dark-mode .nav-tabs {
-  border-bottom-color: #2a2a40 !important;
-}
-body.dark-mode .nav-tabs .nav-link {
-  color: #64748b !important;
-}
-body.dark-mode .nav-tabs .nav-link:hover {
-  border-color: #2a2a40 !important;
-  color: #94a3b8 !important;
-}
-body.dark-mode .nav-tabs .nav-link.active {
-  background-color: #1a1a2e !important;
-  border-color: #2a2a40 #2a2a40 #1a1a2e !important;
-  color: #a78bfa !important;
-}
-
-/* ── Bootstrap modals (ng-bootstrap renders in body) ── */
-body.dark-mode .modal-content {
-  background-color: #1a1a2e !important;
-  border-color: #2a2a40 !important;
-  color: #e2e8f0 !important;
-}
-body.dark-mode .modal-header {
-  background-color: #1e1e32 !important;
-  border-bottom-color: #2a2a40 !important;
-}
-body.dark-mode .modal-footer {
-  background-color: #1e1e32 !important;
-  border-top-color: #2a2a40 !important;
-}
-body.dark-mode .modal-title { color: #e2e8f0 !important; }
-body.dark-mode .btn-close { filter: invert(1) grayscale(1); }
-
-/* ── Analytic cards ── */
-body.dark-mode .analytic-card {
-  background: #1a1a2e !important;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.35) !important;
-}
-body.dark-mode .analytic-pagination {
-  border-top-color: #2a2a40 !important;
-}
-body.dark-mode .pg-btn {
-  background: #1e1e32 !important;
-  border-color: #3a3a55 !important;
-  color: #94a3b8 !important;
-}
-body.dark-mode .pg-btn:hover:not(:disabled) {
-  background: #6c63ff !important;
-  color: #fff !important;
-  border-color: #6c63ff !important;
-}
-body.dark-mode .pg-info-label {
-  background: #1e1e32 !important;
-  color: #64748b !important;
-}
-
-/* ── Chart wrapper ── */
-body.dark-mode .chart-wrapper {
-  background: #1a1a2e !important;
-  box-shadow: inset 0 2px 8px rgba(0,0,0,0.25) !important;
-}
-
-/* ── Section accent bar ── */
-body.dark-mode .section-accent-bar {
-  background: linear-gradient(180deg, #a78bfa, #60a5fa) !important;
-}
-
-/* ── Skeleton shimmer in dark ── */
-body.dark-mode .skeleton-bar {
-  background: linear-gradient(90deg, #1e1e32 25%, #2a2a40 50%, #1e1e32 75%) !important;
-  background-size: 200% 100% !important;
-}
-
-/* ── Pagination (Bootstrap) ── */
-body.dark-mode .page-link {
-  background-color: #1e1e32 !important;
-  border-color: #2a2a40 !important;
-  color: #94a3b8 !important;
-}
-body.dark-mode .page-item.active .page-link {
-  background-color: #6c63ff !important;
-  border-color: #6c63ff !important;
-  color: #fff !important;
-}
-body.dark-mode .page-item.disabled .page-link { opacity: 0.4; }
-
-/* ── Outline buttons in dark ── */
-body.dark-mode .btn-outline-primary {
-  color: #a78bfa !important;
-  border-color: #a78bfa !important;
-}
-body.dark-mode .btn-outline-primary:hover {
-  background: #a78bfa !important;
-  color: #fff !important;
-}
-body.dark-mode .btn-outline-secondary {
-  color: #94a3b8 !important;
-  border-color: #3a3a55 !important;
-}
-body.dark-mode .btn-outline-secondary:hover {
-  background: #3a3a55 !important;
-  color: #e2e8f0 !important;
-}
-body.dark-mode .btn-light {
-  background: #1e1e32 !important;
-  border-color: #2a2a40 !important;
-  color: #94a3b8 !important;
-}
-
-/* ── Container-fluid padding areas ── */
-body.dark-mode .container-fluid { color: #e2e8f0; }
-
-/* ── Logout modal component ── */
-body.dark-mode .logout-modal {
-  background: #1a1a2e !important;
-  color: #e2e8f0 !important;
 }
 
 /* ── Global Delete Modal (gdm) ─────────────────────────────────────────── */
@@ -809,384 +452,6 @@ body.dark-mode .logout-modal {
   box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
 }
 
-body.dark-mode .gdm-wrap.warn .gdm-icon { background: #3b2f1e; color: #fbbf24; }
-
-body.dark-mode .modal-content:has(.gdm-wrap) {
-  background: #1a1a2e !important;
-  border-color: #2a2a40 !important;
-}
-body.dark-mode .gdm-wrap { background: #1a1a2e; }
-body.dark-mode .gdm-close { background: #2a2a40; color: #94a3b8; }
-body.dark-mode .gdm-close:hover { background: #3a3a55; color: #e2e8f0; }
-body.dark-mode .gdm-icon { background: #3b1e2e; color: #f87171; }
-body.dark-mode .gdm-title { color: #e2e8f0; }
-body.dark-mode .gdm-text { color: #94a3b8; }
-body.dark-mode .gdm-btn.gdm-cancel { background: #2a2a40; color: #94a3b8; border-color: #3a3a55; }
-body.dark-mode .gdm-btn.gdm-cancel:hover { background: #3a3a55; color: #e2e8f0; }
-
-/* ══════════════════════════════════════════════════════════════════════════
-   DARK MODE — custom component classes
-   ─────────────────────────────────────────────────────────────────────────
-   Every list/table page follows a `{prefix}-{element}` convention (ud-, uc-,
-   nc-, rd-, ex-, pd-, bd-, …) with hardcoded light colours in its own SCSS.
-   Rather than repeat overrides per prefix, match on the shared element
-   suffix so any current or future component is covered automatically.
-
-   Palette (matches the Bootstrap overrides above):
-     surface #1a1a2e · raised #1e1e32 · hover #252540
-     border  #2a2a40 · border-2 #3a3a55
-     text    #e2e8f0 · muted #94a3b8 · faint #64748b
-   ══════════════════════════════════════════════════════════════════════════ */
-
-/* ── Page headers ── */
-body.dark-mode [class*="-page-header"] [class*="-title"],
-body.dark-mode [class*="-header-left"] [class*="-title"],
-body.dark-mode [class$="-title"],
-body.dark-mode [class*="-section-title"],
-body.dark-mode [class*="-empty-title"],
-body.dark-mode [class*="-card-title"] {
-  color: #e2e8f0 !important;
-}
-body.dark-mode [class$="-sub"],
-body.dark-mode [class*="-subtitle"],
-body.dark-mode [class*="-empty-sub"],
-body.dark-mode [class*="-footer-info"],
-body.dark-mode [class*="-sum-label"],
-body.dark-mode [class*="-desc"] {
-  color: #94a3b8 !important;
-}
-
-/* ── Cards & surfaces ── */
-body.dark-mode [class$="-card"],
-body.dark-mode [class*="-summary-card"],
-body.dark-mode [class*="-sum-card"],
-body.dark-mode [class*="-section-body"],
-body.dark-mode [class*="-msg-card"] {
-  background: #1a1a2e !important;
-  border-color: #2a2a40 !important;
-  color: #e2e8f0 !important;
-}
-body.dark-mode [class*="-card-header"],
-body.dark-mode [class*="-section-head"],
-body.dark-mode [class*="-table-footer"],
-body.dark-mode [class*="-filter-bar"],
-body.dark-mode [class*="-date-row"] {
-  background: #1e1e32 !important;
-  border-color: #2a2a40 !important;
-}
-
-/* ── Filter controls ── */
-body.dark-mode [class*="-filter-label"] {
-  color: #64748b !important;
-}
-body.dark-mode [class$="-select"],
-body.dark-mode [class*="-search-input"],
-body.dark-mode [class*="-date-input"],
-body.dark-mode [class$="-input"] {
-  background: #1e1e32 !important;
-  border-color: #3a3a55 !important;
-  color: #e2e8f0 !important;
-}
-body.dark-mode [class$="-select"] option {
-  background: #1e1e32 !important;
-  color: #e2e8f0 !important;
-}
-body.dark-mode [class*="-search-input"]::placeholder,
-body.dark-mode [class$="-input"]::placeholder {
-  color: #475569 !important;
-}
-body.dark-mode [class*="-search-icon"] {
-  color: #64748b !important;
-}
-/* Native date/time pickers render a black glyph on dark backgrounds */
-body.dark-mode input[type="date"]::-webkit-calendar-picker-indicator,
-body.dark-mode input[type="time"]::-webkit-calendar-picker-indicator {
-  filter: invert(1) brightness(0.8);
-}
-
-/* ── Tables ── */
-body.dark-mode [class$="-table"] thead th {
-  background: #1e1e32 !important;
-  color: #94a3b8 !important;
-  border-bottom-color: #2a2a40 !important;
-
-  i { color: #64748b !important; }
-}
-body.dark-mode [class$="-table"] tbody td {
-  color: #cbd5e1 !important;
-  border-bottom-color: #24243c !important;
-}
-body.dark-mode [class$="-table"] tbody tr:hover {
-  background: #252540 !important;
-}
-body.dark-mode [class*="-row-num"],
-body.dark-mode [class*="-row-index"] {
-  color: #64748b !important;
-}
-
-/* ── Cell text ── */
-body.dark-mode [class*="-user-name"],
-body.dark-mode [class$="-name"],
-body.dark-mode [class$="-amount"],
-body.dark-mode [class*="-sum-amount"],
-body.dark-mode [class$="-fee"] {
-  color: #e2e8f0 !important;
-}
-body.dark-mode [class$="-date"],
-body.dark-mode [class*="-date-cell"],
-body.dark-mode [class$="-phone"],
-body.dark-mode [class*="-user-id"],
-body.dark-mode [class*="-collected-by"],
-body.dark-mode [class$="-period"] {
-  color: #94a3b8 !important;
-}
-
-/* ── Badges & tags ── */
-body.dark-mode [class*="-id-badge"],
-body.dark-mode [class*="-area-tag"],
-body.dark-mode [class$="-pkg"],
-body.dark-mode [class$="-package"],
-body.dark-mode [class*="-stat-pill"],
-body.dark-mode [class*="-amount-badge"] {
-  background: rgba(108, 99, 255, 0.14) !important;
-  border-color: rgba(108, 99, 255, 0.3) !important;
-  color: #a5b4fc !important;
-}
-body.dark-mode [class*="-avatar"] {
-  color: #fff !important;
-}
-
-/* ── Inactive customer rows (ud-, nc-) ──
-   Opaque tints: Bootstrap tables paint cells over the zebra-striped rows. */
-body.dark-mode [class*="-row-inactive"] {
-  --bs-table-bg: #341f31 !important;
-  --bs-table-hover-bg: #452232 !important;
-  background: #341f31 !important;
-}
-body.dark-mode [class$="-table"] tbody tr[class*="-row-inactive"]:hover {
-  background: #452232 !important;
-}
-body.dark-mode [class*="-row-inactive"] [class*="-user-name"] {
-  color: #fca5a5 !important;
-}
-
-/* ── Empty states ── */
-body.dark-mode [class$="-empty"],
-body.dark-mode [class*="-empty-state"] {
-  color: #64748b !important;
-
-  i { color: #3a3a55 !important; }
-}
-
-/* ── Status tabs ── */
-body.dark-mode [class*="-status-tabs"] {
-  border-color: #2a2a40 !important;
-}
-body.dark-mode [class$="-tab"] {
-  background: #1e1e32 !important;
-  border-color: #3a3a55 !important;
-  color: #94a3b8 !important;
-}
-body.dark-mode [class$="-tab"]:hover {
-  background: #252540 !important;
-  color: #e2e8f0 !important;
-}
-
-/* ── Action buttons ── */
-body.dark-mode [class*="-action-btn"] {
-  background: #1e1e32 !important;
-  border-color: #3a3a55 !important;
-}
-body.dark-mode [class*="-action-btn"]:hover {
-  background: #252540 !important;
-}
-
-/* ── Shared search-select dropdown ── */
-body.dark-mode .ss-trigger {
-  background: #1e1e32 !important;
-  border-color: #3a3a55 !important;
-  color: #e2e8f0 !important;
-}
-body.dark-mode .ss-value { color: #e2e8f0 !important; }
-body.dark-mode .ss-chevron { color: #64748b !important; }
-body.dark-mode .ss-panel {
-  background: #1a1a2e !important;
-  border-color: #3a3a55 !important;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5) !important;
-}
-body.dark-mode .ss-search-row { border-bottom-color: #2a2a40 !important; }
-body.dark-mode .ss-search-input {
-  background: #1e1e32 !important;
-  border-color: #3a3a55 !important;
-  color: #e2e8f0 !important;
-}
-body.dark-mode .ss-search-icon { color: #64748b !important; }
-body.dark-mode .ss-option { color: #cbd5e1 !important; }
-body.dark-mode .ss-option:hover { background: #252540 !important; }
-body.dark-mode .ss-option.ss-disabled { color: #475569 !important; }
-body.dark-mode .ss-no-results { color: #64748b !important; }
-body.dark-mode .ss-opt-label { color: inherit !important; }
-
-/* ══════════════════════════════════════════════════════════════════════════
-   DARK MODE — modals
-   ─────────────────────────────────────────────────────────────────────────
-   Every modal shares one anatomy, only the prefix changes (ncm-, um-, rdm-,
-   exm-, opm-, pkm-, arm-, csm-, stm-, sam-, rom-, bm-, cim-, cm-, pm-):
-
-     {p}-body    background #f4f6fb   ← page-like backdrop
-     {p}-section / .form-section  #fff card
-     {p}-section-head / .section-head  #f8fafc strip
-     {p}-footer  #fff with #f1f5f9 top border
-
-   Matching on the suffix covers every modal at once. The unprefixed
-   `.section-*` / `.form-section` variants are listed explicitly since they
-   have no leading dash for `[class*=]` to catch.
-   ══════════════════════════════════════════════════════════════════════════ */
-
-/* ── Modal shell ── */
-body.dark-mode .modal-card,
-body.dark-mode .custom-modal,
-body.dark-mode .modal-content-wrapper {
-  background: #14142a !important;
-  border-color: #2a2a40 !important;
-  color: #e2e8f0 !important;
-}
-
-/* ── Modal body (the light-grey backdrop behind the section cards) ──
-   Bootstrap's own .card-body / .modal-body sit *inside* an already-dark
-   surface, so they stay transparent rather than painting a darker inset. */
-body.dark-mode [class$="-body"]:not(.section-body):not([class*="-section-body"]):not(.card-body):not(.modal-body):not(.content-body) {
-  background: #14142a !important;
-  color: #e2e8f0 !important;
-}
-body.dark-mode .card-body,
-body.dark-mode .modal-body {
-  background: transparent !important;
-  color: #e2e8f0 !important;
-}
-
-/* ── Section cards inside modals ── */
-body.dark-mode [class$="-section"],
-body.dark-mode .form-section {
-  background: #1a1a2e !important;
-  border-color: #2a2a40 !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
-}
-body.dark-mode [class*="-section-head"],
-body.dark-mode .section-head {
-  background: #1e1e32 !important;
-  border-bottom-color: #2a2a40 !important;
-}
-body.dark-mode [class*="-section-title"],
-body.dark-mode .section-title {
-  color: #e2e8f0 !important;
-}
-body.dark-mode .section-body { background: transparent !important; }
-
-/* Tinted section icons */
-body.dark-mode .section-icon,
-body.dark-mode [class*="-section-icon"] {
-  &.si-blue   { background: rgba(59, 130, 246, 0.16) !important; color: #93c5fd !important; }
-  &.si-green  { background: rgba(34, 197, 94, 0.16)  !important; color: #86efac !important; }
-  &.si-orange { background: rgba(249, 115, 22, 0.16) !important; color: #fdba74 !important; }
-  &.si-purple { background: rgba(139, 92, 246, 0.16) !important; color: #c4b5fd !important; }
-}
-
-/* ── Modal footer ── */
-body.dark-mode [class$="-footer"]:not(.card-footer) {
-  background: #1a1a2e !important;
-  border-top-color: #2a2a40 !important;
-}
-
-/* ── Form labels & helpers ── */
-body.dark-mode .form-label,
-body.dark-mode [class*="-form-label"] {
-  color: #94a3b8 !important;
-}
-body.dark-mode .pkg-divider,
-body.dark-mode [class*="-divider"] {
-  color: #64748b !important;
-  border-bottom-color: #2a2a40 !important;
-}
-body.dark-mode .invalid-feedback,
-body.dark-mode [class*="-err"] { color: #f87171 !important; }
-
-/* ── Input prefix boxes (the "Rs" chip) ── */
-body.dark-mode [class*="-prefix-wrap"],
-body.dark-mode .input-group {
-  border-color: #3a3a55 !important;
-}
-body.dark-mode [class*="-prefix"]:not([class*="-prefix-wrap"]),
-body.dark-mode .input-group-text {
-  background: #252540 !important;
-  border-right-color: #3a3a55 !important;
-  color: #94a3b8 !important;
-}
-
-/* ── Cancel / secondary modal buttons ── */
-body.dark-mode [class*="-cancel-btn"],
-body.dark-mode [class*="-btn-cancel"] {
-  background: #252540 !important;
-  border-color: #3a3a55 !important;
-  color: #cbd5e1 !important;
-}
-body.dark-mode [class*="-cancel-btn"]:hover,
-body.dark-mode [class*="-btn-cancel"]:hover {
-  background: #3a3a55 !important;
-  color: #e2e8f0 !important;
-}
-
-/* ══════════════════════════════════════════════════════════════════════════
-   DARK MODE — polish
-   ══════════════════════════════════════════════════════════════════════════ */
-
-/* Placeholders: #475569 sat too close to the field background to read */
-body.dark-mode .form-control::placeholder,
-body.dark-mode input::placeholder,
-body.dark-mode textarea::placeholder,
-body.dark-mode [class$="-input"]::placeholder,
-body.dark-mode [class*="-search-input"]::placeholder {
-  color: #6b7a91 !important;
-  opacity: 1 !important;
-}
-
-/* Bare inputs that predate the component classes */
-body.dark-mode input[type="text"],
-body.dark-mode input[type="number"],
-body.dark-mode input[type="date"],
-body.dark-mode input[type="time"],
-body.dark-mode input[type="search"],
-body.dark-mode input[type="tel"],
-body.dark-mode input[type="email"],
-body.dark-mode select,
-body.dark-mode textarea {
-  background-color: #1e1e32;
-  border-color: #3a3a55;
-  color: #e2e8f0;
-}
-body.dark-mode select option { background: #1e1e32; color: #e2e8f0; }
-
-body.dark-mode hr { border-color: #2a2a40 !important; opacity: 1; }
-
-/* Scrollbars — a white track is jarring against the dark surfaces */
-body.dark-mode * {
-  scrollbar-color: #3a3a55 #14142a;
-}
-body.dark-mode ::-webkit-scrollbar { width: 10px; height: 10px; }
-body.dark-mode ::-webkit-scrollbar-track { background: #14142a; }
-body.dark-mode ::-webkit-scrollbar-thumb {
-  background: #3a3a55;
-  border-radius: 6px;
-  border: 2px solid #14142a;
-}
-body.dark-mode ::-webkit-scrollbar-thumb:hover { background: #4a4a6a; }
-
-/* Bootstrap backdrop sits too light over the dark shell */
-body.dark-mode .modal-backdrop.show { opacity: 0.7; }
-
-/* Purge progress bar track inside the global delete modal */
-body.dark-mode .gdm-progress { background: #2a2a40 !important; }
-
 /* ── Datepicker popups ──
    Rendered on <body> (container="body") so a scrolling modal cannot clip them,
    which also puts them behind Bootstrap's modal unless they outrank it. */
@@ -1194,22 +459,55 @@ ngb-datepicker.dropdown-menu {
   z-index: 1060;
 }
 
-body.dark-mode ngb-datepicker {
-  background-color: #1a1a2e;
-  border-color: #2a2a40;
-  color: #e2e8f0;
+/* ── Page transitions ──
+   The router hands navigation to the View Transitions API (withViewTransitions):
+   the old page fades out, the new one fades up. The top bar and sidebar get their
+   own names so they hold still while only the page content moves. */
+.app-topbar { view-transition-name: app-topbar; }
+nav.sidebar { view-transition-name: app-sidebar; }
+
+::view-transition-group(app-topbar),
+::view-transition-group(app-sidebar) { animation: none; }
+
+::view-transition-old(root) { animation: 140ms ease-out both pageOut; }
+::view-transition-new(root) { animation: 280ms cubic-bezier(0.2, 0.8, 0.2, 1) both pageIn; }
+
+@keyframes pageOut { to { opacity: 0; } }
+@keyframes pageIn { from { opacity: 0; transform: translateY(10px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
 }
-body.dark-mode ngb-datepicker .ngb-dp-header,
-body.dark-mode ngb-datepicker .ngb-dp-weekdays,
-body.dark-mode ngb-datepicker .ngb-dp-month-name {
-  background-color: #1e1e32;
-  color: #e2e8f0;
-  border-color: #2a2a40;
+
+/* ── Mixed English / Urdu text ──
+   Messages, templates and reviews are marked dir="auto". plaintext goes one step
+   further: every line takes its own direction, so an English heading followed by
+   Urdu lines reads right-to-left where it should. */
+[dir="auto"] {
+  unicode-bidi: plaintext;
+  text-align: start;
 }
-body.dark-mode ngb-datepicker .btn-light {
-  background-color: transparent;
-  color: #e2e8f0;
+
+/* ── Soft refresh (app-loader softRefresh) ──
+   While a page reloads data it already shows, table rows fade back and a shimmer
+   sweeps across them. The gradient is fixed to the viewport so it runs across a
+   whole row as one band rather than restarting in every cell. */
+body.app-refreshing table tbody td {
+  background-image: linear-gradient(100deg, transparent 30%, rgba(139, 92, 246, 0.18) 50%, transparent 70%);
+  background-size: 200vw 100%;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  animation: rowShimmer 1.2s ease-in-out infinite;
 }
-body.dark-mode ngb-datepicker .btn-light:hover:not(.bg-primary) {
-  background-color: #2a2a40;
+body.app-refreshing table tbody tr { opacity: 0.62; transition: opacity 0.2s ease; }
+
+@keyframes rowShimmer {
+  from { background-position: 100vw 0; }
+  to   { background-position: -100vw 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.app-refreshing table tbody td { animation: none; }
 }

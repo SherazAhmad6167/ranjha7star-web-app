@@ -28,6 +28,8 @@ import {
   DEFAULT_REVIEW_DECLINED_TEMPLATE,
 } from '../../shared/message-templates';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
+import { writeInBackground } from '../../shared/offline-write';
 
 /** Cloudinary unsigned upload — same account/preset the rest of the app uses. */
 const CLOUD_NAME = 'mghs1aiu';
@@ -47,7 +49,7 @@ interface ConfirmBox {
 
 @Component({
   selector: 'app-website-details',
-  imports: [CommonModule, ReactiveFormsModule, LoaderComponent],
+  imports: [CommonModule, ReactiveFormsModule, LoaderComponent, EmptyStateComponent],
   templateUrl: './website-details.component.html',
   styleUrl: './website-details.component.scss',
 })
@@ -384,7 +386,7 @@ export class WebsiteDetailsComponent implements OnInit {
         updatedAt: Date.now(),
       };
 
-      await setDoc(doc(this.firestore, this.collectionName, this.docId), payload);
+      writeInBackground(setDoc(doc(this.firestore, this.collectionName, this.docId), payload));
 
       this.lastSaved = new Date(payload.updatedAt);
       this.toastr.success('Website updated — the live site refreshes on its own');
@@ -491,7 +493,7 @@ export class WebsiteDetailsComponent implements OnInit {
   private async removeReview(r: any) {
     this.busyReview = r.id;
     try {
-      await deleteDoc(doc(this.firestore, this.collectionName, r.id));
+      writeInBackground(deleteDoc(doc(this.firestore, this.collectionName, r.id)));
       this.reviews = this.reviews.filter((x) => x.id !== r.id);
       this.toastr.success('Review deleted');
     } catch (err) {
@@ -505,10 +507,10 @@ export class WebsiteDetailsComponent implements OnInit {
   private async setReviewStatus(r: any, status: string, message: string): Promise<boolean> {
     this.busyReview = r.id;
     try {
-      await updateDoc(doc(this.firestore, this.collectionName, r.id), {
+      writeInBackground(updateDoc(doc(this.firestore, this.collectionName, r.id), {
         status,
         reviewedAt: Date.now(),
-      });
+      }));
 
       r.status = status;
       r.reviewedAt = Date.now();

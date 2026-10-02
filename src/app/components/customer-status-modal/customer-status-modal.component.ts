@@ -19,6 +19,7 @@ import {
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastService } from '../../shared/toast/toast.service';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { writeInBackground } from '../../shared/offline-write';
 
 @Component({
   selector: 'app-customer-status-modal',
@@ -156,7 +157,7 @@ export class CustomerStatusModalComponent {
         this.userData.id
       );
 
-      await updateDoc(userDocRef, payload);
+      writeInBackground(updateDoc(userDocRef, payload));
 
       navigator.onLine
         ? this.toastr.success('Customer status updated successfully')
@@ -164,10 +165,10 @@ export class CustomerStatusModalComponent {
 
     } else {
 
-      await addDoc(collection(this.firestore, 'customerStatus'), {
+      writeInBackground(addDoc(collection(this.firestore, 'customerStatus'), {
         ...payload,
         createdAt: new Date(),
-      });
+      }));
 
       navigator.onLine
         ? this.toastr.success('Customer status saved successfully')

@@ -18,10 +18,12 @@ import { ToastService } from '../../shared/toast/toast.service';
 import { NewConnectionModalComponent } from '../new-connection-modal/new-connection-modal.component';
 import { CustomerStatusModalComponent } from '../customer-status-modal/customer-status-modal.component';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
+import { archiveAndDelete } from '../../shared/offline-write';
 
 @Component({
   selector: 'app-customer-status',
-  imports: [FormsModule, CommonModule, ReactiveFormsModule, SearchSelectComponent, LoaderComponent],
+  imports: [FormsModule, CommonModule, ReactiveFormsModule, SearchSelectComponent, LoaderComponent, EmptyStateComponent],
   templateUrl: './customer-status.component.html',
   styleUrl: './customer-status.component.scss'
 })
@@ -267,16 +269,14 @@ export class CustomerStatusComponent {
           deletedAt: new Date(),
         };
   
-        await addDoc(collection(this.firestore, 'logs'), logData);
-        await addDoc(collection(this.firestore, 'logs'), {
+        archiveAndDelete(this.firestore, doc(this.firestore, 'customerStatus', this.selectedDeleteId),
+          logData,
+          {
           type: 'customerStatus',
           action: 'delete',
           targetId: this.selectedDeleteId,
           deletedAt: new Date(),
         });
-        await deleteDoc(
-          doc(this.firestore, 'customerStatus', this.selectedDeleteId),
-        );
         this.toastr.success('Customer Status deleted');
         this.loadExpenses();
         modal.close();

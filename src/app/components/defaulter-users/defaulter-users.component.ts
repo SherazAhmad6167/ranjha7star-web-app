@@ -20,9 +20,10 @@ import {
   NgbModule,
 } from '@ng-bootstrap/ng-bootstrap';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
 @Component({
   selector: 'app-defaulter-users',
-  imports: [CommonModule, FormsModule, SearchSelectComponent, LoaderComponent],
+  imports: [CommonModule, FormsModule, SearchSelectComponent, LoaderComponent, EmptyStateComponent],
   templateUrl: './defaulter-users.component.html',
   styleUrl: './defaulter-users.component.scss',
 })

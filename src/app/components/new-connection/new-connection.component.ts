@@ -13,6 +13,7 @@ import {
   query,
   setDoc,
   where,
+  writeBatch,
 } from '@angular/fire/firestore';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -24,10 +25,12 @@ import html2canvas from 'html2canvas';
 import { openWhatsApp } from '../../shared/whatsapp';
 import { toWhatsappNumber } from '../../shared/phone';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
+import { archiveAndDelete, writeInBackground } from '../../shared/offline-write';
 
 @Component({
   selector: 'app-new-connection',
-  imports: [FormsModule, CommonModule, ReactiveFormsModule, SearchSelectComponent, LoaderComponent],
+  imports: [FormsModule, CommonModule, ReactiveFormsModule, SearchSelectComponent, LoaderComponent, EmptyStateComponent],
   templateUrl: './new-connection.component.html',
   styleUrl: './new-connection.component.scss',
 })
@@ -441,16 +444,14 @@ export class NewConnectionComponent {
         deletedAt: new Date(),
       };
 
-      await addDoc(collection(this.firestore, 'logs'), logData);
-      await addDoc(collection(this.firestore, 'logs'), {
+      archiveAndDelete(this.firestore, doc(this.firestore, 'newConnection', this.selectedDeleteId),
+        logData,
+        {
         type: 'users',
         action: 'delete',
         targetId: this.selectedDeleteId,
         deletedAt: new Date(),
       });
-      await deleteDoc(
-        doc(this.firestore, 'newConnection', this.selectedDeleteId),
-      );
       this.toastr.success('new Connection deleted');
       this.loadExpenses();
       modal.close();
@@ -709,7 +710,7 @@ export class NewConnectionComponent {
       link.click();
     } catch (err) {
       console.error(err);
-      alert('Error generating image');
+      this.toastr.error('Error generating image');
     } finally {
       document.body.removeChild(wrapper);
     }
@@ -742,7 +743,7 @@ ${fileUrl}`;
       openWhatsApp(phone, message);
     } catch (err) {
       console.error(err);
-      alert('Error generating PDF');
+      this.toastr.error('Error generating PDF');
     }
   }
 
@@ -903,14 +904,15 @@ ${fileUrl}`;
             continue;
           }
 
-          // 🔥 Create new doc with correct ID
-          await setDoc(doc(this.firestore, 'users', connectionId), {
+          // 🔥 Copy to the correct ID and ❌ drop the old doc in one batch -
+          // never one without the other, and nothing to wait for offline
+          const move = writeBatch(this.firestore);
+          move.set(doc(this.firestore, 'users', connectionId), {
             ...userData,
             connectionId: connectionId,
           });
-
-          // ❌ Delete old doc
-          await deleteDoc(doc(this.firestore, 'users', oldUserId));
+          move.delete(doc(this.firestore, 'users', oldUserId));
+          writeInBackground(move.commit());
 
           console.log(`Migrated user ${oldUserId} → ${connectionId}`);
         }
@@ -959,7 +961,7 @@ ${fileUrl}`;
     const message = this.mapTemplate(this.welcomeTemplate, user);
     if (!message) { this.toastr.error('Template not loaded'); return; }
     try {
-      await addDoc(collection(this.firestore, 'sms'), { phone, message, status: 'pending', createdAt: new Date().toISOString() });
+      writeInBackground(addDoc(collection(this.firestore, 'sms'), { phone, message, status: 'pending', createdAt: new Date().toISOString() }));
       this.toastr.success('SMS queued successfully');
     } catch { this.toastr.error('Failed to queue SMS'); }
   }

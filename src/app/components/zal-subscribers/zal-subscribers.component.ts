@@ -6,12 +6,13 @@ import { ToastService } from '../../shared/toast/toast.service';
 import { ZalService, ZalError, ZalStats, ZAL_MAX_LIMIT } from '../../shared/zal.service';
 import { SearchSelectComponent } from '../../shared/search-select/search-select.component';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
 
 type NetAction = 'enable' | 'disable';
 
 @Component({
   selector: 'app-zal-subscribers',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, SearchSelectComponent, LoaderComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, SearchSelectComponent, LoaderComponent, EmptyStateComponent],
   templateUrl: './zal-subscribers.component.html',
   styleUrl: './zal-subscribers.component.scss',
 })

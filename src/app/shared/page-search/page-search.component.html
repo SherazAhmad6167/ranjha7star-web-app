@@ -1,0 +1,51 @@
+<button type="button" class="ps-trigger" (click)="show()" [attr.aria-label]="'Search pages (' + shortcut + '+K)'">
+  <i class="ri-search-line"></i>
+  <span class="ps-trigger-text">Search pages…</span>
+  <kbd class="ps-kbd">{{ shortcut }} K</kbd>
+</button>
+
+@if (open) {
+  <div class="ps-backdrop" (click)="close()"></div>
+
+  <div class="ps-panel" role="dialog" aria-modal="true" aria-label="Search pages">
+    <div class="ps-input-row">
+      <i class="ri-search-line"></i>
+      <input #box class="ps-input" type="text" placeholder="Jump to a page…" autocomplete="off"
+        spellcheck="false" aria-controls="ps-list" [value]="query" (input)="onInput($event)" />
+      <kbd class="ps-kbd">Esc</kbd>
+    </div>
+
+    <div class="ps-list" id="ps-list" role="listbox">
+      @for (p of results; track p.path; let i = $index) {
+        @if (!query.trim() && (i === 0 || results[i - 1].section !== p.section)) {
+          <div class="ps-group">{{ p.section }}</div>
+        }
+        <button type="button" class="ps-item" role="option" [class.is-active]="i === active"
+          [attr.aria-selected]="i === active" (mouseenter)="active = i" (click)="go(p)">
+          <span class="ps-icon"><i [class]="p.icon"></i></span>
+          <span class="ps-text">
+            <span class="ps-title">{{ p.title }}</span>
+            @if (query.trim()) {
+              <span class="ps-section">{{ p.section }}</span>
+            }
+          </span>
+          @if (p.path === currentPath) {
+            <span class="ps-here">You're here</span>
+          }
+          <i class="ri-corner-down-left-line ps-enter" aria-hidden="true"></i>
+        </button>
+      } @empty {
+        <div class="ps-empty">
+          <i class="ri-compass-3-line"></i>
+          No pages match “{{ query.trim() }}”
+        </div>
+      }
+    </div>
+
+    <div class="ps-foot">
+      <span><kbd>↑</kbd><kbd>↓</kbd> move</span>
+      <span><kbd>↵</kbd> open</span>
+      <span><kbd>Esc</kbd> close</span>
+    </div>
+  </div>
+}

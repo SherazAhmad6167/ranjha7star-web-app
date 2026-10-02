@@ -1,7 +1,7 @@
 <div class="content-body">
 
     <!-- ── Top Bar ─────────────────────────────────────────── -->
-    <header class="app-topbar" [class.full-width]="!sidebarVisible">
+    <header #topbar class="app-topbar" [class.full-width]="!sidebarVisible">
 
         <div class="tb-left">
             <button #toggleBtn class="tb-menu-btn" (click)="toggleSidebar()"
@@ -9,39 +9,41 @@
                 <i [class]="sidebarVisible ? 'ri-menu-fold-line' : 'ri-menu-unfold-line'"></i>
             </button>
 
-            <div class="tb-page">
-                <span class="tb-page-icon"><i [class]="currentPage.icon"></i></span>
-                <span class="tb-page-text">
-                    <span class="tb-crumb">{{ currentPage.section }}</span>
-                    <span class="tb-page-title">{{ currentPage.title }}</span>
-                </span>
-            </div>
+            <!-- page identity; re-animates on each navigation -->
+            @for (page of [currentPage]; track page.title) {
+                <div class="tb-page">
+                    <span class="tb-page-icon"><i [class]="page.icon"></i></span>
+                    <span class="tb-page-text">
+                        <span class="tb-crumb">{{ page.section }}<i class="ri-arrow-right-s-line"></i></span>
+                        <span class="tb-page-title">{{ page.title }}</span>
+                    </span>
+                </div>
+            }
         </div>
 
         <div class="tb-right">
 
-            <!-- Theme switch -->
-            <button class="tb-theme" [class.is-dark]="themeService.isDark()"
-                    (click)="themeService.toggle()"
-                    [title]="themeService.isDark() ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
-                    [attr.aria-label]="themeService.isDark() ? 'Switch to light mode' : 'Switch to dark mode'">
-                <span class="tb-theme-icons">
-                    <i class="ri-sun-fill"></i>
-                    <i class="ri-moon-clear-fill"></i>
-                </span>
-                <span class="tb-theme-knob"></span>
-            </button>
+            <!-- Quick jump to any page (Ctrl/⌘+K) -->
+            <app-page-search [pages]="searchPages" [currentPath]="currentPath"></app-page-search>
+
+            <span class="tb-clock" [title]="now() | date: 'fullDate'">
+                <i class="ri-calendar-event-line"></i>{{ now() | date: 'EEE, d MMM' }}
+                <span class="tb-clock-time">{{ now() | date: 'h:mm a' }}</span>
+            </span>
+
+            <!-- Have this device's changes reached the server? -->
+            <app-sync-status></app-sync-status>
 
             <!-- Signed-in user -->
             <div class="tb-user" *ngIf="userName">
                 <span class="tb-avatar">{{ userInitial }}</span>
                 <span class="tb-user-text">
                     <span class="tb-user-name">{{ userName | titlecase }}</span>
-                    <span class="tb-user-role">{{ role }}</span>
+                    <span class="tb-user-role" [class.is-admin]="role === 'admin'">{{ role }}</span>
                 </span>
             </div>
 
-            <button class="tb-logout-btn" (click)="openLogoutModal()" title="Sign out">
+            <button class="tb-logout-btn" (click)="openLogoutModal()" title="Sign out" aria-label="Sign out">
                 <i class="ri-logout-box-r-line"></i>
             </button>
         </div>

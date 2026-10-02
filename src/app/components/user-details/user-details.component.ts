@@ -1,12 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { SearchSelectComponent } from '../../shared/search-select/search-select.component';
-import {
-  ChangeDetectorRef,
-  Component,
-  ElementRef,
-  TemplateRef,
-  ViewChild,
-} from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, TemplateRef, ViewChild, inject } from '@angular/core';
 import {
   addDoc,
   collection,
@@ -31,14 +25,18 @@ import html2pdf from 'html2pdf.js';
 import { TemplateMapperService } from '../../shared/template-mapper.service';
 import { openWhatsApp } from '../../shared/whatsapp';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
+import { archiveAndDelete, writeInBackground } from '../../shared/offline-write';
+import { ConfirmService } from '../../shared/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-user-details',
-  imports: [CommonModule, FormsModule, SearchSelectComponent, LoaderComponent],
+  imports: [CommonModule, FormsModule, SearchSelectComponent, LoaderComponent, EmptyStateComponent],
   templateUrl: './user-details.component.html',
   styleUrl: './user-details.component.scss',
 })
 export class UserDetailsComponent {
+  private readonly confirmDialog = inject(ConfirmService);
   @ViewChild('whatsappModal') whatsappModal!: TemplateRef<any>;
   selectedWhatsappUser: any = null;
   isLoading = false;
@@ -317,14 +315,14 @@ export class UserDetailsComponent {
         deletedAt: new Date(),
       };
 
-      await addDoc(collection(this.firestore, 'logs'), logData);
-      await addDoc(collection(this.firestore, 'logs'), {
+      archiveAndDelete(this.firestore, doc(this.firestore, 'users', this.selectedDeleteId),
+        logData,
+        {
         type: 'users',
         action: 'delete',
         targetId: this.selectedDeleteId,
         deletedAt: new Date(),
       });
-      await deleteDoc(doc(this.firestore, 'users', this.selectedDeleteId));
       this.toastr.success('User deleted');
       this.loadUsers();
       modal.close();
@@ -373,9 +371,11 @@ export class UserDetailsComponent {
   }
 
   async deleteMotaUsers() {
-    const confirmDelete = confirm(
-      'Are you sure you want to delete all Mota users?',
-    );
+    const confirmDelete = await this.confirmDialog.ask({
+      title: 'Delete all Mota users?',
+      message: 'Every matching user will be deleted. This cannot be undone.',
+      confirmText: 'Delete all',
+    });
     if (!confirmDelete) return;
 
     try {
@@ -843,12 +843,12 @@ Thank you!`;
       return;
     }
     try {
-      await addDoc(collection(this.firestore, 'sms'), {
+      writeInBackground(addDoc(collection(this.firestore, 'sms'), {
         phone,
         message,
         status: 'pending',
         createdAt: new Date().toISOString(),
-      });
+      }));
       this.toastr.success('SMS queued successfully');
     } catch {
       this.toastr.error('Failed to queue SMS');

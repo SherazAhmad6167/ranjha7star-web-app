@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { WRITE_FAILED_EVENT } from '../offline-write';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
@@ -48,6 +49,19 @@ export class ToastService {
 
   private countdowns = new Map<number, Countdown>();
   private nextId = 1;
+
+  constructor() {
+    // a write started with writeInBackground() was rejected by the server
+    window.addEventListener(WRITE_FAILED_EVENT, (event) => {
+      const code = (event as CustomEvent).detail?.code;
+      this.error(
+        code === 'permission-denied'
+          ? 'You do not have permission to make this change.'
+          : 'A change could not be saved to the server. Please try again.',
+        'Not saved',
+      );
+    });
+  }
 
   success(message?: string, title?: string, options?: ToastOptions) {
     this.show('success', message, title, options);

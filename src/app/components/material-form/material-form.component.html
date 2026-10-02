@@ -156,7 +156,7 @@
 
             <div class="col-12">
               <label class="mfm-label">Remarks</label>
-              <textarea class="mfm-input mfm-textarea"
+              <textarea dir="auto" class="mfm-input mfm-textarea"
                 [class.mfm-invalid]="userForm.get('remarks')?.invalid && userForm.get('remarks')?.touched"
                 formControlName="remarks" rows="3" placeholder="Enter Remarks"></textarea>
               <span class="mfm-err"

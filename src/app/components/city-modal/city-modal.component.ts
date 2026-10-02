@@ -19,6 +19,7 @@ import {
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastService } from '../../shared/toast/toast.service';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { writeInBackground } from '../../shared/offline-write';
 
 @Component({
   selector: 'app-city-modal',
@@ -75,14 +76,14 @@ export class CityModalComponent {
       if (this.editMode && this.userData?.id) {
         // 🔁 UPDATE EXISTING USER
         const userDocRef = doc(this.firestore, 'city', this.userData.id);
-        await updateDoc(userDocRef, payload);
+        writeInBackground(updateDoc(userDocRef, payload));
         this.toastr.success('City updated successfully');
       } else {
         // ➕ ADD NEW USER
-        await addDoc(collection(this.firestore, 'city'), {
+        writeInBackground(addDoc(collection(this.firestore, 'city'), {
           ...payload,
           createdAt: new Date(),
-        });
+        }));
         this.toastr.success('City added successfully');
       }
 

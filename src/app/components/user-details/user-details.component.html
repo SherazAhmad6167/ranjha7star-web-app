@@ -27,7 +27,7 @@
   </div>
 
   <!-- ══ Loading Overlay ══ -->
-  <app-loader [show]="isLoading" message="Loading users…"></app-loader>
+  <app-loader softRefresh [show]="isLoading" message="Loading users…"></app-loader>
 
   <!-- ══ Users Table Card ══ -->
   <div class="ud-card">
@@ -187,12 +187,10 @@
           </tr>
 
           <tr *ngIf="!isLoading && pagedUsers.length === 0">
-            <td colspan="11" class="ud-empty-state">
-              <i class="ri-group-line"></i>
-              <div class="ud-empty-title">No users found</div>
-              <div class="ud-empty-sub">
-                {{ searchTerm || sublocality || subArea || customerStatus ? 'Try adjusting your filters' : 'Add your first user to get started' }}
-              </div>
+            <td colspan="11" class="p-0">
+              <app-empty-state icon="ri-group-line" title="No users found"
+                [message]="sublocality || subArea || customerStatus ? 'Try adjusting your filters' : 'Add your first user to get started'"
+                [searchTerm]="searchTerm" (clear)="searchTerm = ''; onFilterChange()"></app-empty-state>
             </td>
           </tr>
         </tbody>

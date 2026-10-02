@@ -1,7 +1,7 @@
 <div class="container-fluid du-wrapper">
 
   <!-- Loading Overlay -->
-  <app-loader [show]="isLoading" message="Loading defaulters…"></app-loader>
+  <app-loader softRefresh [show]="isLoading" message="Loading defaulters…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="du-page-header mb-4">
@@ -73,11 +73,11 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngIf="!pagedUsers.length">
-            <td colspan="9" class="du-empty">
-              <i class="ri-checkbox-circle-line"></i>
-              <div class="du-empty-title">No defaulters found</div>
-              <div class="du-empty-sub">All users are up to date</div>
+          <tr *ngIf="!isLoading && !pagedUsers.length">
+            <td colspan="9" class="p-0">
+              <app-empty-state icon="ri-checkbox-circle-line" title="No defaulters found"
+                message="All users are up to date"
+                [searchTerm]="searchTerm" (clear)="searchTerm = ''; onFilterChange()"></app-empty-state>
             </td>
           </tr>
           <tr *ngFor="let user of pagedUsers; let i = index">

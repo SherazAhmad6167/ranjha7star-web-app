@@ -19,6 +19,7 @@ import {
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastService } from '../../shared/toast/toast.service';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { writeInBackground } from '../../shared/offline-write';
 
 @Component({
   selector: 'app-complain-modal',
@@ -165,7 +166,7 @@ export class ComplainModalComponent {
           this.userData.id,
         );
 
-        await updateDoc(userDocRef, payload);
+        writeInBackground(updateDoc(userDocRef, payload));
 
         navigator.onLine
           ? this.toastr.success('Complain details updated successfully')
@@ -173,10 +174,10 @@ export class ComplainModalComponent {
               'Saved offline. Will sync when connection is restored.',
             );
       } else {
-        await addDoc(collection(this.firestore, 'complainDetails'), {
+        writeInBackground(addDoc(collection(this.firestore, 'complainDetails'), {
           ...payload,
           createdAt: new Date(),
-        });
+        }));
 
         navigator.onLine
           ? this.toastr.success('Complain details saved successfully')

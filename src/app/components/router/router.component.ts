@@ -9,6 +9,8 @@ import { ToastService } from '../../shared/toast/toast.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { RouterModalComponent } from '../router-modal/router-modal.component';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
+import { archiveAndDelete, writeInBackground } from '../../shared/offline-write';
 
 export type RouterStatus = 'Available' | 'Installed' | 'Returned' | 'Faulty';
 
@@ -28,7 +30,7 @@ interface RouterRecord {
 @Component({
   selector: 'app-router',
   standalone: true,
-  imports: [CommonModule, FormsModule, DatePipe, LoaderComponent],
+  imports: [CommonModule, FormsModule, DatePipe, LoaderComponent, EmptyStateComponent],
   templateUrl: './router.component.html',
   styleUrl: './router.component.scss'
 })
@@ -181,12 +183,13 @@ export class RouterComponent implements OnInit {
       const docRef = doc(this.firestore, 'router', this.selectedDeleteId);
       const snap   = await getDoc(docRef);
       if (snap.exists()) {
-        await addDoc(collection(this.firestore, 'logs'), {
+        archiveAndDelete(this.firestore, docRef, {
           ...snap.data(), type: 'router', action: 'delete',
           originalId: this.selectedDeleteId, deletedAt: new Date()
         });
+      } else {
+        writeInBackground(deleteDoc(docRef));
       }
-      await deleteDoc(docRef);
       this.toastr.success('Record deleted');
       modal.close();
       await this.loadRecords();

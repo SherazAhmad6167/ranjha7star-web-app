@@ -31,6 +31,7 @@ import { MikrotikService, MikrotikServer } from '../../shared/mikrotik.service';
 import { ZalService } from '../../shared/zal.service';
 import { ToastService } from '../../shared/toast/toast.service';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { writeInBackground } from '../../shared/offline-write';
 
 /** Pre-filled MikroTik / ZalUltra password for a new connection. */
 const DEFAULT_PASSWORD = '1234567';
@@ -836,13 +837,13 @@ export class NewConnectionModalComponent implements OnDestroy {
 
       if (userSnap.exists()) {
         // ✅ update both
-        await Promise.all([
+        writeInBackground(Promise.all([
           updateDoc(newConnectionRef, payload),
           updateDoc(usersRef, payload),
-        ]);
+        ]));
       } else {
         // ⚠️ users doc not found → only update newConnection
-        await updateDoc(newConnectionRef, payload);
+        writeInBackground(updateDoc(newConnectionRef, payload));
 
         console.warn('User doc not found, skipped users update for ID:', id);
       }
@@ -860,16 +861,16 @@ export class NewConnectionModalComponent implements OnDestroy {
       const id = newDocRef.id;
 
       // ✅ save in newConnection
-      await setDoc(newDocRef, {
+      writeInBackground(setDoc(newDocRef, {
         ...dataToSave,
         id,
-      });
+      }));
 
       // ✅ save in users
-      await setDoc(doc(this.firestore, 'users', id), {
+      writeInBackground(setDoc(doc(this.firestore, 'users', id), {
         ...dataToSave,
         connectionId: id,
-      });
+      }));
 
       // Push to the router / panel. Never blocks the local record - a failure
       // out there must not lose the customer here.
@@ -970,10 +971,10 @@ export class NewConnectionModalComponent implements OnDestroy {
     // Record what happened so a failed push is visible later.
     try {
       const stamp = { provisioning_result: this.provisionLog, provisioned_at: new Date() };
-      await Promise.all([
+      writeInBackground(Promise.all([
         updateDoc(doc(this.firestore, 'newConnection', docId), stamp),
         updateDoc(doc(this.firestore, 'users', docId), stamp),
-      ]);
+      ]));
     } catch {
       // The customer is saved; a missing audit stamp is not worth failing over.
     }

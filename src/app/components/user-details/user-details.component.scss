@@ -89,9 +89,6 @@
   }
 }
 
-
-
-
 /* ── Users Card ── */
 .ud-card {
   background: #fff;
@@ -429,18 +426,6 @@ $ctrl-focus-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
   &.ud-btn-delete  { color: #be123c; background: #fff1f2; border-color: #fecdd3; &:hover { background: #be123c; color: #fff; border-color: #be123c; } }
 }
 
-/* ── Empty State ── */
-.ud-empty-state {
-  text-align: center;
-  padding: 56px 20px !important;
-  color: #94a3b8;
-
-  > i { font-size: 44px; opacity: 0.25; display: block; margin-bottom: 10px; }
-}
-
-.ud-empty-title { font-size: 14px; font-weight: 700; color: #64748b; }
-.ud-empty-sub   { font-size: 12.5px; color: #94a3b8; margin-top: 3px; }
-
 /* ── Delete Modal Ring ── */
 .ud-del-ring {
   width: 64px;
@@ -522,8 +507,6 @@ $ctrl-focus-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
 //   white-space: nowrap;
 //   pointer-events: none;
 // }
-
-
 
   .pdf-container {
     position: relative;

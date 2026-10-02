@@ -1,0 +1,25 @@
+<div class="es">
+  <div class="es-art" aria-hidden="true">
+    <span class="es-orbit"></span>
+    <span class="es-spark es-spark-1"></span>
+    <span class="es-spark es-spark-2"></span>
+    <span class="es-spark es-spark-3"></span>
+    <span class="es-tile">
+      <i [class]="searching ? 'ri-search-eye-line' : icon"></i>
+    </span>
+  </div>
+
+  @if (searching) {
+    <p class="es-title">No results for “<span dir="auto">{{ searchTerm?.trim() }}</span>”</p>
+    <p class="es-msg">Check the spelling or try a different search.</p>
+    <button type="button" class="es-btn" (click)="clear.emit()">
+      <i class="ri-close-circle-line"></i> Clear search
+    </button>
+  } @else {
+    <p class="es-title">{{ title }}</p>
+    @if (message) {
+      <p class="es-msg">{{ message }}</p>
+    }
+    <ng-content></ng-content>
+  }
+</div>

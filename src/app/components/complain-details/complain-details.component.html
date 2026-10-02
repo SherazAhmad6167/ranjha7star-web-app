@@ -1,7 +1,7 @@
 <div class="container-fluid cd-wrapper">
 
   <!-- Loading Overlay -->
-  <app-loader [show]="isLoading" message="Loading complaints…"></app-loader>
+  <app-loader softRefresh [show]="isLoading" message="Loading complaints…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="cd-page-header mb-4">
@@ -76,11 +76,11 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngIf="!pagedUsers.length">
-            <td colspan="9" class="cd-empty">
-              <i class="ri-inbox-2-line"></i>
-              <div class="cd-empty-title">No complaints found</div>
-              <div class="cd-empty-sub">Try adjusting your filters</div>
+          <tr *ngIf="!isLoading && !pagedUsers.length">
+            <td colspan="9" class="p-0">
+              <app-empty-state icon="ri-inbox-2-line" title="No complaints found"
+                message="Try adjusting your filters"
+                [searchTerm]="searchTerm" (clear)="searchTerm = ''; onFilterChange()"></app-empty-state>
             </td>
           </tr>
           <tr *ngFor="let user of pagedUsers; let i = index">

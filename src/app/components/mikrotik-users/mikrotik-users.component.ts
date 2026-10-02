@@ -13,6 +13,7 @@ import { Firestore, doc, getDoc } from '@angular/fire/firestore';
 import { MikrotikService, MikrotikError, MikrotikServer } from '../../shared/mikrotik.service';
 import { SearchSelectComponent } from '../../shared/search-select/search-select.component';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
 
 export interface ServerTab {
   id: MikrotikServer;
@@ -22,7 +23,7 @@ export interface ServerTab {
 
 @Component({
   selector: 'app-mikrotik-users',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, SearchSelectComponent, LoaderComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, SearchSelectComponent, LoaderComponent, EmptyStateComponent],
   templateUrl: './mikrotik-users.component.html',
   styleUrl: './mikrotik-users.component.scss',
 })

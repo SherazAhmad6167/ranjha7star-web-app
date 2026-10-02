@@ -1,6 +1,5 @@
 /* ══ ZL — ZalUltra Subscribers (indigo) ══
-   Class names follow the app-wide `{prefix}-{element}` convention so the
-   global dark-mode rules in styles.scss pick them up automatically. */
+   Class names follow the app-wide `{prefix}-{element}` convention. */
 
 $accent: #6366f1;
 $accent-dark: #4f46e5;
@@ -86,10 +85,6 @@ $accent-border: #c7d2fe;
   &.grey  { background: #f1f5f9; color: #64748b; border-color: #e2e8f0; }
   i { font-size: 12px; }
 }
-
-.zl-empty { text-align: center; padding: 56px 20px !important; color: #94a3b8; > i { font-size: 44px; opacity: 0.28; display: block; margin-bottom: 10px; } }
-.zl-empty-title { font-size: 14px; font-weight: 700; color: #64748b; }
-.zl-empty-sub   { font-size: 12.5px; color: #94a3b8; margin-top: 3px; }
 
 /* ── Row actions ── */
 .zl-actions { display: flex; gap: 4px; justify-content: flex-end; }
@@ -194,23 +189,6 @@ $accent-border: #c7d2fe;
     &.safe { background: linear-gradient(135deg, #16a34a, #15803d); box-shadow: 0 3px 10px rgba(22,163,74,0.3); &:hover:not(:disabled) { box-shadow: 0 5px 16px rgba(22,163,74,0.45); } }
   }
 }
-
-/* ── Dark-mode touches the shared rules cannot infer ── */
-body.dark-mode .zlm-wrapper,
-body.dark-mode .zl-dm-wrap { background: #1a1a2e; }
-body.dark-mode .zlm-body { background: #14142a; }
-body.dark-mode .zlm-footer { background: #1a1a2e; border-top-color: #2a2a40; }
-body.dark-mode .zl-dm-msg { color: #94a3b8; strong { color: #e2e8f0; } }
-body.dark-mode .zl-dm-close { background: #252540; color: #94a3b8; &:hover { background: #3a3a55; color: #e2e8f0; } }
-body.dark-mode .zl-page-btn { background: #1e1e32; border-color: #3a3a55; color: #94a3b8;
-  &.active { background: $accent; border-color: $accent; color: #fff; }
-  &:disabled { background: #191930; color: #475569; }
-}
-body.dark-mode .btn-zl-ghost { background: #1e1e32; border-color: #3a3a55; color: #a5b4fc; &:hover:not(:disabled) { background: #252540; } }
-body.dark-mode .zl-stat-value { color: #e2e8f0; }
-body.dark-mode .zl-username { color: #e2e8f0; }
-body.dark-mode .zl-area-tag { background: #252540; border-color: #3a3a55; color: #94a3b8; }
-body.dark-mode .zlm-preview { background: #1e1e32; border-color: #3a3a55; color: #a5b4fc; }
 
 @media (max-width: 767px) {
   .zl-filter-bar { flex-direction: column; align-items: stretch; }

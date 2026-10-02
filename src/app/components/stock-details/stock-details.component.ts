@@ -17,10 +17,12 @@ import { ToastService } from '../../shared/toast/toast.service';
 import { PayableModalComponent } from '../payable-modal/payable-modal.component';
 import { StockModalComponent } from '../stock-modal/stock-modal.component';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
+import { archiveAndDelete } from '../../shared/offline-write';
 
 @Component({
   selector: 'app-stock-details',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, LoaderComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, LoaderComponent, EmptyStateComponent],
   templateUrl: './stock-details.component.html',
   styleUrl: './stock-details.component.scss'
 })
@@ -190,14 +192,14 @@ export class StockDetailsComponent {
           deletedAt: new Date(),
         };
   
-        await addDoc(collection(this.firestore, 'logs'), logData);
-        await addDoc(collection(this.firestore, 'logs'), {
+        archiveAndDelete(this.firestore, doc(this.firestore, 'stock', this.selectedDeleteId),
+          logData,
+          {
           type: 'users',
           action: 'delete',
           targetId: this.selectedDeleteId,
           deletedAt: new Date(),
         });
-        await deleteDoc(doc(this.firestore, 'stock', this.selectedDeleteId));
         this.toastr.success('stock deleted');
         this.loadExpenses();
         modal.close();

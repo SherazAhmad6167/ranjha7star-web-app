@@ -23,7 +23,6 @@
   }
 }
 
-
 /* ===== Loading screen ===== */
 
 .boot {
@@ -827,8 +826,6 @@
   }
 }
 
-
-
 /* ============ BASE STYLES ============ */
 .grid-container {
   display: grid;
@@ -904,7 +901,6 @@ canvas {
 .grid-item:not(.fullscreen) canvas {
   max-height: 250px !important;
 }
-
 
 button {
   border: none;
@@ -1034,7 +1030,6 @@ button:disabled {
   grid-column: span 2 !important;
 }
 
-
 #dose-trends{
   grid-column: span 1;
 }
@@ -1072,7 +1067,6 @@ button:disabled {
 .alignment {
   padding: 0 120px;
 }
-
 
 /* ===== MOBILE VIEW FIX ===== */
 @media (max-width: 768px) {
@@ -1119,9 +1113,6 @@ button:disabled {
     width: 100%;
   }
 }
-
-
-
 
 /* ===== Section headings (Overview / Quick Actions) ===== */
 
@@ -1170,7 +1161,6 @@ button:disabled {
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
 
 /* ===== Overview stat cards ===== */
 
@@ -1432,7 +1422,6 @@ button:disabled {
   --sc-solid: #4f46e5;
 }
 
-
 /* ===== Quick action buttons ===== */
 
 .dashboard-buttons {
@@ -1645,32 +1634,6 @@ button:disabled {
   --qa-glow: rgba(15, 23, 42, 0.4);
 }
 
-
-/* ===== Dark mode ===== */
-
-:host-context(body.dark-mode) {
-  .dash-heading h5 { color: #e2e8f0; }
-
-  .dash-heading-hint {
-    background: #1e1e32;
-    border-color: #2a2a40;
-    color: #94a3b8;
-
-    i { color: #a78bfa; }
-  }
-
-  .dashboard-buttons {
-    --qa-surface: #1a1a2e;
-    --qa-border: #2a2a40;
-    --qa-ink: #e2e8f0;
-    --qa-muted: #94a3b8;
-    --qa-rest-shadow: 0 10px 24px -14px rgba(0, 0, 0, 0.7);
-    --qa-go-bg: rgba(255, 255, 255, 0.07);
-    --qa-go-ink: #cbd5e1;
-  }
-}
-
-
 /* ===== Mobile ===== */
 
 @media (max-width: 576px) {
@@ -1782,7 +1745,6 @@ button:disabled {
     transform: none;
   }
 }
-
 
 /* ===== Analytics & Reports Section ===== */
 

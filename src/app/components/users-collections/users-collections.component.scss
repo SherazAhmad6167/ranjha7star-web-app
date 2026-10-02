@@ -585,32 +585,6 @@
   &.advance  { background: #dbeafe; color: #1d4ed8; }
 }
 
-/* ── Empty State ── */
-.uc-empty {
-  text-align: center;
-  padding: 56px 20px !important;
-  color: #94a3b8;
-
-  > i {
-    font-size: 44px;
-    opacity: 0.28;
-    display: block;
-    margin-bottom: 10px;
-  }
-}
-
-.uc-empty-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: #64748b;
-}
-
-.uc-empty-sub {
-  font-size: 12.5px;
-  color: #94a3b8;
-  margin-top: 3px;
-}
-
 /* ── Action Buttons ── */
 .uc-actions {
   display: flex;
@@ -697,9 +671,6 @@
   color: #cbd5e1;
   background: #f8fafc;
 }
-
-
-
 
 /* ── Responsive ── */
 @media (max-width: 1199px) {

@@ -1,7 +1,7 @@
 <div class="container-fluid cs-wrapper">
 
   <!-- Loading Overlay -->
-  <app-loader [show]="isLoading" message="Loading statuses…"></app-loader>
+  <app-loader softRefresh [show]="isLoading" message="Loading statuses…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="cs-page-header mb-4">
@@ -101,11 +101,11 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngIf="!pagedUsers.length">
-            <td colspan="13" class="cs-empty">
-              <i class="ri-inbox-2-line"></i>
-              <div class="cs-empty-title">No records found</div>
-              <div class="cs-empty-sub">Try adjusting your filters</div>
+          <tr *ngIf="!isLoading && !pagedUsers.length">
+            <td colspan="13" class="p-0">
+              <app-empty-state icon="ri-inbox-2-line" title="No records found"
+                message="Try adjusting your filters"
+                [searchTerm]="searchTerm" (clear)="searchTerm = ''; onFilterChange()"></app-empty-state>
             </td>
           </tr>
           <tr *ngFor="let user of pagedUsers; let i = index">

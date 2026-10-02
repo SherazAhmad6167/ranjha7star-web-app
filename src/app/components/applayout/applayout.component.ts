@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, HostListener, TemplateRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, NgZone, signal, TemplateRef, ViewChild } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { SyncStatusComponent } from '../../shared/sync/sync-status.component';
+import { PageLink, PageSearchComponent } from '../../shared/page-search/page-search.component';
 import {
   Firestore,
   collection,
@@ -11,12 +13,12 @@ import {
   query,
   updateDoc,
   where,
-} from '@angular/fire/firestore';
-import { ThemeService } from '../../shared/theme.service';
+} from '@angular/fire/firestore';
+import { writeInBackground } from '../../shared/offline-write';
 
 @Component({
   selector: 'app-applayout',
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, SyncStatusComponent, PageSearchComponent],
   templateUrl: './applayout.component.html',
   styleUrl: './applayout.component.scss',
 })
@@ -90,12 +92,21 @@ export class ApplayoutComponent {
   };
 
   @ViewChild('logoutModal') logoutModal!: TemplateRef<any>;
+  @ViewChild('topbar', { static: true }) topbar!: ElementRef<HTMLElement>;
+
+  /* ── Top bar extras ── */
+  searchPages: PageLink[] = [];
+  currentPath = '';
+  readonly now = signal(new Date());
+  private clockTimer?: ReturnType<typeof setInterval>;
+  private readonly onScroll = () =>
+    this.topbar.nativeElement.classList.toggle('is-scrolled', window.scrollY > 4);
 
   constructor(
     private route: Router,
     private modalService: NgbModal,
     private firestore: Firestore,
-    public themeService: ThemeService,
+    private zone: NgZone,
   ) {
     this.route.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
@@ -114,10 +125,32 @@ export class ApplayoutComponent {
     this.setCurrentPage(this.route.url);
     this.checkBirthdays();
     if (this.role === 'admin') this.watchMaterialAlerts();
+
+    this.searchPages = this.buildSearchPages();
+    // clock + "lift the bar once you scroll" run outside Angular - no change detection per tick
+    this.zone.runOutsideAngular(() => {
+      this.clockTimer = setInterval(() => this.now.set(new Date()), 30000);
+      window.addEventListener('scroll', this.onScroll, { passive: true });
+    });
   }
 
   ngOnDestroy() {
     this.materialUnsub?.();
+    clearInterval(this.clockTimer);
+    window.removeEventListener('scroll', this.onScroll);
+  }
+
+  /** Pages this role may open, for the top bar's quick search (sidebar order). */
+  private buildSearchPages(): PageLink[] {
+    const shell = this.route.config.find((r) => r.component === ApplayoutComponent);
+    const rolesFor = new Map((shell?.children ?? []).map((r) => [`/${r.path}`, r.data?.['roles'] as string[] | undefined]));
+    return Object.entries(this.pageMeta)
+      .filter(([path]) => {
+        if (!rolesFor.has(path)) return false;
+        const roles = rolesFor.get(path);
+        return !roles || roles.includes(this.role ?? '');
+      })
+      .map(([path, meta]) => ({ path, ...meta }));
   }
 
   /** Live-listens so materials added by operators pop up without a reload. */
@@ -157,10 +190,10 @@ export class ApplayoutComponent {
     // Hide right away; the listener drops it too once the write lands.
     this.materialAlerts = this.materialAlerts.filter((x) => x.id !== m.id);
     try {
-      await updateDoc(doc(this.firestore, 'materialDetails', m.id), {
+      writeInBackground(updateDoc(doc(this.firestore, 'materialDetails', m.id), {
         adminSeen: true,
         adminSeenAt: new Date(),
-      });
+      }));
     } catch (err) {
       console.error('Failed to mark material as seen', err);
     }
@@ -168,6 +201,7 @@ export class ApplayoutComponent {
 
   private setCurrentPage(url: string) {
     const path = (url || '').split('?')[0];
+    this.currentPath = path;
     this.currentPage = this.pageMeta[path] || {
       title: 'Ranjha7star',
       section: 'Portal',

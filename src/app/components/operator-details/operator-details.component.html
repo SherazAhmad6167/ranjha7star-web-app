@@ -1,6 +1,6 @@
 <div class="container-fluid op-wrapper">
 
-  <app-loader [show]="isLoading" message="Loading operators…"></app-loader>
+  <app-loader softRefresh [show]="isLoading" message="Loading operators…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="op-page-header mb-4">
@@ -75,12 +75,13 @@
 
   <!-- ── Empty State ── -->
   <div class="op-empty-state" *ngIf="pagedUsers.length === 0 && !isLoading">
-    <div class="op-empty-icon"><i class="ri-user-settings-line"></i></div>
-    <div class="op-empty-title">No operators found</div>
-    <div class="op-empty-sub">Add your first operator to get started</div>
-    <button class="btn-op-add mt-3" (click)="openUserModal()">
-      <i class="ri-add-line"></i> Add Operator
-    </button>
+    <app-empty-state icon="ri-user-settings-line" title="No operators found"
+        message="Add your first operator to get started"
+        [searchTerm]="searchTerm" (clear)="searchTerm = ''; onSearch()">
+      <button class="btn-op-add" (click)="openUserModal()">
+        <i class="ri-add-line"></i> Add Operator
+      </button>
+    </app-empty-state>
   </div>
 
   <!-- Delete Modal -->

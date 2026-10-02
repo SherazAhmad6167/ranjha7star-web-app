@@ -1,0 +1,125 @@
+/* ══ Empty state — the page's icon on a soft violet tile, with a dashed orbit
+   and floating sparkles; title, hint, and "Clear search" when searching. ══ */
+
+:host { display: block; }
+
+.es {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px 36px;
+  text-align: center;
+  animation: esIn 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+
+/* ── Illustration ── */
+
+.es-art {
+  position: relative;
+  width: 112px;
+  height: 112px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 14px;
+}
+
+.es-orbit {
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  border: 1.5px dashed rgba(139, 92, 246, 0.28);
+  animation: esSpin 22s linear infinite;
+}
+
+.es-tile {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  font-size: 28px;
+  color: #7c3aed;
+  background: linear-gradient(140deg, #f5f3ff 0%, #ede9fe 55%, #e0f2fe 100%);
+  border: 1px solid rgba(139, 92, 246, 0.18);
+  box-shadow:
+    0 12px 26px -12px rgba(124, 58, 237, 0.45),
+    inset 0 1px 0 #fff;
+  animation: esFloat 4s ease-in-out infinite;
+}
+
+.es-spark {
+  position: absolute;
+  border-radius: 50%;
+  animation: esTwinkle 2.6s ease-in-out infinite;
+}
+.es-spark-1 { top: 10px;    right: 14px;  width: 8px; height: 8px; background: #a78bfa; }
+.es-spark-2 { bottom: 16px; left: 8px;    width: 6px; height: 6px; background: #38bdf8; animation-delay: -0.9s; }
+.es-spark-3 { top: 26px;    left: 12px;   width: 5px; height: 5px; background: #f472b6; animation-delay: -1.7s; }
+
+/* ── Copy ── */
+
+.es-title {
+  margin: 0;
+  max-width: 420px;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #0f172a;
+  overflow-wrap: anywhere;
+}
+
+.es-msg {
+  margin: 6px 0 0;
+  max-width: 400px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #64748b;
+}
+
+/* projected actions (e.g. an "Add" button) get some room */
+.es ::ng-deep > button,
+.es ::ng-deep > a { margin-top: 16px; }
+
+.es-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid #ddd6fe;
+  font-size: 13px;
+  font-weight: 600;
+  color: #6d28d9;
+  background: #f5f3ff;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+
+  i { font-size: 15px; }
+
+  &:hover {
+    background: #ede9fe;
+    border-color: #c4b5fd;
+    transform: translateY(-1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #a78bfa;
+    outline-offset: 2px;
+  }
+}
+
+/* ── Motion ── */
+
+@keyframes esIn      { from { opacity: 0; transform: translateY(8px); } }
+@keyframes esSpin    { to { transform: rotate(360deg); } }
+@keyframes esFloat   { 50% { transform: translateY(-5px); } }
+@keyframes esTwinkle { 0%, 100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.15); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .es,
+  .es-orbit,
+  .es-tile,
+  .es-spark { animation: none !important; }
+}

@@ -1,0 +1,58 @@
+/* ══ Sync pill in the top bar ══ */
+
+.sync {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid #a7f3d0;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  color: #047857;
+  background: #ecfdf5;
+  cursor: default;
+  transition: color 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+
+  i {
+    font-size: 14px;
+    line-height: 1;
+  }
+}
+
+.sync[data-state='syncing'] {
+  color: #4338ca;
+  background: #eef2ff;
+  border-color: #c7d2fe;
+
+  i { animation: syncSpin 1s linear infinite; }
+}
+
+.sync[data-state='offline'] {
+  color: #475569;
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+}
+
+.sync[data-state='offline-pending'] {
+  color: #b45309;
+  background: #fffbeb;
+  border-color: #fde68a;
+
+  i { animation: syncPulse 1.6s ease-in-out infinite; }
+}
+
+/* phones: when all is well just the tick; anything else keeps its words */
+@media (max-width: 576px) {
+  .sync { padding: 5px 9px; }
+  .sync[data-state='synced'] .sync-label { display: none; }
+}
+
+@keyframes syncSpin { to { transform: rotate(360deg); } }
+@keyframes syncPulse { 50% { opacity: 0.35; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .sync i { animation: none !important; }
+}

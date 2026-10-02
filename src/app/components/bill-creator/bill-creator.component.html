@@ -443,13 +443,11 @@
                     </tr>
 
                     <tr *ngIf="!isLoading && pagedUsers.length === 0">
-                        <td colspan="9" class="empty-state">
-                            <i class="ri-bill-line"></i>
-                            <div class="empty-title">No bills found</div>
-                            <div class="empty-sub">
-                                {{ searchTerm ? 'Try a different search term' : 'Generate your first bill run using the form above' }}
-                            </div>
-                        </td>
+                      <td colspan="9" class="p-0">
+                        <app-empty-state icon="ri-bill-line" title="No bills found"
+                          message="Generate your first bill run using the form above"
+                          [searchTerm]="searchTerm" (clear)="searchTerm = ''; onSearch()"></app-empty-state>
+                      </td>
                     </tr>
                 </tbody>
             </table>

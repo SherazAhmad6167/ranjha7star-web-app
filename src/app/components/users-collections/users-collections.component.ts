@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { SearchSelectComponent } from '../../shared/search-select/search-select.component';
-import { Component, TemplateRef, ViewChild } from '@angular/core';
+import { Component, TemplateRef, ViewChild, inject } from '@angular/core';
 import {
   addDoc,
   collection,
@@ -35,14 +35,18 @@ import {
   unsettleCarried,
 } from '../../shared/bill-carry';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
+import { writeInBackground } from '../../shared/offline-write';
+import { ConfirmService } from '../../shared/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-users-collections',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, SearchSelectComponent, LoaderComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, SearchSelectComponent, LoaderComponent, EmptyStateComponent],
   templateUrl: './users-collections.component.html',
   styleUrl: './users-collections.component.scss',
 })
 export class UsersCollectionsComponent {
+  private readonly confirmDialog = inject(ConfirmService);
   @ViewChild('whatsappModal') whatsappModal!: TemplateRef<any>;
   selectedWhatsappUser: any = null;
   isLoading = false;
@@ -1193,7 +1197,13 @@ export class UsersCollectionsComponent {
   }
 
   async revertAdvance(advanceRow: any) {
-    if (!confirm('Are you sure you want to revert this advance?')) return;
+    const revert = await this.confirmDialog.ask({
+      title: 'Revert this advance?',
+      message: 'The advance payment will be undone for this customer.',
+      confirmText: 'Revert',
+      tone: 'warn',
+    });
+    if (!revert) return;
 
     try {
       const ref = doc(this.firestore, 'users', advanceRow.docId);
@@ -1951,20 +1961,20 @@ export class UsersCollectionsComponent {
         releaseCarried(updatedBills, new Set([this.selectedRow.bills[0].bill_id]));
       }
 
-      await updateDoc(userRef, {
+      writeInBackground(updateDoc(userRef, {
         select_package: newPackage,
         internet_package_fee: newFee,
         bills: updatedBills,
-      });
+      }));
 
       // Keep newConnection in sync
       const newConnRef = doc(this.firestore, 'newConnection', this.selectedRow.docId);
       const newConnSnap = await getDoc(newConnRef);
       if (newConnSnap.exists()) {
-        await updateDoc(newConnRef, {
+        writeInBackground(updateDoc(newConnRef, {
           select_package: newPackage,
           internet_package_fee: newFee,
-        });
+        }));
       }
 
       if (!navigator.onLine) {
@@ -2040,7 +2050,7 @@ export class UsersCollectionsComponent {
     const message = this.mapReminderTemplate(this.paymentReminderTemplate, user);
     if (!message) { this.toastr.error('Template not loaded'); return; }
     try {
-      await addDoc(collection(this.firestore, 'sms'), { phone, message, status: 'pending', createdAt: new Date().toISOString() });
+      writeInBackground(addDoc(collection(this.firestore, 'sms'), { phone, message, status: 'pending', createdAt: new Date().toISOString() }));
       this.toastr.success('SMS queued successfully');
     } catch { this.toastr.error('Failed to queue SMS'); }
   }
@@ -2051,7 +2061,7 @@ export class UsersCollectionsComponent {
     const message = this.mapOverdueTemplate(this.overdue, user);
     if (!message) { this.toastr.error('Template not loaded'); return; }
     try {
-      await addDoc(collection(this.firestore, 'sms'), { phone, message, status: 'pending', createdAt: new Date().toISOString() });
+      writeInBackground(addDoc(collection(this.firestore, 'sms'), { phone, message, status: 'pending', createdAt: new Date().toISOString() }));
       this.toastr.success('SMS queued successfully');
     } catch { this.toastr.error('Failed to queue SMS'); }
   }
@@ -2062,7 +2072,7 @@ export class UsersCollectionsComponent {
     const message = this.mapTemplate(this.paymentRecievedTemplate, user);
     if (!message) { this.toastr.error('Template not loaded'); return; }
     try {
-      await addDoc(collection(this.firestore, 'sms'), { phone, message, status: 'pending', createdAt: new Date().toISOString() });
+      writeInBackground(addDoc(collection(this.firestore, 'sms'), { phone, message, status: 'pending', createdAt: new Date().toISOString() }));
       this.toastr.success('SMS queued successfully');
     } catch { this.toastr.error('Failed to queue SMS'); }
   }

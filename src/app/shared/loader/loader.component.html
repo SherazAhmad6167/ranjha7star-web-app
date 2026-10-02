@@ -23,3 +23,7 @@
     </div>
   </div>
 }
+
+@if (refreshing) {
+  <div class="ldr-refresh" role="progressbar" [attr.aria-label]="message"><span></span></div>
+}

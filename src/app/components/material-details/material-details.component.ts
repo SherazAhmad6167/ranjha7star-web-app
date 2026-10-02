@@ -21,10 +21,12 @@ import html2pdf from 'html2pdf.js';
 import { openWhatsApp } from '../../shared/whatsapp';
 import { toWhatsappNumber } from '../../shared/phone';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
+import { writeInBackground } from '../../shared/offline-write';
 
 @Component({
   selector: 'app-material-details',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, LoaderComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, LoaderComponent, EmptyStateComponent],
   templateUrl: './material-details.component.html',
   styleUrl: './material-details.component.scss',
 })
@@ -201,9 +203,9 @@ getFilteredItems() {
     );
 
     try {
-      await deleteDoc(
+      writeInBackground(deleteDoc(
         doc(this.firestore, 'materialDetails', this.selectedDeleteId),
-      );
+      ));
       this.toastr.success('Material Record deleted');
       this.loadUsers();
       modal.close();
@@ -327,7 +329,7 @@ getFilteredItems() {
     } catch (err) {
       this.isLoadingModal = false;
       console.error(err);
-      alert('Error generating image');
+      this.toastr.error('Error generating image');
     } finally {
       
       document.body.removeChild(wrapper);
@@ -368,7 +370,7 @@ ${fileUrl}`;
     } catch (err) {
       this.isLoadingModal = false;
       console.error(err);
-      alert('Error generating PDF');
+      this.toastr.error('Error generating PDF');
     }
   }
 

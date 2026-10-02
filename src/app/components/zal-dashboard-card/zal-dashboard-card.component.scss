@@ -162,21 +162,6 @@ $zd-accent-dark: #4f46e5;
 .zd-chip-value { font-size: 15px; font-weight: 700; color: #1e293b; line-height: 1.1; }
 .zd-chip-label { font-size: 11px; color: #94a3b8; font-weight: 500; }
 
-/* -- Dark mode -- */
-body.dark-mode {
-  .zd-panel { background: #1a1a2e; border-color: #2a2a40; }
-  .zd-kpi { background: #1e1e32; border-color: #2a2a40; }
-  .zd-kpi-value { color: #e2e8f0; }
-  .zd-kpi-label { color: #94a3b8; }
-  .zd-health-title { color: #cbd5e1; }
-  .zd-bar { background: #252540; }
-  .zd-chip-row { border-top-color: #2a2a40; }
-  .zd-chip-value { color: #e2e8f0; }
-  .zd-error { background: rgba(220, 38, 38, 0.12); border-color: rgba(220, 38, 38, 0.3); color: #f87171; }
-  .zd-manage-btn { background: #1e1e32; color: #a5b4fc; &:hover { color: #c7d2fe; } }
-  .zd-accent-text { color: #a5b4fc; }
-}
-
 @media (max-width: 576px) {
   .zd-banner { padding: 14px; }
   .zd-body { padding: 14px; }

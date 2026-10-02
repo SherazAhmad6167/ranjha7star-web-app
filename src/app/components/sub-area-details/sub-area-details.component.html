@@ -1,6 +1,6 @@
 <div class="container-fluid sa-wrapper">
 
-  <app-loader [show]="isLoading" message="Loading sub-areas…"></app-loader>
+  <app-loader softRefresh [show]="isLoading" message="Loading sub-areas…"></app-loader>
 
   <!-- ── Page Header ── -->
   <div class="sa-page-header mb-4">
@@ -76,11 +76,11 @@
               </div>
             </td>
           </tr>
-          <tr *ngIf="pagedUsers.length === 0">
-            <td colspan="3" class="sa-empty">
-              <i class="ri-map-2-line"></i>
-              <div class="sa-empty-title">No sub-areas found</div>
-              <div class="sa-empty-sub">Add your first sub-area to get started</div>
+          <tr *ngIf="!isLoading && pagedUsers.length === 0">
+            <td colspan="3" class="p-0">
+              <app-empty-state icon="ri-map-2-line" title="No sub-areas found"
+                message="Add your first sub-area to get started"
+                [searchTerm]="searchTerm" (clear)="searchTerm = ''; onSearch()"></app-empty-state>
             </td>
           </tr>
         </tbody>

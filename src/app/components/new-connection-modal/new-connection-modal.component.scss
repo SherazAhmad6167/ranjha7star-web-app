@@ -78,7 +78,6 @@
   &:hover { background: rgba(255,255,255,0.32); }
 }
 
-
 /* ── Body ── */
 .ncm-body {
   padding: 20px;
@@ -857,25 +856,6 @@ textarea.form-control {
   font-weight: 600;
   cursor: pointer;
   &:hover { background: #fee2e2; }
-}
-
-/* -- Dark mode -- */
-body.dark-mode {
-  .prov-hint { background: #252540; color: #64748b; }
-  .prov-note { color: #94a3b8; strong { color: #cbd5e1; } }
-  .prov-card { background: #1a1a2e; border-color: #2a2a40; }
-  .prov-card.prov-on { border-color: #4338ca; box-shadow: 0 3px 12px rgba(99, 102, 241, 0.2); }
-  .prov-card-head { background: #1e1e32; }
-  .prov-card.prov-on .prov-card-head { background: #21213a; }
-  .prov-card-name { color: #e2e8f0; }
-  .prov-card-desc { color: #64748b; }
-  .prov-card-body { border-top-color: #2a2a40; }
-  .prov-card-icon {
-    &.mt  { background: rgba(37, 99, 235, 0.16); color: #93c5fd; }
-    &.zal { background: rgba(99, 102, 241, 0.16); color: #a5b4fc; }
-  }
-  .prov-error { color: #f87171; }
-  .prov-retry { background: rgba(220, 38, 38, 0.14); border-color: rgba(220, 38, 38, 0.3); color: #f87171; }
 }
 
 /* Read-only inputs — the package fee (unless the discount is Custom) and the

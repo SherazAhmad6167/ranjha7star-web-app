@@ -5,7 +5,6 @@ $accent-border: #fbcfe8;
 
 .pk-wrapper { padding-top: 16px; padding-bottom: 40px; }
 
-
 .pk-page-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
 .pk-header-left { display: flex; align-items: center; gap: 14px; }
 .pk-header-icon {
@@ -63,10 +62,6 @@ $accent-border: #fbcfe8;
   &.internet { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
   &.cable    { background: #fef3c7; color: #b45309; border-color: #fde68a; }
 }
-
-.pk-empty { text-align: center; padding: 56px 20px !important; color: #94a3b8; > i { font-size: 44px; opacity: 0.28; display: block; margin-bottom: 10px; } }
-.pk-empty-title { font-size: 14px; font-weight: 700; color: #64748b; }
-.pk-empty-sub   { font-size: 12.5px; color: #94a3b8; margin-top: 3px; }
 
 .pk-actions { display: flex; gap: 4px; }
 .pk-action-btn {

@@ -20,11 +20,13 @@ import { TemplateMapperService } from '../../shared/template-mapper.service';
 import { ActivatedRoute } from '@angular/router';
 import { isCarried } from '../../shared/bill-carry';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
+import { writeInBackground } from '../../shared/offline-write';
 
 @Component({
   selector: 'app-sms',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, SearchSelectComponent, LoaderComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, SearchSelectComponent, LoaderComponent, EmptyStateComponent],
   templateUrl: './sms.component.html',
   styleUrl: './sms.component.scss',
 })
@@ -114,7 +116,7 @@ export class SmsComponent {
         createdAt: new Date().toISOString(),
       };
 
-      await addDoc(collection(this.firestore, 'sms'), payload);
+      writeInBackground(addDoc(collection(this.firestore, 'sms'), payload));
       this.toastr.success('SMS queued successfully');
       this.smsForm.reset();
       this.smsForm.patchValue({ phone: '+92', status: 'pending' });
@@ -187,7 +189,7 @@ export class SmsComponent {
     if (!this.selectedDeleteId) return;
     this.isDeleting = true;
     try {
-      await deleteDoc(doc(this.firestore, 'sms', this.selectedDeleteId));
+      writeInBackground(deleteDoc(doc(this.firestore, 'sms', this.selectedDeleteId)));
       this.toastr.success('SMS deleted');
       this.smsList = this.smsList.filter((s) => s.id !== this.selectedDeleteId);
       this.filteredList = this.filteredList.filter((s) => s.id !== this.selectedDeleteId);
@@ -249,7 +251,7 @@ export class SmsComponent {
         for (const sms of slice) {
           batch.delete(doc(this.firestore, 'sms', sms.id));
         }
-        await batch.commit();
+        writeInBackground(batch.commit());
         this.purgeDeleted += slice.length;
       }
 
@@ -435,14 +437,14 @@ export class SmsComponent {
         const message = this.mapTemplate(this.broadcastMessage, user);
 
         try {
-          await addDoc(smsCol, {
+          writeInBackground(addDoc(smsCol, {
             phone,
             message,
             status: 'pending',
             createdAt: new Date().toISOString(),
             source: 'broadcast',
             area: areaLabel,
-          });
+          }));
           this.broadcastUserStatuses = { ...this.broadcastUserStatuses, [uid]: 'done' };
         } catch {
           this.broadcastUserStatuses = { ...this.broadcastUserStatuses, [uid]: 'failed' };

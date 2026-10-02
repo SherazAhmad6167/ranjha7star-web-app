@@ -253,6 +253,36 @@
   .ldr-card { animation: ldrCardOut 0.22s ease forwards; }
 }
 
+/* ── Soft refresh: a slim glowing bar along the top while a page reloads ── */
+
+.ldr-refresh {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 1080;
+  height: 3px;
+  overflow: hidden;
+  pointer-events: none;
+  background: rgba(139, 92, 246, 0.15);
+  animation: ldrFade 0.2s ease backwards;
+
+  span {
+    display: block;
+    width: 35%;
+    height: 100%;
+    border-radius: 0 3px 3px 0;
+    background: linear-gradient(90deg, #a78bfa, #f472b6, #38bdf8);
+    box-shadow: 0 0 10px rgba(167, 139, 250, 0.8);
+    animation: ldrRefreshSlide 1.1s cubic-bezier(0.6, 0, 0.4, 1) infinite;
+  }
+}
+
+@keyframes ldrRefreshSlide {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(300%); }
+}
+
 /* ── Keyframes ── */
 
 @keyframes ldrFade    { from { opacity: 0; } }
@@ -270,21 +300,6 @@
 @keyframes ldrSlide {
   from { transform: translateX(-100%); }
   to   { transform: translateX(250%); }
-}
-
-/* ── Dark mode ── */
-
-:host-context(body.dark-mode) {
-  .ldr[data-mode='fullscreen'] { background: rgba(10, 10, 22, 0.72); }
-  .ldr[data-mode='contained']  { background: rgba(15, 15, 30, 0.75); }
-
-  .ldr[data-mode='inline'] {
-    .ldr-card { color: #e2e8f0; }
-    .lc-wave  { border-color: rgba(196, 181, 253, 0.55); }
-    .lc-orbit { border-color: rgba(255, 255, 255, 0.14); }
-    .ldr-quip { color: #94a3b8; }
-    .ldr-bar  { background: rgba(255, 255, 255, 0.12); }
-  }
 }
 
 /* ── Reduced motion: keep the spinning ring and bar as the "still working" cue ── */

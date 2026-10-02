@@ -15,10 +15,12 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastService } from '../../shared/toast/toast.service';
 import { AreaModalComponent } from '../area-modal/area-modal.component';
 import { LoaderComponent } from '../../shared/loader/loader.component';
+import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
+import { archiveAndDelete, writeInBackground } from '../../shared/offline-write';
 
 @Component({
   selector: 'app-area-details',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, LoaderComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, LoaderComponent, EmptyStateComponent],
   templateUrl: './area-details.component.html',
   styleUrl: './area-details.component.scss',
 })
@@ -149,9 +151,8 @@ export class AreaDetailsComponent {
         deletedAt: new Date(),
       };
 
-      await addDoc(collection(this.firestore, 'logs'), logData);
-
-      await deleteDoc(areaDocRef);
+      archiveAndDelete(this.firestore, areaDocRef,
+        logData);
 
       if (sublocality) {
         await this.deleteInternetArea(sublocality);
@@ -184,9 +185,9 @@ export class AreaDetailsComponent {
       (item: any) => item.sublocality !== sublocality,
     );
 
-    await updateDoc(internetDocRef, {
+    writeInBackground(updateDoc(internetDocRef, {
       internetAreas: updatedAreas,
-    });
+    }));
   }
 
   updateTotalPages() {
