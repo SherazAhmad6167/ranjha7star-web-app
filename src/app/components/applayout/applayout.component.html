@@ -34,6 +34,9 @@
             <!-- Have this device's changes reached the server? -->
             <app-sync-status></app-sync-status>
 
+            <!-- Latest version: "Update ready" pill + hard refresh button -->
+            <app-update></app-update>
+
             <!-- Signed-in user -->
             <div class="tb-user" *ngIf="userName">
                 <span class="tb-avatar">{{ userInitial }}</span>
@@ -391,35 +394,3 @@
     </main>
 
 </div>
-
-<!-- ── Logout Confirmation Modal ──────────────────────────── -->
-<ng-template #logoutModal let-modal>
-    <div class="lm-wrap">
-        <!-- decorative blobs -->
-        <span class="lm-blob lm-blob-1"></span>
-        <span class="lm-blob lm-blob-2"></span>
-
-        <!-- icon -->
-        <div class="lm-icon-wrap">
-            <span class="lm-ring lm-ring-1"></span>
-            <span class="lm-ring lm-ring-2"></span>
-            <div class="lm-icon">
-                <i class="ri-shut-down-line"></i>
-            </div>
-        </div>
-
-        <!-- text -->
-        <h4 class="lm-title">Sign Out?</h4>
-        <p class="lm-subtitle">You're about to sign out of<br><strong>Ranjha7star</strong>. See you soon!</p>
-
-        <!-- actions -->
-        <div class="lm-actions">
-            <button class="lm-btn-cancel" (click)="modal.dismiss()">
-                <i class="ri-arrow-left-line me-1"></i> Stay
-            </button>
-            <button class="lm-btn-logout" (click)="logout(modal)">
-                Sign Out <i class="ri-logout-box-r-line ms-1"></i>
-            </button>
-        </div>
-    </div>
-</ng-template>

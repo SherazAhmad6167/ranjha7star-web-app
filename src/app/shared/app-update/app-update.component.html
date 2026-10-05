@@ -1,0 +1,13 @@
+@if (ready()) {
+<button type="button" class="upd" (click)="reload()"
+    title="A newer version of the app is ready. Reload to use it - unsaved form input on this page is lost.">
+    <i class="ri-download-cloud-2-line" aria-hidden="true"></i>
+    <span class="upd-label">Update ready</span>
+</button>
+}
+
+<button type="button" class="hard-refresh" (click)="hardRefresh()" [disabled]="refreshing()"
+    [class.is-busy]="refreshing()" aria-label="Hard refresh"
+    title="Hard refresh - clears the app's cache and loads the latest version and data. Login and unsent changes are kept; unsaved form input on this page is lost.">
+    <i class="ri-refresh-line" aria-hidden="true"></i>
+</button>

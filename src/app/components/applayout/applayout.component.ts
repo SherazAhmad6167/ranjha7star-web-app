@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, HostListener, NgZone, signal, TemplateRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, NgZone, signal, ViewChild } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { LogoutDialogComponent } from '../../shared/logout-dialog/logout-dialog.component';
 import { SyncStatusComponent } from '../../shared/sync/sync-status.component';
+import { AppUpdateComponent } from '../../shared/app-update/app-update.component';
 import { PageLink, PageSearchComponent } from '../../shared/page-search/page-search.component';
 import {
   Firestore,
@@ -18,7 +20,7 @@ import { writeInBackground } from '../../shared/offline-write';
 
 @Component({
   selector: 'app-applayout',
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, SyncStatusComponent, PageSearchComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, SyncStatusComponent, AppUpdateComponent, PageSearchComponent],
   templateUrl: './applayout.component.html',
   styleUrl: './applayout.component.scss',
 })
@@ -91,7 +93,6 @@ export class ApplayoutComponent {
     system: false,
   };
 
-  @ViewChild('logoutModal') logoutModal!: TemplateRef<any>;
   @ViewChild('topbar', { static: true }) topbar!: ElementRef<HTMLElement>;
 
   /* ── Top bar extras ── */
@@ -248,12 +249,25 @@ export class ApplayoutComponent {
     }
   }
 
+  /** Sign-out dialog - shows whether this device's changes reached the server first. */
   openLogoutModal() {
-    this.modalService.open(this.logoutModal, { centered: true, windowClass: 'logout-modal-dialog' });
+    const ref = this.modalService.open(LogoutDialogComponent, {
+      centered: true,
+      modalDialogClass: 'lo-dialog',
+      backdropClass: 'lo-backdrop',
+    });
+    Object.assign(ref.componentInstance, {
+      name: this.userName,
+      username: localStorage.getItem('username') || '',
+      role: this.role || '',
+    });
+    ref.result.then(
+      (signOut) => signOut && this.logout(),
+      () => {}, // stayed
+    );
   }
 
-  logout(modal: any) {
-    modal.close();
+  logout() {
     // The WhatsApp choice belongs to the device, not the account: keep it.
     const whatsappApp = localStorage.getItem('whatsappApp');
     localStorage.clear();

@@ -452,6 +452,22 @@
   box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
 }
 
+/* ── Sign-out dialog (shared/logout-dialog) ── */
+.modal-content:has(.lo) {
+  border: none !important;
+  border-radius: 22px !important;
+  overflow: hidden !important;
+  box-shadow: 0 30px 80px -20px rgba(30, 27, 75, 0.5) !important;
+}
+.lo-dialog { max-width: 400px; }
+/* frosted glass behind it, tinted with the brand indigo */
+.modal-backdrop.lo-backdrop {
+  --bs-backdrop-bg: rgba(30, 27, 75, 0.42);
+  --bs-backdrop-opacity: 1;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
 /* ── Datepicker popups ──
    Rendered on <body> (container="body") so a scrolling modal cannot clip them,
    which also puts them behind Bootstrap's modal unless they outrank it. */

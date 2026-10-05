@@ -11,7 +11,7 @@
     </div>
     <span class="lg-stat-pill">
       <i class="ri-history-line"></i>
-      5 Log Types
+      6 Log Types
     </span>
   </div>
 
@@ -42,6 +42,10 @@
           <i class="ri-file-paper-2-line"></i> Bill Logs
         </button>
 
+        <button class="lg-tab" [class.active]="activeTab === 'health'" (click)="activeTab = 'health'">
+          <i class="ri-stethoscope-line"></i> Billing Health
+        </button>
+
       </div>
     </div>
 
@@ -66,6 +70,10 @@
 
       <div *ngIf="activeTab === 'bill'">
         <app-bill-creator-log></app-bill-creator-log>
+      </div>
+
+      <div *ngIf="activeTab === 'health'">
+        <app-billing-health></app-billing-health>
       </div>
 
     </div>

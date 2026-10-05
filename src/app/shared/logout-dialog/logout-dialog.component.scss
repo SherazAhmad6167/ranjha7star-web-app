@@ -1,0 +1,411 @@
+/* ══ Sign-out dialog ══
+   Card shape, width and blurred backdrop: `.lo-*` rules in styles.scss. */
+
+.lo {
+  position: relative;
+  background: #fff;
+  overflow: hidden;
+  animation: loIn 0.45s cubic-bezier(0.2, 0.8, 0.2, 1.1) both;
+}
+
+@keyframes loIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.96); }
+}
+
+/* ── Aurora band ── */
+.lo-band {
+  position: relative;
+  height: 108px;
+  overflow: hidden;
+  background: linear-gradient(120deg, #6366f1 0%, #8b5cf6 45%, #ec4899 100%);
+
+  // dotted texture, fading out toward the bottom
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.28) 1px, transparent 1.2px);
+    background-size: 14px 14px;
+    -webkit-mask-image: linear-gradient(180deg, #000 10%, transparent 95%);
+    mask-image: linear-gradient(180deg, #000 10%, transparent 95%);
+  }
+}
+
+.lo-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(18px);
+  animation: loFloat 9s ease-in-out infinite alternate;
+}
+
+.lo-orb-1 {
+  width: 140px;
+  height: 140px;
+  top: -60px;
+  left: -30px;
+  background: rgba(56, 189, 248, 0.55);
+}
+
+.lo-orb-2 {
+  width: 120px;
+  height: 120px;
+  top: -40px;
+  right: -20px;
+  background: rgba(253, 164, 175, 0.6);
+  animation-duration: 11s;
+  animation-direction: alternate-reverse;
+}
+
+.lo-orb-3 {
+  width: 90px;
+  height: 90px;
+  bottom: -50px;
+  left: 45%;
+  background: rgba(255, 255, 255, 0.35);
+  animation-duration: 7s;
+}
+
+@keyframes loFloat {
+  to { transform: translate(24px, 14px) scale(1.15); }
+}
+
+// The app styles every <button>, so each one here starts from scratch
+.lo-x,
+.lo-stay,
+.lo-go {
+  margin: 0;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.lo-x {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.18);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 18px;
+  transition: background 0.15s, transform 0.15s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+  }
+}
+
+/* ── Avatar + door ── */
+.lo-avatar-wrap {
+  position: relative;
+  z-index: 1;
+  width: 88px;
+  height: 88px;
+  margin: -44px auto 0;
+}
+
+// spinning gradient ring
+.lo-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, #6366f1, #ec4899, #38bdf8, #8b5cf6, #6366f1);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+  animation: loSpin 6s linear infinite;
+}
+
+@keyframes loSpin {
+  to { transform: rotate(360deg); }
+}
+
+// same gradient as the avatar in the top bar
+.lo-avatar {
+  position: absolute;
+  inset: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  box-shadow: 0 10px 24px -6px rgba(139, 92, 246, 0.55);
+  color: #fff;
+  font-size: 28px;
+  font-weight: 800;
+  transition: transform 0.4s cubic-bezier(0.5, 0, 0.75, 0), opacity 0.4s ease;
+}
+
+.lo-door {
+  position: absolute;
+  right: -8px;
+  bottom: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid #fecdd3;
+  background: #fff;
+  color: #e11d48;
+  font-size: 16px;
+  box-shadow: 0 4px 12px rgba(225, 29, 72, 0.2);
+  transition: transform 0.3s ease;
+}
+
+/* ── Text ── */
+.lo-body {
+  padding: 10px 26px 24px;
+  text-align: center;
+}
+
+.lo-greet {
+  margin: 12px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  background: linear-gradient(90deg, #6366f1, #ec4899);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.lo-title {
+  margin: 2px 0 8px;
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #0f172a;
+}
+
+.lo-who {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: #64748b;
+}
+
+.lo-handle {
+  font-weight: 500;
+}
+
+.lo-role {
+  padding: 1px 9px;
+  border-radius: 999px;
+  border: 1px solid #ddd6fe;
+  background: #f5f3ff;
+  color: #6d28d9;
+  font-weight: 600;
+}
+
+/* ── Sync status ── */
+.lo-sync {
+  display: flex;
+  gap: 12px;
+  margin: 18px 0 20px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  text-align: left;
+  transition: background 0.3s, border-color 0.3s;
+
+  &[data-tone='ok'] {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+    .lo-sync-icon { background: #dcfce7; color: #15803d; }
+  }
+
+  &[data-tone='busy'] {
+    background: #eef2ff;
+    border-color: #c7d2fe;
+    .lo-sync-icon { background: #e0e7ff; color: #4338ca; }
+    .lo-sync-icon i { animation: loSpin 1s linear infinite; }
+  }
+
+  &[data-tone='warn'] {
+    background: #fffbeb;
+    border-color: #fde68a;
+    .lo-sync-icon { background: #fef3c7; color: #b45309; }
+    .lo-sync-title { color: #92400e; }
+  }
+}
+
+.lo-sync-icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 18px;
+
+  i {
+    display: inline-block;
+    line-height: 1;
+  }
+}
+
+.lo-sync-body {
+  min-width: 0;
+}
+
+.lo-sync-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.lo-sync-text {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: #475569;
+}
+
+.lo-sync-at {
+  margin-top: 2px;
+  font-size: 11.5px;
+  color: #94a3b8;
+}
+
+/* ── Buttons ── */
+.lo-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  gap: 10px;
+}
+
+.lo-stay {
+  height: 46px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #f1f5f9;
+  color: #334155;
+  font-size: 13.5px;
+  font-weight: 600;
+  transition: background 0.15s, color 0.15s;
+
+  &:hover:not(:disabled) {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+}
+
+.lo-go {
+  position: relative;
+  overflow: hidden;
+  height: 46px;
+  padding: 0 8px 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f43f5e, #e11d48);
+  box-shadow: 0 10px 22px -8px rgba(225, 29, 72, 0.6);
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 700;
+  transition: box-shadow 0.2s, transform 0.2s;
+
+  // light sweeping across on hover
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -60%;
+    width: 50%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.6s ease;
+  }
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 26px -8px rgba(225, 29, 72, 0.7);
+
+    &::before { left: 120%; }
+    .lo-go-arrow { transform: translateX(3px); }
+  }
+
+  &:disabled {
+    cursor: default;
+  }
+}
+
+.lo-go-arrow {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.2);
+  font-size: 17px;
+  transition: transform 0.3s ease;
+}
+
+/* ── Walking out: avatar slips to the door, arrow leaves ── */
+.lo.is-leaving {
+  .lo-avatar {
+    transform: translate(34px, 14px) scale(0.35);
+    opacity: 0;
+  }
+
+  .lo-door {
+    transform: scale(1.25);
+  }
+
+  .lo-go-arrow {
+    transform: translateX(60px);
+    transition-duration: 0.45s;
+  }
+}
+
+/* ── Phones ── */
+@media (max-width: 400px) {
+  .lo-body {
+    padding: 8px 18px 20px;
+  }
+
+  .lo-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .lo-go {
+    order: -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lo,
+  .lo-orb,
+  .lo-ring,
+  .lo-sync-icon i {
+    animation: none !important;
+  }
+
+  .lo-avatar,
+  .lo-door,
+  .lo-go-arrow,
+  .lo-go::before {
+    transition: none !important;
+  }
+}

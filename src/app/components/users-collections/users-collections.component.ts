@@ -33,11 +33,12 @@ import {
   releaseCarried,
   settleCarried,
   unsettleCarried,
-} from '../../shared/bill-carry';
+} from '../../shared/bill-carry';
 import { LoaderComponent } from '../../shared/loader/loader.component';
 import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
 import { writeInBackground } from '../../shared/offline-write';
 import { ConfirmService } from '../../shared/confirm-dialog/confirm-dialog.component';
+import { billSnapshot, LedgerEntry, recordLedger } from '../../shared/ledger';
 
 @Component({
   selector: 'app-users-collections',
@@ -624,12 +625,18 @@ export class UsersCollectionsComponent {
           ? [user.sublocality]
           : [];
 
-      // Recovery officer selected - keep only users in his assigned areas
+      // Recovery officer selected - a collected row (paid / advance) belongs to
+      // whoever collected it; a row nobody collected yet goes by his assigned areas
       if (this.selectedOfficer) {
-        const inOfficerAreas = userSublocalities.some((sub) =>
-          this.officerSublocalities.includes(sub),
-        );
-        if (!inOfficerAreas) return false;
+        if (user.collected_by) {
+          const collector = String(user.collected_by).trim().toLowerCase();
+          if (collector !== this.selectedOfficer.trim().toLowerCase()) return false;
+        } else {
+          const inOfficerAreas = userSublocalities.some((sub) =>
+            this.officerSublocalities.includes(sub),
+          );
+          if (!inOfficerAreas) return false;
+        }
       }
 
       const matchesMonth =
@@ -774,6 +781,13 @@ export class UsersCollectionsComponent {
         return;
       }
 
+      // Anything paid over the bill went to the customer's credit - a revert
+      // takes it back, or a later bill run would still take it off.
+      const creditBefore = Number(userData['extra_advance']) || 0;
+      let credit = creditBefore;
+      let creditAlreadyUsed = 0;
+      const reverted: any[] = [];
+
       bills.forEach((bill: any) => {
         if (
           bill.status === 'paid' &&
@@ -783,6 +797,16 @@ export class UsersCollectionsComponent {
               bill.month === billRow.month &&
               bill.year === billRow.year))
         ) {
+          // History keeps the payment the revert is about to clear
+          reverted.push(billSnapshot(bill));
+
+          const extra = Number(bill.extra_amount) || 0;
+          if (extra > 0) {
+            const takeBack = Math.min(extra, credit);
+            credit -= takeBack;
+            creditAlreadyUsed += extra - takeBack;
+          }
+
           // Earlier months closed by this payment are owed again
           unsettleCarried(bills, bill.bill_id);
 
@@ -802,7 +826,31 @@ export class UsersCollectionsComponent {
       });
 
       if (updated) {
-        updateDoc(userDocRef, { bills });
+        const update: any = { bills };
+        if (credit !== creditBefore) update.extra_advance = credit;
+        updateDoc(userDocRef, update);
+
+        recordLedger(
+          this.firestore,
+          reverted.map((snapshot: any): LedgerEntry => ({
+            type: 'payment_reverted',
+            user_id: billRow.docId,
+            internet_id: userData['internet_id'] || '',
+            user_name: userData['user_name'] || '',
+            bill_id: snapshot.bill_id || null,
+            bill_type: snapshot.type || null,
+            month: snapshot.month || null,
+            year: snapshot.year || null,
+            amount:
+              (Number(snapshot.collected_amount) || 0) +
+              (Number(snapshot.extra_amount) || 0),
+            ...(Number(snapshot.extra_amount) > 0
+              ? { credit_before: creditBefore, credit_after: credit }
+              : {}),
+            ...(creditAlreadyUsed > 0 ? { flags: ['credit_already_used'] } : {}),
+            details: { reverted_payment: snapshot },
+          })),
+        );
       }
 
       if (!navigator.onLine) {
@@ -811,6 +859,12 @@ export class UsersCollectionsComponent {
         );
       } else {
         this.toastr.success('Bill reverted to unpaid');
+      }
+      if (creditAlreadyUsed > 0) {
+        this.toastr.warning(
+          `Rs. ${creditAlreadyUsed} of the extra paid on this bill was already taken off a later bill. Check that bill in Logs → Billing Health.`,
+          'Check credit',
+        );
       }
       this.loadUsers();
     } catch (error) {
@@ -1156,7 +1210,7 @@ export class UsersCollectionsComponent {
 
       const existingExtraAdvance = Number(userData['extra_advance']) || 0;
 
-      advancePayments.push({
+      const advance = {
         advance_id: crypto.randomUUID(),
         advance_amount: advanceAmountToSave,
         advance_months: this.advanceForm.months,
@@ -1169,11 +1223,42 @@ export class UsersCollectionsComponent {
             : null,
         collected_date: new Date(),
         isAdvance: true,
-      });
+        // What was received and how much of it went to credit, so a revert
+        // can take that credit back
+        paid_amount: paidAmount,
+        extra_added: extraAdvance,
+      };
+      advancePayments.push(advance);
 
       updateDoc(ref, {
         advancePayments,
         extra_advance: existingExtraAdvance + extraAdvance,
+      });
+
+      recordLedger(this.firestore, {
+        type: 'advance',
+        user_id: this.selectedBill.docId,
+        internet_id: userData['internet_id'] || '',
+        user_name: userData['user_name'] || '',
+        month: (this.advanceForm.months || [])
+          .map((m: any) => `${m.month} ${m.year}`)
+          .join(', '),
+        amount: paidAmount,
+        ...(extraAdvance > 0
+          ? {
+              credit_before: existingExtraAdvance,
+              credit_after: existingExtraAdvance + extraAdvance,
+            }
+          : {}),
+        details: {
+          advance_id: advance.advance_id,
+          months: advance.advance_months,
+          for_months: advanceAmountToSave,
+          to_credit: extraAdvance,
+          method: advance.collected_method,
+          collected_id: advance.collected_id,
+          bank: advance.collected_bank,
+        },
       });
 
       this.showAdvanceModal = false;
@@ -1210,13 +1295,51 @@ export class UsersCollectionsComponent {
       const snap = await getDoc(ref);
       if (!snap.exists()) return;
 
-      const advancePayments = snap.data()['advancePayments'] || [];
+      const userData = snap.data();
+      const advancePayments = userData['advancePayments'] || [];
+      const target = advancePayments.find(
+        (adv: any) => adv.advance_id === advanceRow.advance_id,
+      );
 
       const updatedAdvances = advancePayments.filter(
         (adv: any) => adv.advance_id !== advanceRow.advance_id,
       );
 
-      updateDoc(ref, { advancePayments: updatedAdvances });
+      // Paid over the selected months went to credit - take that back too.
+      // Advances saved before this was recorded can't say how much it was.
+      const creditBefore = Number(userData['extra_advance']) || 0;
+      let creditAfter = creditBefore;
+      const flags: string[] = [];
+      const extraAdded =
+        target && target.extra_added !== undefined
+          ? Number(target.extra_added) || 0
+          : null;
+
+      if (extraAdded === null) {
+        if (creditBefore > 0) flags.push('credit_source_unknown');
+      } else if (extraAdded > 0) {
+        creditAfter = creditBefore - Math.min(extraAdded, creditBefore);
+        if (creditBefore < extraAdded) flags.push('credit_already_used');
+      }
+
+      const update: any = { advancePayments: updatedAdvances };
+      if (creditAfter !== creditBefore) update.extra_advance = creditAfter;
+      updateDoc(ref, update);
+
+      recordLedger(this.firestore, {
+        type: 'advance_reverted',
+        user_id: advanceRow.docId,
+        internet_id: userData['internet_id'] || '',
+        user_name: userData['user_name'] || '',
+        month: advanceRow.month || null,
+        amount:
+          Number(target?.paid_amount ?? target?.advance_amount ?? advanceRow.collected_amount) || 0,
+        ...(creditAfter !== creditBefore
+          ? { credit_before: creditBefore, credit_after: creditAfter }
+          : {}),
+        ...(flags.length ? { flags } : {}),
+        details: { reverted_advance: target || null },
+      });
 
       if (!navigator.onLine) {
         this.toastr.info(
@@ -1224,6 +1347,18 @@ export class UsersCollectionsComponent {
         );
       } else {
         this.toastr.success('Advance reverted successfully');
+      }
+
+      if (flags.includes('credit_already_used')) {
+        this.toastr.warning(
+          `Part of this advance's extra was already taken off a later bill. Check that bill in Logs → Billing Health.`,
+          'Check credit',
+        );
+      } else if (flags.includes('credit_source_unknown')) {
+        this.toastr.warning(
+          `This customer still has Rs. ${creditBefore} credit. If part of it came from this advance, it has to be taken off by hand.`,
+          'Check credit',
+        );
       }
 
       this.loadUsers();
@@ -1358,6 +1493,18 @@ export class UsersCollectionsComponent {
     );
   }
 
+  /** One bill's share of a payment, for history. */
+  private allocation(bill: any, paid: number) {
+    return {
+      bill_id: bill.bill_id || null,
+      type: bill.type || null,
+      month: bill.month || null,
+      year: bill.year || null,
+      paid,
+      remaining: Number(bill.remaining_amount) || 0,
+    };
+  }
+
   async submitCollection() {
     if (this.isSubmitting) return;
 
@@ -1391,6 +1538,9 @@ export class UsersCollectionsComponent {
       linkUntrackedCarries(bills, this.carryFees(userData), payingIds);
       let newAdvanceTotal = existingAdvance;
       let updatedSelectedBill: any = null;
+      // For history: what this payment went to
+      const allocations: any[] = [];
+      const olderReduced: any[] = [];
 
       // if (this.selectedBill.status === 'unpaid' && this.selectedBill.bills) {
       //   bills.forEach((bill: any) => {
@@ -1511,6 +1661,7 @@ export class UsersCollectionsComponent {
                 ? this.collectionForm.bank_name
                 : null;
             lastPaidBill = bill;
+            allocations.push(this.allocation(bill, pay));
           }
 
           const collectedSoFar = Number(bill.collected_amount || 0);
@@ -1584,6 +1735,7 @@ export class UsersCollectionsComponent {
                 ? this.collectionForm.bank_name
                 : null;
             updatedSelectedBill = { ...bill, extra_amount: extraAdvance };
+            allocations.push(this.allocation(bill, Math.min(paidNow, Math.max(total - alreadyPaid, 0))));
             // 🔹 NEW ADDITION: adjust payment against previous pending bills
             let adjustAmount = Number(
               this.collectionForm.collected_amount || 0,
@@ -1608,6 +1760,7 @@ export class UsersCollectionsComponent {
                 );
                 prevBill.remaining_amount -= reduce;
                 adjustAmount -= reduce;
+                olderReduced.push({ bill_id: prevBill.bill_id, month: prevBill.month, year: prevBill.year, reduced_by: reduce });
 
                 if (prevBill.remaining_amount === 0) {
                   prevBill.status = 'paid';
@@ -1620,6 +1773,30 @@ export class UsersCollectionsComponent {
       updateDoc(userDocRef, {
         bills,
         extra_advance: newAdvanceTotal,
+      });
+
+      const firstPaid = allocations[0];
+      recordLedger(this.firestore, {
+        type: 'payment',
+        user_id: this.selectedBill.userDocId,
+        internet_id: userData['internet_id'] || '',
+        user_name: userData['user_name'] || '',
+        bill_id: firstPaid?.bill_id || this.selectedBill.bill_id || null,
+        bill_type: firstPaid?.type || null,
+        month: firstPaid?.month || this.selectedBill.month || null,
+        year: firstPaid?.year || this.selectedBill.year || null,
+        amount: collectedNow,
+        ...(newAdvanceTotal !== existingAdvance
+          ? { credit_before: existingAdvance, credit_after: newAdvanceTotal }
+          : {}),
+        details: {
+          method: this.collectionForm.method || null,
+          collected_id: this.collectionForm.collected_id || null,
+          bank: this.collectionForm.method === 'bank' ? this.collectionForm.bank_name : null,
+          bills: allocations,
+          to_credit: newAdvanceTotal - existingAdvance,
+          ...(olderReduced.length ? { older_bills_reduced: olderReduced } : {}),
+        },
       });
 
       if (updatedSelectedBill) {
@@ -1701,6 +1878,8 @@ export class UsersCollectionsComponent {
           new Set<string>((row.bills || []).map((b: any) => b.bill_id).filter(Boolean)),
         );
         let lastPaidBill: any = null;
+        const allocations: any[] = [];
+        const olderReduced: any[] = [];
 
         // Amount typed for this row, spread over its bills in order.
         // null = nothing typed, so every bill is collected in full.
@@ -1740,6 +1919,7 @@ export class UsersCollectionsComponent {
             bill.collected_id = '';
             bill.collected_bank = null;
             lastPaidBill = bill;
+            allocations.push(this.allocation(bill, paidNow));
 
             rowCollected += paidNow;
 
@@ -1766,6 +1946,7 @@ export class UsersCollectionsComponent {
 
                 prevBill.remaining_amount -= reduce;
                 adjustAmount -= reduce;
+                olderReduced.push({ bill_id: prevBill.bill_id, month: prevBill.month, year: prevBill.year, reduced_by: reduce });
 
                 if (prevBill.remaining_amount === 0) {
                   prevBill.status = 'paid';
@@ -1789,6 +1970,32 @@ export class UsersCollectionsComponent {
         }
 
         updateDoc(userDocRef, update);
+
+        if (rowCollected > 0) {
+          const creditBefore = Number(userData['extra_advance'] || 0);
+          const firstPaid = allocations[0];
+          recordLedger(this.firestore, {
+            type: 'payment',
+            user_id: row.docId,
+            internet_id: userData['internet_id'] || '',
+            user_name: userData['user_name'] || '',
+            bill_id: firstPaid?.bill_id || null,
+            bill_type: firstPaid?.type || null,
+            month: firstPaid?.month || null,
+            year: firstPaid?.year || null,
+            amount: rowCollected,
+            ...(update.extra_advance !== undefined
+              ? { credit_before: creditBefore, credit_after: update.extra_advance }
+              : {}),
+            details: {
+              method: 'cash',
+              bulk: true,
+              bills: allocations,
+              to_credit: update.extra_advance !== undefined ? update.extra_advance - creditBefore : 0,
+              ...(olderReduced.length ? { older_bills_reduced: olderReduced } : {}),
+            },
+          });
+        }
 
         if (rowCollected > 0) {
           // What this row still owes after the payment, for the SMS.
@@ -1884,6 +2091,34 @@ export class UsersCollectionsComponent {
     return this.baseBillAmount + previous + this.feeDifference;
   }
 
+  /**
+   * How the selected bill's total was made, for bills that recorded it
+   * (made after the breakdown was added). Null for older bills.
+   */
+  get billBreakdown(): { fee: number; previous: number; charges: number; credit: number } | null {
+    const bill = this.selectedRow?.bills?.[0];
+    if (!bill || bill.fee_amount === undefined) return null;
+    return {
+      fee: Number(bill.fee_amount) || 0,
+      previous: Number(bill.carried_in ?? bill.previous_remaining) || 0,
+      charges: Number(bill.charges_amount) || 0,
+      credit: Number(bill.credit_used) || 0,
+    };
+  }
+
+  /**
+   * Older bills don't say how they were made. When the bill's own part is not
+   * the package fee, something changed it (credit, charges, a fee change) -
+   * worth knowing before editing. 0 when it matches.
+   */
+  get feeGap(): number {
+    const bill = this.selectedRow?.bills?.[0];
+    if (!bill || bill.fee_amount !== undefined || bill.type !== 'internet') return 0;
+    const fee = Number(this.selectedRow?.internet_package_fee) || 0;
+    if (!fee || !(Number(bill.amount) > 0)) return 0;
+    return this.baseBillAmount - fee;
+  }
+
   openUpdateModal(row: any) {
     console.log('update row data:', row);
     this.selectedRow = row;
@@ -1932,6 +2167,8 @@ export class UsersCollectionsComponent {
       // Read oldFee from fresh Firestore data, not from the potentially stale UI row
       const oldFee = Number(userData['internet_package_fee'] || 0);
       const difference = newFee - oldFee;
+      let billBefore: any = null;
+      let billAfter: any = null;
 
       const updatedBills = bills.map((bill: any) => {
         if (bill.bill_id === this.selectedRow.bills[0].bill_id) {
@@ -1942,7 +2179,8 @@ export class UsersCollectionsComponent {
           const baseRemaining =
             Number(bill.remaining_amount ?? bill.amount) - oldPrevious;
 
-          return {
+          billBefore = billSnapshot(bill);
+          billAfter = {
             ...bill,
             amount: baseAmount + difference + previousRemaining,
             remaining_amount: baseRemaining + difference + previousRemaining,
@@ -1951,6 +2189,12 @@ export class UsersCollectionsComponent {
               ? previousRemainingMonth
               : null,
           };
+          // Bills that record their breakdown keep it matching the new total
+          if (bill.fee_amount !== undefined) {
+            billAfter.fee_amount = Number(bill.fee_amount) + difference;
+            billAfter.carried_in = previousRemaining || null;
+          }
+          return billAfter;
         }
         return bill;
       });
@@ -1966,6 +2210,28 @@ export class UsersCollectionsComponent {
         internet_package_fee: newFee,
         bills: updatedBills,
       }));
+
+      if (billAfter) {
+        recordLedger(this.firestore, {
+          type: 'bill_edited',
+          user_id: this.selectedRow.docId,
+          internet_id: userData['internet_id'] || '',
+          user_name: userData['user_name'] || '',
+          bill_id: billAfter.bill_id || null,
+          bill_type: billAfter.type || null,
+          month: billAfter.month || null,
+          year: billAfter.year || null,
+          amount: Number(billAfter.amount) || 0,
+          details: {
+            before: billBefore,
+            after: billSnapshot(billAfter),
+            package_before: userData['select_package'] || null,
+            package_after: newPackage,
+            fee_before: oldFee,
+            fee_after: newFee,
+          },
+        });
+      }
 
       // Keep newConnection in sync
       const newConnRef = doc(this.firestore, 'newConnection', this.selectedRow.docId);

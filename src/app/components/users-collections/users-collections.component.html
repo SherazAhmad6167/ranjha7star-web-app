@@ -724,6 +724,25 @@
                             </option>
                         </select>
                     </div>
+                    <!-- How the bill's total was made, so a lower total isn't a mystery -->
+                    <div class="alert alert-light border py-2 px-3 mb-0 mt-2" *ngIf="billBreakdown as b">
+                        <small>
+                            Bill made as: Rs. {{ b.fee }} fee
+                            <span *ngIf="b.previous"> + {{ b.previous }} previous</span>
+                            <span *ngIf="b.charges"> + {{ b.charges }} installation/other</span>
+                            <span *ngIf="b.credit" class="text-danger fw-semibold"> − {{ b.credit }} customer credit</span>
+                            = <strong>Rs. {{ selectedRow?.bills?.[0]?.amount }}</strong>
+                        </small>
+                    </div>
+                    <div class="alert alert-danger py-2 px-3 mb-0 mt-2" *ngIf="feeGap !== 0">
+                        <small>
+                            This bill's own part is Rs. {{ baseBillAmount }} but the package fee is
+                            Rs. {{ selectedRow?.internet_package_fee }}
+                            ({{ feeGap < 0 ? 'Rs. ' + (-feeGap) + ' less' : 'Rs. ' + feeGap + ' more' }}).
+                            Credit, installation charges or a fee change can do this — check
+                            Logs → Billing Health before changing it.
+                        </small>
+                    </div>
                     <div class="alert alert-warning py-2 px-3 mb-0 mt-2"
                         *ngIf="userForm.value.previous_remaining">
                         <small>

@@ -5,13 +5,14 @@ import { AreaLogComponent } from './area-log/area-log.component';
 import { RecoveryOfficerLogComponent } from './recovery-officer-log/recovery-officer-log.component';
 import { PackageLogComponent } from './package-log/package-log.component';
 import { BillCreatorLogComponent } from './bill-creator-log/bill-creator-log.component';
+import { BillingHealthComponent } from './billing-health/billing-health.component';
 
 @Component({
   selector: 'app-logs',
-  imports: [CommonModule, UserDetailLogComponent, AreaLogComponent, RecoveryOfficerLogComponent, PackageLogComponent, BillCreatorLogComponent],
+  imports: [CommonModule, UserDetailLogComponent, AreaLogComponent, RecoveryOfficerLogComponent, PackageLogComponent, BillCreatorLogComponent, BillingHealthComponent],
   templateUrl: './logs.component.html',
   styleUrl: './logs.component.scss'
 })
 export class LogsComponent {
-activeTab: 'user' | 'area' | 'package' | 'recovery' | 'bill' = 'user';
+activeTab: 'user' | 'area' | 'package' | 'recovery' | 'bill' | 'health' = 'user';
 }

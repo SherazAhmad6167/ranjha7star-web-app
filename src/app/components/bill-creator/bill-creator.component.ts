@@ -10,6 +10,7 @@ import {
   Firestore,
   getDoc,
   getDocs,
+  increment,
   updateDoc,
 } from '@angular/fire/firestore';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -25,6 +26,7 @@ import {
 import { LoaderComponent } from '../../shared/loader/loader.component';
 import { EmptyStateComponent } from '../../shared/empty-state/empty-state.component';
 import { archiveAndDelete, writeInBackground } from '../../shared/offline-write';
+import { billSnapshot, LedgerEntry, recordLedger } from '../../shared/ledger';
 
 /** A user with no bill for the chosen month (see findMissingUsers). */
 interface MissedUser {
@@ -317,6 +319,7 @@ export class BillCreatorComponent {
       await this.createBillCreatorDoc(eligibleUsers.length, totalAmount);
 
       this.toastr.success('Bill created successfully');
+      this.reportCreditUsed();
       if (skippedInactive) {
         this.toastr.info(`${skippedInactive} inactive customer(s) skipped`);
       }
@@ -346,6 +349,7 @@ export class BillCreatorComponent {
 
   async updateUsersBills(users: any[]) {
     let totalAmount = 0;
+    this.creditUsedBills = 0;
 
     for (const u of users) {
       const added = await this.addUserBills(u.id, {
@@ -355,9 +359,21 @@ export class BillCreatorComponent {
         sublocality: this.sublocality,
       });
       totalAmount += added.reduce((sum, b) => sum + b.amount, 0);
+      this.creditUsedBills += added.filter((b) => b.credit_used > 0).length;
     }
 
     return totalAmount;
+  }
+
+  /** Bills of the last run that had customer credit taken off. */
+  private creditUsedBills = 0;
+
+  /** Credit lowers a bill silently - say so, so the admin can check them. */
+  private reportCreditUsed() {
+    if (!this.creditUsedBills) return;
+    this.toastr.info(
+      `${this.creditUsedBills} bill(s) had customer credit taken off. Check them in Logs → Billing Health.`,
+    );
   }
 
   /**
@@ -365,6 +381,9 @@ export class BillCreatorComponent {
    * previous balance and any pending installation / other amount, less extra
    * advance. Used by bill runs and by missed users, so both bill the same way.
    * Returns the bills added - none for a type already billed that month.
+   *
+   * Each bill keeps how its total was made (fee_amount, carried_in,
+   * charges_amount, credit_used), so a wrong total can be explained.
    */
   private async addUserBills(
     userId: string,
@@ -384,43 +403,59 @@ export class BillCreatorComponent {
     const extraAdvance = Number(userData?.['extra_advance'] || 0);
     let remainingExtraAdvance = extraAdvance;
 
-    const extraAmount = installationAmount + otherAmount;
+    // Installation / other is charged once, on the first bill made here -
+    // a 'both' customer used to get it on the cable and the internet bill.
+    let pendingCharges = installationAmount + otherAmount;
+
+    const addBill = (type: 'cable' | 'internet', fee: number, extraFields: any) => {
+      let amount = fee;
+      const prevBill = this.findPreviousOwedBill(bills, type);
+      const prevRemaining = this.getPreviousMonthRemaining(bills, month, year, type);
+      const charges = pendingCharges;
+      pendingCharges = 0;
+      amount += prevRemaining;
+      amount += charges;
+
+      const beforeCredit = amount;
+      if (remainingExtraAdvance > 0) {
+        if (remainingExtraAdvance >= amount) {
+          remainingExtraAdvance -= amount;
+          amount = 0;
+        } else {
+          amount -= remainingExtraAdvance;
+          remainingExtraAdvance = 0;
+        }
+      }
+      const creditUsed = beforeCredit - amount;
+
+      const bill: any = {
+        bill_id: crypto.randomUUID(),
+        month,
+        year,
+        type,
+        amount,
+        ...extraFields,
+        status: 'unpaid',
+        remaining_amount: amount,
+        createdAt: new Date(),
+        fee_amount: fee,
+      };
+      if (prevRemaining > 0) bill.carried_in = prevRemaining;
+      if (charges > 0) bill.charges_amount = charges;
+      if (creditUsed > 0) bill.credit_used = creditUsed;
+
+      this.linkCarriedBalance(bills, prevBill, bill, prevRemaining);
+      bills.push(bill);
+      added.push(bill);
+    };
 
     // ================= CABLE =================
     if (
       (connectionType === 'tv_cable' || connectionType === 'both') &&
       userData?.['cable_package_fee']
     ) {
-      if (!this.isBilled(bills, month, year, 'cable') && !this.hasAdvanceForMonth(advancePayments, month, year)) {
-        let amount = Number(userData['cable_package_fee']);
-        const prevBill = this.findPreviousOwedBill(bills, 'cable');
-        const prevRemaining = this.getPreviousMonthRemaining(bills, month, year, 'cable');
-        amount += prevRemaining;
-        amount += extraAmount;
-
-        if (remainingExtraAdvance > 0) {
-          if (remainingExtraAdvance >= amount) {
-            remainingExtraAdvance -= amount;
-            amount = 0;
-          } else {
-            amount -= remainingExtraAdvance;
-            remainingExtraAdvance = 0;
-          }
-        }
-
-        const bill: any = {
-          bill_id: crypto.randomUUID(),
-          month,
-          year,
-          type: 'cable',
-          amount,
-          status: 'unpaid',
-          remaining_amount: amount,
-          createdAt: new Date(),
-        };
-        this.linkCarriedBalance(bills, prevBill, bill, prevRemaining);
-        bills.push(bill);
-        added.push(bill);
+      if (!this.isBilled(bills, month, year, 'cable') && !this.coveredByAdvance(advancePayments, month, year)) {
+        addBill('cable', Number(userData['cable_package_fee']), {});
       }
     }
 
@@ -429,40 +464,13 @@ export class BillCreatorComponent {
       (connectionType === 'internet' || connectionType === 'both') &&
       userData?.['internet_package_fee']
     ) {
-      if (!this.isBilled(bills, month, year, 'internet') && !this.hasAdvanceForMonth(advancePayments, month, year)) {
-        let amount = Number(userData['internet_package_fee']);
-
-        const prevBill = this.findPreviousOwedBill(bills, 'internet');
-        const prevRemaining = this.getPreviousMonthRemaining(bills, month, year, 'internet');
-        amount += prevRemaining;
-        amount += extraAmount;
-
-        if (remainingExtraAdvance > 0) {
-          if (remainingExtraAdvance >= amount) {
-            remainingExtraAdvance -= amount;
-            amount = 0;
-          } else {
-            amount -= remainingExtraAdvance;
-            remainingExtraAdvance = 0;
-          }
-        }
-
-        const bill: any = {
-          bill_id: crypto.randomUUID(),
-          month,
-          year,
-          type: 'internet',
-          amount,
-          sublocality,
-          status: 'unpaid',
-          remaining_amount: amount,
-          createdAt: new Date(),
-        };
-        this.linkCarriedBalance(bills, prevBill, bill, prevRemaining);
-        bills.push(bill);
-        added.push(bill);
+      if (!this.isBilled(bills, month, year, 'internet') && !this.coveredByAdvance(advancePayments, month, year)) {
+        addBill('internet', Number(userData['internet_package_fee']), { sublocality });
       }
     }
+
+    // Nothing billed - keep any pending installation / other for the next bill
+    if (!added.length) return added;
 
     const updatePayload: any = {
       bills,
@@ -478,6 +486,32 @@ export class BillCreatorComponent {
     }
 
     writeInBackground(updateDoc(ref, updatePayload));
+
+    recordLedger(
+      this.firestore,
+      added.map((bill): LedgerEntry => ({
+        type: 'bill_created',
+        user_id: userId,
+        internet_id: userData?.['internet_id'] || '',
+        user_name: userData?.['user_name'] || '',
+        bill_id: bill.bill_id,
+        bill_type: bill.type,
+        month,
+        year,
+        amount: bill.amount,
+        ...(bill.credit_used > 0
+          ? { credit_before: extraAdvance, credit_after: remainingExtraAdvance }
+          : {}),
+        details: {
+          fee: bill.fee_amount,
+          carried_in: bill.carried_in || 0,
+          carried_from: bill.previous_remaining_month || null,
+          charges: bill.charges_amount || 0,
+          credit_used: bill.credit_used || 0,
+          area: sublocality,
+        },
+      })),
+    );
 
     return added;
   }
@@ -495,10 +529,19 @@ export class BillCreatorComponent {
   }
 
   /**
-   * Missed-users list only: true when an Advance Payment (saved by
-   * Collections as `advance_months`) covers the month, so the user is not
-   * listed. Bill runs keep their own check above.
+   * The month was paid through an Advance Payment, so it gets no bill.
+   * Advances are saved as `advance_months` (Collections); `months` is the
+   * older shape hasAdvanceForMonth reads - on its own it never matched, so
+   * bill runs billed months customers had already paid in advance.
    */
+  private coveredByAdvance(advancePayments: any[], month: string, year: string): boolean {
+    return (
+      this.hasAdvanceForMonth(advancePayments, month, year) ||
+      this.paidInAdvance(advancePayments, month, year)
+    );
+  }
+
+  /** True when an Advance Payment's `advance_months` covers the month. */
   private paidInAdvance(advancePayments: any[], month: string, year: string): boolean {
     return advancePayments.some((adv: any) =>
       (adv.advance_months || []).some(
@@ -538,7 +581,11 @@ export class BillCreatorComponent {
     return Number(prevBill.remaining_amount ?? prevBill.amount ?? 0);
   }
 
-  /** The owed bill whose balance rolls into the next one - never one already carried forward. */
+  /**
+   * The owed bill whose balance rolls into the next one - never one already
+   * carried forward, and never a 0 bill (one covered by credit is 'unpaid' with
+   * nothing due, and used to hide a real unpaid month behind it).
+   */
   private findPreviousOwedBill(bills: any[], type: string): any {
     return bills.find(
       (b: any) =>
@@ -547,7 +594,8 @@ export class BillCreatorComponent {
         // case 1: unpaid bill → amount = remaining
         (b.status === 'unpaid' ||
           // case 2: paid but partial remaining
-          (b.status === 'paid' && Number(b.remaining_amount) > 0)),
+          (b.status === 'paid' && Number(b.remaining_amount) > 0)) &&
+        Number(b.remaining_amount ?? b.amount ?? 0) > 0,
     );
   }
 
@@ -635,7 +683,13 @@ export class BillCreatorComponent {
 
       if (updatedBills.length !== bills.length) {
         this.releaseRemovedCarries(bills, updatedBills);
-        writeInBackground(updateDoc(ref, { bills: updatedBills }));
+        writeInBackground(
+          updateDoc(ref, {
+            bills: updatedBills,
+            ...this.restoredCredit(bills, updatedBills),
+          }),
+        );
+        this.recordRemoved(docSnap.id, docSnap.data(), bills, updatedBills);
       }
     }
   }
@@ -646,6 +700,45 @@ export class BillCreatorComponent {
       before.filter((b: any) => !kept.includes(b) && b.bill_id).map((b: any) => b.bill_id),
     );
     if (removedIds.size) releaseCarried(kept, removedIds);
+  }
+
+  /**
+   * Credit that removed bills had used goes back to the customer, so billing
+   * the month again takes it off again. Only bills that recorded credit_used.
+   */
+  private restoredCredit(before: any[], kept: any[]): { extra_advance?: any } {
+    const credit = this.removedCredit(before, kept);
+    return credit > 0 ? { extra_advance: increment(credit) } : {};
+  }
+
+  private removedCredit(before: any[], kept: any[]): number {
+    return before
+      .filter((b: any) => !kept.includes(b))
+      .reduce((sum: number, b: any) => sum + (Number(b.credit_used) || 0), 0);
+  }
+
+  private recordRemoved(userId: string, user: any, before: any[], kept: any[]) {
+    const removed = before.filter((b: any) => !kept.includes(b));
+    if (!removed.length) return;
+
+    const credit = this.removedCredit(before, kept);
+    const creditBefore = Number(user?.['extra_advance']) || 0;
+
+    recordLedger(this.firestore, {
+      type: 'bills_deleted',
+      user_id: userId,
+      internet_id: user?.['internet_id'] || '',
+      user_name: user?.['user_name'] || '',
+      bill_id: removed.length === 1 ? removed[0].bill_id : null,
+      bill_type: removed.length === 1 ? removed[0].type : null,
+      month: removed[0].month || null,
+      year: removed[0].year || null,
+      amount: removed.reduce((sum: number, b: any) => sum + (Number(b.amount) || 0), 0),
+      ...(credit > 0
+        ? { credit_before: creditBefore, credit_after: creditBefore + credit, flags: ['credit_restored'] }
+        : {}),
+      details: { bills: removed.map(billSnapshot) },
+    });
   }
 
   private async removeMissingBills(run: any) {
@@ -660,7 +753,10 @@ export class BillCreatorComponent {
       const kept = bills.filter((b: any) => !billIds.has(b.bill_id));
       if (kept.length !== bills.length) {
         releaseCarried(kept, billIds);
-        writeInBackground(updateDoc(ref, { bills: kept }));
+        writeInBackground(
+          updateDoc(ref, { bills: kept, ...this.restoredCredit(bills, kept) }),
+        );
+        this.recordRemoved(userId, snap.data(), bills, kept);
       }
     }
   }
@@ -883,6 +979,7 @@ export class BillCreatorComponent {
       const billed: MissedUser[] = [];
       const billIds: string[] = [];
       let totalAmount = 0;
+      this.creditUsedBills = 0;
 
       for (const u of selected) {
         const added = await this.addUserBills(u.id, {
@@ -897,6 +994,7 @@ export class BillCreatorComponent {
         for (const b of added) {
           billIds.push(b.bill_id);
           totalAmount += b.amount;
+          if (b.credit_used > 0) this.creditUsedBills++;
         }
       }
 
@@ -905,6 +1003,7 @@ export class BillCreatorComponent {
       } else {
         await this.createMissingRunDoc(billed, billIds, totalAmount);
         this.toastr.success(`Bills created for ${billed.length} user(s)`);
+        this.reportCreditUsed();
       }
 
       this.loadBills();

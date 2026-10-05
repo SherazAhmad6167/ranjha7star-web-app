@@ -1,0 +1,55 @@
+<div class="lo" [class.is-leaving]="leaving()">
+
+    <!-- Aurora band -->
+    <div class="lo-band" aria-hidden="true">
+        <span class="lo-orb lo-orb-1"></span>
+        <span class="lo-orb lo-orb-2"></span>
+        <span class="lo-orb lo-orb-3"></span>
+    </div>
+    <button class="lo-x" type="button" aria-label="Close" (click)="modal.dismiss()">
+        <i class="ri-close-line"></i>
+    </button>
+
+    <!-- You, walking out the door -->
+    <div class="lo-avatar-wrap" aria-hidden="true">
+        <span class="lo-ring"></span>
+        <span class="lo-avatar">{{ initial }}</span>
+        <span class="lo-door"><i class="ri-door-open-line"></i></span>
+    </div>
+
+    <div class="lo-body">
+        <p class="lo-greet">{{ greeting }}{{ firstName ? ', ' + firstName : '' }}</p>
+        <h5 class="lo-title">Ready to sign out?</h5>
+
+        <div class="lo-who">
+            @if (username) {
+            <span class="lo-handle">&#64;{{ username }}</span>
+            }
+            @if (roleLabel) {
+            <span class="lo-role">{{ roleLabel }}</span>
+            }
+        </div>
+
+        <!-- Has this device's work reached the server? -->
+        <div class="lo-sync" [attr.data-tone]="syncView().tone" role="status" aria-live="polite">
+            <span class="lo-sync-icon"><i [class]="syncView().icon"></i></span>
+            <div class="lo-sync-body">
+                <div class="lo-sync-title">{{ syncView().title }}</div>
+                <div class="lo-sync-text">{{ syncView().text }}</div>
+                @if (sync.lastSynced(); as at) {
+                <div class="lo-sync-at">Last synced {{ at | date: 'h:mm a' }}</div>
+                }
+            </div>
+        </div>
+
+        <div class="lo-actions">
+            <button class="lo-stay" type="button" ngbAutofocus (click)="modal.dismiss()" [disabled]="leaving()">
+                Stay signed in
+            </button>
+            <button class="lo-go" type="button" (click)="signOut()" [disabled]="leaving()">
+                <span>{{ leaving() ? 'Signing out…' : 'Sign out' }}</span>
+                <span class="lo-go-arrow"><i class="ri-arrow-right-line"></i></span>
+            </button>
+        </div>
+    </div>
+</div>

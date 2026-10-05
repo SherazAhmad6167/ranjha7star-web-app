@@ -1,0 +1,135 @@
+<div class="container-fluid pt-2 bh">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <div>
+            <h2 class="m-0">Billing Health</h2>
+            <p class="bh-sub m-0">
+                Checks every customer's bills, credit and advances for things that look wrong.
+                Read-only - nothing is changed here.
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-sm" (click)="exportCsv()" [disabled]="!filtered.length">
+                <i class="ri-download-2-line"></i> Export
+            </button>
+            <button class="btn btn-primary btn-sm" (click)="scan()" [disabled]="isLoading">
+                <i class="ri-refresh-line"></i> Scan again
+            </button>
+        </div>
+    </div>
+
+    <app-loader softRefresh [show]="isLoading" message="Checking all customers…"></app-loader>
+
+    <!-- Status line -->
+    <div class="bh-status mb-3">
+        <span *ngIf="scannedAt">
+            <i class="ri-user-search-line"></i>
+            {{ usersScanned }} customers checked {{ scannedAt | date: 'h:mm a' }}
+        </span>
+        <span>
+            <i class="ri-history-line"></i>
+            <ng-container *ngIf="historyError">History could not be read</ng-container>
+            <ng-container *ngIf="!historyError && historyAt === null">
+                No history recorded yet - it starts with the next payment, revert or bill run
+            </ng-container>
+            <ng-container *ngIf="!historyError && historyAt">
+                History last recorded {{ historyAt | date: 'dd MMM, h:mm a' }}
+            </ng-container>
+        </span>
+        <span class="bh-sev-count error" *ngIf="countSeverity('error')">{{ countSeverity('error') }} problems</span>
+        <span class="bh-sev-count warn" *ngIf="countSeverity('warn')">{{ countSeverity('warn') }} to check</span>
+        <span class="bh-sev-count info" *ngIf="countSeverity('info')">{{ countSeverity('info') }} notes</span>
+    </div>
+
+    <!-- One chip per check -->
+    <div class="bh-chips mb-3" *ngIf="scannedAt">
+        <ng-container *ngFor="let c of codes">
+            <button type="button" class="bh-chip" *ngIf="countFor(c)" [class.active]="code === c"
+                [attr.data-sev]="checks[c].severity" [title]="checks[c].help" (click)="pickCode(c)">
+                {{ checks[c].title }} <strong>{{ countFor(c) }}</strong>
+            </button>
+        </ng-container>
+        <span class="bh-all-good" *ngIf="!issues.length && !isLoading">
+            <i class="ri-checkbox-circle-fill"></i> Nothing found
+        </span>
+    </div>
+
+    <div class="alert alert-light border py-2 small" *ngIf="code">
+        <strong>{{ checks[code].title }}:</strong> {{ checks[code].help }}
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="row g-2 mb-3">
+                <div class="col-6 col-md-3">
+                    <select class="form-select form-select-sm" [(ngModel)]="severity" (ngModelChange)="applyFilters()">
+                        <option value="">All levels</option>
+                        <option value="error">Problems</option>
+                        <option value="warn">To check</option>
+                        <option value="info">Notes</option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-3">
+                    <select class="form-select form-select-sm" [(ngModel)]="area" (ngModelChange)="applyFilters()">
+                        <option value="">All areas</option>
+                        <option *ngFor="let a of areas" [value]="a">{{ a }}</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-6">
+                    <input type="text" class="form-control form-control-sm" placeholder="Search ID, name or text"
+                        [(ngModel)]="search" (ngModelChange)="applyFilters()" />
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Level</th>
+                            <th>Customer</th>
+                            <th>Area</th>
+                            <th>Month</th>
+                            <th>What looks wrong</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let i of visible">
+                            <td>
+                                <span class="bh-badge" [attr.data-sev]="i.severity">
+                                    {{ i.severity === 'error' ? 'Problem' : i.severity === 'warn' ? 'Check' : 'Note' }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="fw-semibold">{{ i.internet_id || '—' }}</div>
+                                <div class="small text-muted">{{ i.user_name }}</div>
+                            </td>
+                            <td>{{ i.sublocality || '—' }}</td>
+                            <td class="text-nowrap">
+                                {{ monthLabel(i) }}
+                                <div class="small text-muted" *ngIf="i.bill_type">{{ i.bill_type | titlecase }}</div>
+                            </td>
+                            <td>
+                                <div class="fw-semibold small">{{ checks[i.code].title }}</div>
+                                <div class="small">{{ i.message }}</div>
+                            </td>
+                            <td>
+                                <button class="btn btn-outline-primary btn-sm text-nowrap" (click)="openCustomer(i)">
+                                    Bills &amp; history
+                                </button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="!visible.length && !isLoading">
+                            <td colspan="6" class="text-center text-muted py-4">Nothing to show</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-3 small">
+                <span>Showing {{ visible.length }} of {{ filtered.length }}</span>
+                <button class="btn btn-outline-secondary btn-sm" *ngIf="visible.length < filtered.length"
+                    (click)="showMore()">Show more</button>
+            </div>
+        </div>
+    </div>
+</div>
